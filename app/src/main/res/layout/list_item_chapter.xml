@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="@dimen/list_item_max_height"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="@dimen/list_item_image_size"
+        android:layout_height="@dimen/list_item_image_size"
+        android:contentDescription="@string/content_description_chapter_thumb"
+        android:src="@drawable/dummy_chapter_thumb"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:id="@+id/thumb"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="@dimen/list_item_text_offset_left"
+        android:layout_marginStart="@dimen/list_item_text_offset_left"
+        android:layout_marginRight="@dimen/list_item_right_to_text"
+        android:layout_marginEnd="@dimen/list_item_right_to_text"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_height="wrap_content"
+        android:text="@string/dummy_chapter_title"
+        android:gravity="center_vertical"
+        android:textAppearance="@style/ListItem"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/title"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="@dimen/list_item_text_offset_left"
+        android:layout_marginStart="@dimen/list_item_text_offset_left"
+        android:layout_marginRight="@dimen/list_item_right_to_text"
+        android:layout_marginEnd="@dimen/list_item_right_to_text"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_below="@+id/title"
+        android:id="@+id/description"
+        android:text="@string/dummy_chapter_description"/>
+
+    <android.support.v7.widget.AppCompatImageView
+        android:layout_width="@dimen/list_item_right_image_size"
+        android:layout_height="@dimen/list_item_right_image_size"
+        android:src="@drawable/ic_favorite_white_48dp"
+        android:id="@+id/favourite"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="@dimen/list_item_right_image_horizontal_margin"
+        android:layout_marginRight="@dimen/list_item_right_image_horizontal_margin"
+        android:layout_marginTop="@dimen/list_item_right_image_vertical_margin"
+        android:layout_marginBottom="@dimen/list_item_right_image_vertical_margin"/>
+</RelativeLayout>

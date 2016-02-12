@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">BCB Reader</string>
+    <string name="title_activity_chapter_list">Chapters</string>
+    <string name="dummy_chapter_title">Very long dummy title</string>
+    <string name="dummy_chapter_description">A detailed description of the chapter</string>
+    <string name="title_activity_chapter_reading">Chapter</string>
+    <string name="action_settings">Settings</string>
+    <string name="dummy_commentary">Debug: this is some medium-length commentary for the dummy page. Just look at dem cats.</string>
+</resources>
