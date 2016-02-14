@@ -2,6 +2,7 @@ package nl.jeroenhd.app.bcbreader;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -12,13 +13,17 @@ import android.view.View;
 
 import java.util.ArrayList;
 
+import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.Page;
 
 public class ChapterReadingActivity extends AppCompatActivity {
+    public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.CHAPTER";
     private RecyclerView mRecycler;
     private RecyclerView.LayoutManager mLayout;
     private ChapterReadingAdapter mAdapter;
     private ArrayList<Page> mPages;
+    private Chapter mChapter;
+    private CoordinatorLayout mCoordinatorLayout;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +41,21 @@ public class ChapterReadingActivity extends AppCompatActivity {
         });
         if (getSupportActionBar()!=null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        mCoordinatorLayout = (CoordinatorLayout)findViewById(R.id.coordinator);
+
+        mChapter = this.getIntent().getParcelableExtra(ChapterReadingActivity.CHAPTER);
+        if (mChapter==null)
+        {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Snackbar.make(mCoordinatorLayout, "Did not receive chapter from extras???", Snackbar.LENGTH_LONG).show();
+                }
+            });
+        } else {
+            this.setTitle(mChapter.getTitle());
+        }
 
         SetupData();
         SetupRecyclerView();

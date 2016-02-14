@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="@dimen/list_item_max_height"
-    android:layout_width="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_width="match_parent">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="@dimen/list_item_image_size"
@@ -15,7 +14,8 @@
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:id="@+id/thumb"/>
+        android:id="@+id/thumb"
+        android:transitionName="thumb"/>
 
     <TextView
         android:layout_width="0dp"
@@ -30,6 +30,7 @@
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_height="wrap_content"
         android:text="@string/dummy_chapter_title"
+        android:transitionName="title"
         android:gravity="center_vertical"
         android:textAppearance="@style/ListItem"
         android:layout_centerHorizontal="true"

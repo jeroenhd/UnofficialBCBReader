@@ -1,9 +1,12 @@
 package nl.jeroenhd.app.bcbreader.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * A class containing all data about a chapter
  */
-public class Chapter {
+public class Chapter implements Parcelable{
     private String title, description;
     private int pageCount, totalPages;
     private String yearPublished;
@@ -65,4 +68,43 @@ public class Chapter {
     public void setYearPublished(String yearPublished) {
         this.yearPublished = yearPublished;
     }
+
+
+    /**
+     * Make the chapter parcelable!!!
+     */
+    public Chapter(Parcel data)
+    {
+        this.title = data.readString();
+        this.description = data.readString();
+        this.pageCount = data.readInt();
+        this.totalPages = data.readInt();
+        this.yearPublished = data.readString();
+        this.number = data.readFloat();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.title);
+        dest.writeString(this.description);
+        dest.writeInt(this.pageCount);
+        dest.writeInt(this.totalPages);
+        dest.writeString(this.yearPublished);
+        dest.writeFloat(this.number);
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public Chapter createFromParcel(Parcel in) {
+            return new Chapter(in);
+        }
+
+        public Chapter[] newArray(int size) {
+            return new Chapter[size];
+        }
+    };
 }
