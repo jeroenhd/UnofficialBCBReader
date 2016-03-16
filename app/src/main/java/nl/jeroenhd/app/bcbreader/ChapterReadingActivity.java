@@ -13,19 +13,33 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 
-import java.util.ArrayList;
+import com.android.volley.Cache;
+import com.android.volley.Network;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.DiskBasedCache;
+import com.android.volley.toolbox.HurlStack;
+import com.google.gson.GsonBuilder;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
+import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
 import nl.jeroenhd.app.bcbreader.data.Page;
 
 public class ChapterReadingActivity extends AppCompatActivity {
     public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.CHAPTER";
-    private RecyclerView mRecycler;
-    private RecyclerView.LayoutManager mLayout;
-    private ChapterReadingAdapter mAdapter;
-    private ArrayList<Page> mPages;
-    private Chapter mChapter;
-    private CoordinatorLayout mCoordinatorLayout;
+    RecyclerView mRecycler;
+    RecyclerView.LayoutManager mLayout;
+    ChapterReadingAdapter mAdapter;
+    ArrayList<Page> mPages;
+    Chapter mChapter;
+    CoordinatorLayout mCoordinatorLayout;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,17 +73,18 @@ public class ChapterReadingActivity extends AppCompatActivity {
             this.setTitle(mChapter.getTitle());
         }
 
-        SetupData();
+        SetupData(mChapter);
         SetupRecyclerView();
     }
 
-    void SetupData()
+    void SetupData(Chapter chapter)
     {
         mPages = new ArrayList<>();
-        for (int i = 0; i < 20; i++)
+        mPages.addAll(chapter.getPageDescriptions());
+        /*for (Double i = 0.0; i < 20; i++)
         {
             mPages.add(new Page("Example commentary", i+1, 0.0));
-        }
+        }*/
     }
 
     void SetupRecyclerView()

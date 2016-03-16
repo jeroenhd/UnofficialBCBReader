@@ -3,6 +3,7 @@ package nl.jeroenhd.app.bcbreader;
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +43,7 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
 
         int children = holder.imagesLayout.getChildCount();
 
-        BitmapDrawable image = null;
+        BitmapDrawable image;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             image = (BitmapDrawable) mContext.getDrawable(R.drawable.dummy_page);
         } else {
@@ -73,7 +74,7 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
             ((ImageView)(holder.imagesLayout.getChildAt(i))).setImageDrawable(segments.get(i));
         }
 
-        holder.commentaryView.setText(page.getCommentary());
+        holder.commentaryView.setText(Html.fromHtml(page.getDescription()));
     }
 
     List<BitmapDrawable> splitBitmap(BitmapDrawable bitmap)

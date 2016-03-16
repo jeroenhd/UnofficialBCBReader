@@ -16,10 +16,24 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
+import com.android.volley.Cache;
+import com.android.volley.Network;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.DiskBasedCache;
+import com.android.volley.toolbox.HurlStack;
+import com.google.gson.GsonBuilder;
+
+import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
+import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
 
 public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener {
     private RecyclerView mRecycler;
@@ -27,6 +41,11 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private ArrayList<Chapter> mChapterData;
     private ChapterListAdapter mAdapter;
     //private FloatingActionButton mFab;
+
+    RequestQueue volleyRequestQueue;
+    GsonBuilder gsonBuilder;
+    Cache volleyCache;
+    Network volleyNetwork;
 
     private final Activity thisActivity = this;
 
@@ -52,19 +71,37 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             }
         });*/
 
-        SetupDummyData();
+        //SetupDummyData();
+        SetupVolley();
+        SetupData();
         SetupRecycler();
+    }
+
+    void SetupVolley(){
+        gsonBuilder = new GsonBuilder();
+        volleyCache = new DiskBasedCache(new File(getCacheDir(), "volley"), 1024 * 1024 * 128);
+        volleyNetwork = new BasicNetwork(new HurlStack());
+
+        volleyRequestQueue = new RequestQueue(volleyCache, volleyNetwork);
+        volleyRequestQueue.start();
     }
 
     void SetupDummyData()
     {
         mChapterData = new ArrayList<>();
-        int number;
-        for (int i = 0; i < 92; i++)
+        Double number;
+        for (Double i = 0.0; i < 113; i++)
         {
             number = i+1;
             mChapterData.add(new Chapter("Dummy chapter #" + number, "The description for chapter #" + number, 30, 30, "Some time ago", i));
         }
+    }
+
+    void SetupData()
+    {
+        mChapterData = new ArrayList<>();
+        ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), successListener, errorListener);
+        volleyRequestQueue.add(downloadRequest);
     }
 
     void SetupRecycler()
@@ -113,4 +150,26 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             }
         });
     }
+
+
+    Response.Listener<List<Chapter>> successListener = new Response.Listener<List<Chapter>>() {
+        @Override
+        public void onResponse(List<Chapter> response) {
+            int currentCount = mChapterData.size();
+            // Houston, we've got data!
+            mChapterData.clear();
+            mAdapter.notifyItemRangeRemoved(0, currentCount);
+
+            mChapterData.addAll(response);
+            mAdapter.notifyItemRangeInserted(0, mChapterData.size());
+
+            Snackbar.make(mRecycler, "Loaded chapters!", Snackbar.LENGTH_LONG).show();
+        }
+    };
+    Response.ErrorListener errorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Snackbar.make(mRecycler, error.getMessage(), Snackbar.LENGTH_LONG).show();
+        }
+    };
 }
