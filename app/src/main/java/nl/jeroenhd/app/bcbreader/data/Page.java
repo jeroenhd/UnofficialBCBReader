@@ -4,37 +4,27 @@ package nl.jeroenhd.app.bcbreader.data;
  * A class representing a single page
  */
 public class Page {
-    private String commentary;
-    private int number;
-    private double chapter;
+    private String description;
+    private Double page;
 
-    public Page(String commentary, int number, double chapter) {
-        this.commentary = commentary;
-        this.number = number;
-        this.chapter = chapter;
+    public Page(String description, Double page, double chapter) {
+        this.description = description;
+        this.page = page;
     }
 
-    public String getCommentary() {
-        return commentary;
+    public String getDescription() {
+        return description;
     }
 
-    public void setCommentary(String commentary) {
-        this.commentary = commentary;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public int getNumber() {
-        return number;
+    public Double getPage() {
+        return page;
     }
 
-    public void setNumber(int number) {
-        this.number = number;
-    }
-
-    public double getChapter() {
-        return chapter;
-    }
-
-    public void setChapter(double chapter) {
-        this.chapter = chapter;
+    public void setPage(Double page) {
+        this.page = page;
     }
 }

@@ -59,8 +59,8 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     void SetupDummyData()
     {
         mChapterData = new ArrayList<>();
-        int number;
-        for (int i = 0; i < 92; i++)
+        Double number;
+        for (Double i = 0.0; i < 113; i++)
         {
             number = i+1;
             mChapterData.add(new Chapter("Dummy chapter #" + number, "The description for chapter #" + number, 30, 30, "Some time ago", i));

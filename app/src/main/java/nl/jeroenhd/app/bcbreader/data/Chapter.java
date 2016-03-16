@@ -3,16 +3,19 @@ package nl.jeroenhd.app.bcbreader.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.List;
+
 /**
  * A class containing all data about a chapter
  */
 public class Chapter implements Parcelable{
-    private String title, description;
-    private int pageCount, totalPages;
-    private String yearPublished;
-    private float number;
+    String title, description;
+    Integer pageCount, totalPages;
+    String yearPublished;
+    Double number;
+    List<Page> pageDescriptions;
 
-    public Chapter(String title, String description, int pageCount, int totalPages, String yearPublished, float number) {
+    public Chapter(String title, String description, Integer pageCount, Integer totalPages, String yearPublished, Double number) {
         this.title = title;
         this.description = description;
         this.pageCount = pageCount;
@@ -21,11 +24,11 @@ public class Chapter implements Parcelable{
         this.number = number;
     }
 
-    public float getNumber() {
+    public Double getNumber() {
         return number;
     }
 
-    public void setNumber(float number) {
+    public void setNumber(Double number) {
         this.number = number;
     }
 
@@ -45,19 +48,19 @@ public class Chapter implements Parcelable{
         this.description = description;
     }
 
-    public int getPageCount() {
+    public Integer getPageCount() {
         return pageCount;
     }
 
-    public void setPageCount(int pageCount) {
+    public void setPageCount(Integer pageCount) {
         this.pageCount = pageCount;
     }
 
-    public int getTotalPages() {
+    public Integer getTotalPages() {
         return totalPages;
     }
 
-    public void setTotalPages(int totalPages) {
+    public void setTotalPages(Integer totalPages) {
         this.totalPages = totalPages;
     }
 
@@ -80,7 +83,7 @@ public class Chapter implements Parcelable{
         this.pageCount = data.readInt();
         this.totalPages = data.readInt();
         this.yearPublished = data.readString();
-        this.number = data.readFloat();
+        this.number = data.readDouble();
     }
 
     @Override
@@ -95,7 +98,7 @@ public class Chapter implements Parcelable{
         dest.writeInt(this.pageCount);
         dest.writeInt(this.totalPages);
         dest.writeString(this.yearPublished);
-        dest.writeFloat(this.number);
+        dest.writeDouble(this.number);
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {

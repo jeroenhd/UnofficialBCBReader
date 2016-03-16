@@ -42,7 +42,7 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
 
         int children = holder.imagesLayout.getChildCount();
 
-        BitmapDrawable image = null;
+        BitmapDrawable image;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             image = (BitmapDrawable) mContext.getDrawable(R.drawable.dummy_page);
         } else {
@@ -73,7 +73,7 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
             ((ImageView)(holder.imagesLayout.getChildAt(i))).setImageDrawable(segments.get(i));
         }
 
-        holder.commentaryView.setText(page.getCommentary());
+        holder.commentaryView.setText(page.getDescription());
     }
 
     List<BitmapDrawable> splitBitmap(BitmapDrawable bitmap)
