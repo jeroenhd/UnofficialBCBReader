@@ -1,17 +1,27 @@
 package nl.jeroenhd.app.bcbreader;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.widget.ImageView;
 
 import com.android.volley.Cache;
 import com.android.volley.Network;
@@ -40,6 +50,9 @@ public class ChapterReadingActivity extends AppCompatActivity {
     ArrayList<Page> mPages;
     Chapter mChapter;
     CoordinatorLayout mCoordinatorLayout;
+    ImageView headerBackgroundImage;
+
+    final ChapterReadingActivity thisActivity = this;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,13 +64,20 @@ public class ChapterReadingActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //TODO: SetChapterIsFavorite(chapter, true);
+                Snackbar.make(view, "Added as favorite", Snackbar.LENGTH_LONG)
+                        .setAction("Undo", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                //TODO: SetChapterIsFavorite(chapter, false);
+                            }
+                        }).show();
             }
         });
         if (getSupportActionBar()!=null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        headerBackgroundImage = (ImageView)findViewById(R.id.backgroundImage);
         mCoordinatorLayout = (CoordinatorLayout)findViewById(R.id.coordinator);
 
         mChapter = this.getIntent().getParcelableExtra(ChapterReadingActivity.CHAPTER);
@@ -85,6 +105,24 @@ public class ChapterReadingActivity extends AppCompatActivity {
         {
             mPages.add(new Page("Example commentary", i+1, 0.0));
         }*/
+    }
+
+    void UpdateTheme(Bitmap headerBitmap)
+    {
+        Palette.from(headerBitmap).generate(new Palette.PaletteAsyncListener() {
+            @Override
+            public void onGenerated(Palette palette) {
+                // This only works on Lollipo and higher
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    Window window = getWindow();
+                    int defaultColor = ContextCompat.getColor(thisActivity, R.color.colorPrimaryDark);
+
+                    window.setStatusBarColor(palette.getMutedColor(defaultColor));
+                } else {
+                    //TODO: additional theming for <LOLLIPOP
+                }
+            }
+        });
     }
 
     void SetupRecyclerView()

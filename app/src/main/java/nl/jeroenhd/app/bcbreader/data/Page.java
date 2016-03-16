@@ -9,10 +9,20 @@ import android.os.Parcelable;
 public class Page implements Parcelable {
     private String description;
     private Double page;
+    private Double chapter;
 
     public Page(String description, Double page, double chapter) {
         this.description = description;
         this.page = page;
+        this.chapter = chapter;
+    }
+
+    public Double getChapter() {
+        return chapter;
+    }
+
+    public void setChapter(Double chapter) {
+        this.chapter = chapter;
     }
 
     public String getDescription() {

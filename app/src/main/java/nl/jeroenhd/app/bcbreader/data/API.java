@@ -9,6 +9,7 @@ import java.util.Map;
 public class API {
     public static final String BaseURL = "https://www.bittersweetcandybowl.com/app/";
     public static final String ChaptersDB = BaseURL + "json/db_main-1.2";
+    public static final String CDNUrl = "https://blasto.enterprises/";
 
     public static Map<String, String> RequestHeaders()
     {
@@ -16,5 +17,9 @@ public class API {
         headers.put("User-Agent","Mozilla/5.0 (Unofficial BCB Android App; " + App.Version() + "; JeroenHD) Volley/" + App.VolleyVersion());
 
         return headers;
+    }
+
+    public static String FormatPageUrl(Double chapter, Double page) {
+        return CDNUrl + "comic/" + chapter.toString() + "/" + page.toString() + ".png";
     }
 }

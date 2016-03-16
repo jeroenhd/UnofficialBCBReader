@@ -1,6 +1,7 @@
 package nl.jeroenhd.app.bcbreader;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -11,9 +12,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageRequest;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Page;
 
 /**
@@ -22,11 +30,13 @@ import nl.jeroenhd.app.bcbreader.data.Page;
 public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAdapter.ViewHolder> {
     private Context mContext;
     private ArrayList<Page> mData;
+    private RequestQueue mRequestQueue;
 
-    public ChapterReadingAdapter(Context context, ArrayList<Page> data)
+    public ChapterReadingAdapter(Context context, ArrayList<Page> data, RequestQueue requestQueue)
     {
         mContext = context;
         mData = data;
+        mRequestQueue = requestQueue;
     }
 
     @Override
@@ -37,21 +47,9 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
         return new ViewHolder(view);
     }
 
-    @Override
-    public void onBindViewHolder(ChapterReadingAdapter.ViewHolder holder, int position) {
-        Page page = mData.get(position);
-
+    private void ApplyImage(ChapterReadingAdapter.ViewHolder holder, BitmapDrawable image)
+    {
         int children = holder.imagesLayout.getChildCount();
-
-        BitmapDrawable image;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            image = (BitmapDrawable) mContext.getDrawable(R.drawable.dummy_page);
-        } else {
-            //noinspection deprecation
-            image = (BitmapDrawable)mContext.getResources().getDrawable(R.drawable.dummy_page);
-        }
-
-
         List<BitmapDrawable> segments = splitBitmap(image);
         int childrenRequired = segments.size();
 
@@ -73,8 +71,38 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
         {
             ((ImageView)(holder.imagesLayout.getChildAt(i))).setImageDrawable(segments.get(i));
         }
+    }
 
+    @Override
+    public void onBindViewHolder(ChapterReadingAdapter.ViewHolder holder, int position) {
+        Page page = mData.get(position);
+
+        BitmapDrawable image;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            image = (BitmapDrawable) mContext.getDrawable(R.drawable.dummy_page);
+        } else {
+            //noinspection deprecation
+            image = (BitmapDrawable)mContext.getResources().getDrawable(R.drawable.dummy_page);
+        }
+
+        ApplyImage(holder, image);
+        StartLoading(API.FormatPageUrl(page.getChapter(), page.getPage()), holder);
         holder.commentaryView.setText(Html.fromHtml(page.getDescription()));
+    }
+
+    private void StartLoading(String url, ChapterReadingAdapter.ViewHolder holder) {
+        ImageLoader img = ImageLoader.getImageListener();
+        img.get(url, new ImageLoader.ImageListener() {
+            @Override
+            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+
+            }
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
     }
 
     List<BitmapDrawable> splitBitmap(BitmapDrawable bitmap)
