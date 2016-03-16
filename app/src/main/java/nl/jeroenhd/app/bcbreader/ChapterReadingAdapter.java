@@ -23,6 +23,7 @@ import java.util.List;
 
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Page;
+import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 
 /**
  * A class implementing a RecyclerView.Adapter for reading a chapter
@@ -30,13 +31,14 @@ import nl.jeroenhd.app.bcbreader.data.Page;
 public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAdapter.ViewHolder> {
     private Context mContext;
     private ArrayList<Page> mData;
-    private RequestQueue mRequestQueue;
+    private SuperSingleton singleton;
 
-    public ChapterReadingAdapter(Context context, ArrayList<Page> data, RequestQueue requestQueue)
+    public ChapterReadingAdapter(Context context, ArrayList<Page> data)
     {
         mContext = context;
         mData = data;
-        mRequestQueue = requestQueue;
+
+        singleton = SuperSingleton.getInstance(mContext);
     }
 
     @Override
@@ -86,13 +88,13 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
         }
 
         ApplyImage(holder, image);
-        StartLoading(API.FormatPageUrl(page.getChapter(), page.getPage()), holder);
+        //StartLoading(API.FormatPageUrl(page.getChapter(), page.getPage()), holder);
         holder.commentaryView.setText(Html.fromHtml(page.getDescription()));
     }
 
     private void StartLoading(String url, ChapterReadingAdapter.ViewHolder holder) {
-        ImageLoader img = ImageLoader.getImageListener();
-        img.get(url, new ImageLoader.ImageListener() {
+        //ImageLoader img = ImageLoader.getImageListener();
+        /*img.get(url, new ImageLoader.ImageListener() {
             @Override
             public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
 
@@ -102,7 +104,7 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
             public void onErrorResponse(VolleyError error) {
 
             }
-        });
+        });*/
     }
 
     List<BitmapDrawable> splitBitmap(BitmapDrawable bitmap)
