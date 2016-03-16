@@ -34,6 +34,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
+import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 
 public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener {
     private RecyclerView mRecycler;
@@ -42,14 +43,10 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private ChapterListAdapter mAdapter;
     //private FloatingActionButton mFab;
 
-    RequestQueue volleyRequestQueue;
-    GsonBuilder gsonBuilder;
-    Cache volleyCache;
-    Network volleyNetwork;
-
     private final Activity thisActivity = this;
 
     private CoordinatorLayout mCoordinatorLayout;
+    private SuperSingleton singleton;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,18 +69,11 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         });*/
 
         //SetupDummyData();
-        SetupVolley();
+
+        singleton = SuperSingleton.getInstance(this);
+
         SetupData();
         SetupRecycler();
-    }
-
-    void SetupVolley(){
-        gsonBuilder = new GsonBuilder();
-        volleyCache = new DiskBasedCache(new File(getCacheDir(), "volley"), 1024 * 1024 * 128);
-        volleyNetwork = new BasicNetwork(new HurlStack());
-
-        volleyRequestQueue = new RequestQueue(volleyCache, volleyNetwork);
-        volleyRequestQueue.start();
     }
 
     void SetupDummyData()
@@ -101,7 +91,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     {
         mChapterData = new ArrayList<>();
         ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), successListener, errorListener);
-        volleyRequestQueue.add(downloadRequest);
+        singleton.getVolleyRequestQueue().add(downloadRequest);
     }
 
     void SetupRecycler()

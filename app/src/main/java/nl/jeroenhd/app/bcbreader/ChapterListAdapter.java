@@ -10,10 +10,13 @@ import android.view.ViewGroup;
 import android.support.v7.widget.AppCompatImageView;
 import android.widget.TextView;
 
+import com.android.volley.toolbox.ImageRequest;
+
 import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
+import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 
 /**
  * A list adapter for the RecyclerView of ChapterListActivity
@@ -22,12 +25,15 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
     private Context mContext;
     private ArrayList<Chapter> mData;
     private OnChapterClickListener mOnItemClickListener;
+    private SuperSingleton singleton;
 
     public ChapterListAdapter(Context context, ArrayList<Chapter> data, OnChapterClickListener onItemClickListener)
     {
         this.mContext = context;
         this.mData = data;
         this.mOnItemClickListener = onItemClickListener;
+
+        this.singleton = SuperSingleton.getInstance(context);
     }
 
     @Override
@@ -41,7 +47,10 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Chapter chapter = mData.get(position);
-        holder.ChapterThumbView.setImageResource(R.drawable.dummy_chapter_thumb);
+        //holder.ChapterThumbView.setImageResource(R.drawable.dummy_chapter_thumb);
+
+        
+
         holder.ChapterTitleView.setText(chapter.getTitle());
         holder.ChapterDescriptionView.setText(chapter.getDescription());
         holder.FavouriteImageView.setImageResource(
