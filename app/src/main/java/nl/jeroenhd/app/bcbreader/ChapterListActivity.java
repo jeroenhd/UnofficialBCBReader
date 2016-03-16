@@ -108,6 +108,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                     //TODO: Try to improve these animations!
 
                     iNewActivity.putExtra(ChapterReadingActivity.CHAPTER, c);
+                    startActivity(iNewActivity);
                 }
             }
         });
