@@ -27,6 +27,11 @@ public class ChapterListDeserializer implements JsonDeserializer<List<Chapter>> 
             chapter.number = Double.parseDouble(
                     entry.getKey()
             );
+
+            for(Page p : chapter.getPageDescriptions())
+            {
+                p.setChapter(chapter.number);
+            }
             chapters.add(chapter);
         }
 
