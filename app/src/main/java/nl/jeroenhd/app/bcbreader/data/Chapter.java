@@ -72,7 +72,6 @@ public class Chapter implements Parcelable{
         this.yearPublished = yearPublished;
     }
 
-
     /**
      * Make the chapter parcelable!!!
      */
@@ -84,6 +83,9 @@ public class Chapter implements Parcelable{
         this.totalPages = data.readInt();
         this.yearPublished = data.readString();
         this.number = data.readDouble();
+
+        // this only works if Page is parcelable!
+        data.readList(this.pageDescriptions, null);
     }
 
     @Override
@@ -99,6 +101,7 @@ public class Chapter implements Parcelable{
         dest.writeInt(this.totalPages);
         dest.writeString(this.yearPublished);
         dest.writeDouble(this.number);
+        dest.writeList(pageDescriptions);
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {

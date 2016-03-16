@@ -51,23 +51,31 @@ public class ChapterListRequest extends Request<List<Chapter>> {
     protected Response<List<Chapter>> parseNetworkResponse(NetworkResponse response) {
         try
         {
+            // Build a new Gson
             GsonBuilder builder = new GsonBuilder();
+            // Prepare a valid list
             List<Chapter> chapterList = new ArrayList<>();
+            // Have Gson use out ChapterListDeserializer for the chapter list
             builder.registerTypeAdapter(chapterList.getClass(), new ChapterListDeserializer());
+            // Create the usable Gson object
             Gson gson = builder.create();
 
+            // Get the downloaded JSON
             String json = new String(
                     response.data,
                     HttpHeaderParser.parseCharset(response.headers));
 
-            chapterList = (List<Chapter>)gson.fromJson(json, chapterList.getClass());
+            // Decode the JSON
+            chapterList = gson.fromJson(json, chapterList.getClass());
 
             return Response.success(
                     chapterList,
                     HttpHeaderParser.parseCacheHeaders(response));
         } catch (UnsupportedEncodingException e) {
+            // Something went wrong with the encoding
             return Response.error(new ParseError(e));
         } catch (JsonSyntaxException e) {
+            // Bad JSON!
             return Response.error(new ParseError(e));
         }
     }
