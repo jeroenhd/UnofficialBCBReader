@@ -5,10 +5,12 @@ import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -79,5 +81,16 @@ public class ChapterReadingActivity extends AppCompatActivity {
 
         mAdapter = new ChapterReadingAdapter(this, mPages);
         mRecycler.setAdapter(mAdapter);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                this.onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
