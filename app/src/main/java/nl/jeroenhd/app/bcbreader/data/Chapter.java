@@ -3,6 +3,7 @@ package nl.jeroenhd.app.bcbreader.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -84,8 +85,17 @@ public class Chapter implements Parcelable{
         this.yearPublished = data.readString();
         this.number = data.readDouble();
 
+        pageDescriptions = new ArrayList<>();
         // this only works if Page is parcelable!
-        data.readList(this.pageDescriptions, null);
+        data.readList(this.pageDescriptions, Page.class.getClassLoader());
+    }
+
+    public List<Page> getPageDescriptions() {
+        return pageDescriptions;
+    }
+
+    public void setPageDescriptions(List<Page> pageDescriptions) {
+        this.pageDescriptions = pageDescriptions;
     }
 
     @Override
