@@ -1,17 +1,11 @@
 package nl.jeroenhd.app.bcbreader;
 
-import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
@@ -23,23 +17,9 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 
-import com.android.volley.Cache;
-import com.android.volley.Network;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.BasicNetwork;
-import com.android.volley.toolbox.DiskBasedCache;
-import com.android.volley.toolbox.HurlStack;
-import com.google.gson.GsonBuilder;
-
-import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
-import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
-import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
 import nl.jeroenhd.app.bcbreader.data.Page;
 
 public class ChapterReadingActivity extends AppCompatActivity {
@@ -132,7 +112,7 @@ public class ChapterReadingActivity extends AppCompatActivity {
         mLayout = new LinearLayoutManager(this);
         mRecycler.setLayoutManager(mLayout);
 
-        mAdapter = new ChapterReadingAdapter(this, mPages);
+        mAdapter = new ChapterReadingAdapter(this, mPages, null);
         mRecycler.setAdapter(mAdapter);
     }
 

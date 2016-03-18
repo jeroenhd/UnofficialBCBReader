@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="telemetry_enabled"
+        android:title="@string/pref_title_enable_telemetry"/>
+    <Preference
+        android:title="@string/pref_title_telemetry_model"
+        android:key="telemetry_model"
+        android:defaultValue="Unknown"/>
+    <Preference
+        android:title="@string/pref_title_telemetry_ram"
+        android:key="telemetry_ram"
+        android:defaultValue="Unknown"/>
+    <Preference
+        android:title="@string/pref_title_telemetry_android_version"
+        android:key="telemetry_android_version"
+        android:defaultValue="Unknown"/>
+    <Preference
+        android:title="@string/pref_title_telemetry_storage"
+        android:key="telemetry_storage"
+        android:defaultValue="Unknown"/>
+    <Preference
+        android:title="@string/pref_title_telemetry_sdcard"
+        android:key="telemetry_sdcard"
+        android:defaultValue="Unknown"/>
+    <Preference
+        android:title="@string/pref_title_telemetry_sdcard_emulated"
+        android:key="telemetry_sdcard_emulated"
+        android:defaultValue="Unknown"/>
+</PreferenceScreen>

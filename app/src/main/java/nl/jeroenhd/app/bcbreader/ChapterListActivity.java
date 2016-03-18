@@ -3,9 +3,7 @@ package nl.jeroenhd.app.bcbreader;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
@@ -13,8 +11,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
 import com.android.volley.Cache;
 import com.android.volley.Network;
@@ -30,7 +30,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
@@ -41,6 +40,8 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private ArrayList<Chapter> mChapterData;
     private ChapterListAdapter mAdapter;
     //private FloatingActionButton mFab;
+
+    Toolbar toolbar;
 
     RequestQueue volleyRequestQueue;
     GsonBuilder gsonBuilder;
@@ -54,8 +55,10 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chapter_list);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        toolbar.setOnMenuItemClickListener(toolbarMenuClick);
 
         mCoordinatorLayout = (CoordinatorLayout)findViewById(R.id.coordinator);
 
@@ -114,6 +117,31 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         mAdapter = new ChapterListAdapter(this, mChapterData, this);
         mRecycler.setAdapter(mAdapter);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_chapter_list, menu);
+
+        return true;
+    }
+
+    Toolbar.OnMenuItemClickListener toolbarMenuClick = new Toolbar.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            int id = item.getItemId();
+            switch(id)
+            {
+                case R.id.menu_settings:
+                    Intent settingsIntent = new Intent(thisActivity, SettingsActivity.class);
+                    startActivity(settingsIntent);
+                    break;
+            }
+            return false;
+        }
+    };
 
     @Override
     public void onChapterSelect(final View v, final Chapter c) {
