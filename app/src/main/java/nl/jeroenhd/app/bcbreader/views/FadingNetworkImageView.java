@@ -32,11 +32,6 @@ public class FadingNetworkImageView extends CallbackNetworkImageView {
 
     @Override
     public void setImageBitmap(Bitmap bm) {
-        fadeInBitmap(bm);
-    }
-
-    public void fadeInBitmap(Bitmap bm)
-    {
         int colour;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             colour = getResources().getColor(android.R.color.transparent, getContext().getTheme());
@@ -45,8 +40,18 @@ public class FadingNetworkImageView extends CallbackNetworkImageView {
             colour = getResources().getColor(android.R.color.transparent);
         }
 
+        Drawable from = getDrawable();
+        if (from == null)
+            from = new ColorDrawable(colour);
+
+        fadeInBitmap(from, bm);
+    }
+
+    public void fadeInBitmap(Drawable from, Bitmap bm)
+    {
+
         TransitionDrawable td = new TransitionDrawable(new Drawable[]{
-                new ColorDrawable(colour),
+                from,
                 new BitmapDrawable(getContext().getResources(), bm)
         });
         td.setCrossFadeEnabled(true);
