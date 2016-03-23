@@ -31,6 +31,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.NetworkImageView;
 import com.google.gson.GsonBuilder;
 
 import java.io.File;
@@ -41,6 +42,7 @@ import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
 import nl.jeroenhd.app.bcbreader.data.Page;
+import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 
 public class ChapterReadingActivity extends AppCompatActivity {
     public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.CHAPTER";
@@ -50,7 +52,7 @@ public class ChapterReadingActivity extends AppCompatActivity {
     ArrayList<Page> mPages;
     Chapter mChapter;
     CoordinatorLayout mCoordinatorLayout;
-    ImageView headerBackgroundImage;
+    NetworkImageView headerBackgroundImage;
 
     final ChapterReadingActivity thisActivity = this;
 
@@ -77,7 +79,7 @@ public class ChapterReadingActivity extends AppCompatActivity {
         if (getSupportActionBar()!=null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        headerBackgroundImage = (ImageView)findViewById(R.id.backgroundImage);
+        headerBackgroundImage = (NetworkImageView)findViewById(R.id.backgroundImage);
         mCoordinatorLayout = (CoordinatorLayout)findViewById(R.id.coordinator);
 
         mChapter = this.getIntent().getParcelableExtra(ChapterReadingActivity.CHAPTER);
@@ -92,6 +94,12 @@ public class ChapterReadingActivity extends AppCompatActivity {
         } else {
             this.setTitle(mChapter.getTitle());
         }
+
+        headerBackgroundImage.setErrorImageResId(R.color.colorPrimary);
+        headerBackgroundImage.setImageUrl(
+                API.FormatChapterThumbURL(mChapter.getNumber()),
+                SuperSingleton.getInstance(this).getImageLoader()
+        );
 
         SetupData(mChapter);
         SetupRecyclerView();
