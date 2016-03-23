@@ -52,6 +52,8 @@ import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
 import nl.jeroenhd.app.bcbreader.data.Page;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
+import nl.jeroenhd.app.bcbreader.tools.ColorHelper;
+import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
 
 public class ChapterReadingActivity extends AppCompatActivity {
     public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.CHAPTER";
@@ -62,14 +64,15 @@ public class ChapterReadingActivity extends AppCompatActivity {
     Chapter mChapter;
     CoordinatorLayout mCoordinatorLayout;
     CollapsingToolbarLayout mCollapsingToolbarLayout;
-    NetworkImageView headerBackgroundImage;
+    CallbackNetworkImageView headerBackgroundImage;
+    Toolbar toolbar;
 
     final ChapterReadingActivity thisActivity = this;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chapter_reading);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -89,7 +92,7 @@ public class ChapterReadingActivity extends AppCompatActivity {
         if (getSupportActionBar()!=null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        headerBackgroundImage = (NetworkImageView)findViewById(R.id.backgroundImage);
+        headerBackgroundImage = (CallbackNetworkImageView)findViewById(R.id.backgroundImage);
         mCoordinatorLayout = (CoordinatorLayout)findViewById(R.id.coordinator);
         mCollapsingToolbarLayout = (CollapsingToolbarLayout)findViewById(R.id.toolbar_layout);
 
@@ -108,14 +111,41 @@ public class ChapterReadingActivity extends AppCompatActivity {
             this.setTitle(mChapter.getTitle());
         }
 
+        SetupHeader();
+
+        SetupData(mChapter);
+        SetupRecyclerView();
+    }
+
+    void SetupHeader()
+    {
+        headerBackgroundImage.setCallback(new CallbackNetworkImageView.ImageEventListener() {
+            @Override
+            public void onLoadSuccess(Bitmap bm) {
+                if (bm==null)
+                    return;
+                Palette.PaletteAsyncListener paletteAsyncListener = new Palette.PaletteAsyncListener() {
+                    @Override
+                    public void onGenerated(Palette palette) {
+                        int backgroundColor = palette.getLightVibrantColor(0xffffffff);
+                        int titleColor = ColorHelper.foregroundColor(backgroundColor);
+                        toolbar.setTitleTextColor(/*titleColor*/0x0);
+                        toolbar.setSubtitleTextColor(/*titleColor*/0x0);
+                    }
+                };
+                Palette.from(bm).generate(paletteAsyncListener);
+            }
+
+            @Override
+            public void onLoadError() {
+                // Default colors are alright
+            }
+        });
         headerBackgroundImage.setErrorImageResId(R.color.colorPrimary);
         headerBackgroundImage.setImageUrl(
                 API.FormatChapterThumbURL(mChapter.getNumber()),
                 SuperSingleton.getInstance(this).getImageLoader()
         );
-
-        SetupData(mChapter);
-        SetupRecyclerView();
     }
 
     void SetupData(Chapter chapter)

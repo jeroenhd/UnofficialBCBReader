@@ -4,23 +4,18 @@
     android:layout_height="match_parent"
     android:layout_marginBottom="@dimen/activity_vertical_margin">
 
-    <LinearLayout
+    <nl.jeroenhd.app.bcbreader.views.PageImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/imageSegments"
-        android:orientation="vertical">
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:src="@drawable/dummy_page"/>
-    </LinearLayout>
+        android:adjustViewBounds="true"
+        android:src="@drawable/dummy_page"
+        android:id="@+id/page"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/commentary"
-        android:layout_below="@+id/imageSegments"
+        android:layout_below="@+id/page"
         android:text="@string/dummy_commentary"
         android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginStart="@dimen/activity_horizontal_margin"

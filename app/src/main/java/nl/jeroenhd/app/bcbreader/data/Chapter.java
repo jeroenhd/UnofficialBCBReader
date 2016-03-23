@@ -88,6 +88,9 @@ public class Chapter implements Parcelable{
         pageDescriptions = new ArrayList<>();
         // this only works if Page is parcelable!
         data.readList(this.pageDescriptions, Page.class.getClassLoader());
+        for (Page page : pageDescriptions) {
+            page.setChapter(this.getNumber());
+        }
     }
 
     public List<Page> getPageDescriptions() {
