@@ -7,8 +7,8 @@ import java.util.Map;
  * API URL container
  */
 public class API {
-    public static final String BaseURL = "https://www.bittersweetcandybowl.com/app/";
-    public static final String ChaptersDB = BaseURL + "json/db_main-1.2";
+    public static final String BaseURL = "https://www.bittersweetcandybowl.com/";
+    public static final String ChaptersDB = BaseURL + "app/json/db_main-1.2";
     public static final String CDNUrl = "https://blasto.enterprises/";
 
     /**
@@ -30,7 +30,20 @@ public class API {
      * @return The URL to the page
      */
     public static String FormatPageUrl(Double chapter, Double page) {
-        return CDNUrl + "comic/" + chapter.toString() + "/" + page.toString() + ".png";
+        return CDNUrl + "comic/" + formatChapterNumber(chapter) + "/" + page.toString() + ".png";
+    }
+
+    private static String formatChapterNumber(double chapter)
+    {
+        String out;
+        if (chapter == (long)chapter)
+        {
+            out =""+((long)chapter);
+        } else {
+            out = chapter+"";
+        }
+
+        return out;
     }
 
     /**
@@ -40,6 +53,15 @@ public class API {
      */
     public static String FormatChapterThumbURL(Double chapter)
     {
-        return CDNUrl + "app/comics/icon/" + chapter.toString() + ".png";
+        /***
+         * CDN returns 404 page instead of empty image for unknown chapters
+         */
+        final boolean useCDN = true;
+        if (useCDN)
+        {
+            return CDNUrl + "app/comics/icon/" + formatChapterNumber(chapter) + ".png";
+        } else {
+            return BaseURL + "app/comics/icon/" + formatChapterNumber(chapter) + ".png";
+        }
     }
 }

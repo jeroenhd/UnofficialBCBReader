@@ -21,10 +21,17 @@ public class LruBitmapCache extends LruCache<String, Bitmap>
 
     public LruBitmapCache(int pages, int thumbs, int lqthumbs)
     {
-        super(pages * 1500000 + thumbs * 25000 + lqthumbs * 7500);
-        PagesToCache = pages;
+        /*PagesToCache = pages;
         ThumbsToCache = thumbs;
-        LqThumbsToCache = lqthumbs;
+        LqThumbsToCache = lqthumbs;*/
+        /**
+         * maxSize int:
+         * for caches that do not override sizeOf(K, V), this is the maximum number of entries in the cache. For all other caches, this is the maximum sum of the sizes of the entries in this cache.
+         *
+         * In other words, this is the max size a single item in the cache can be
+         * Let's take about 3x the average page size as a maximum
+         */
+        super(BytesPerPage * 3);
     }
 
     public LruBitmapCache(int maxSize) {
@@ -32,7 +39,7 @@ public class LruBitmapCache extends LruCache<String, Bitmap>
     }
 
     public LruBitmapCache(Context ctx) {
-        this(getCacheSize(ctx));
+        this(BytesPerPage * 3);
     }
 
     @Override
@@ -48,10 +55,5 @@ public class LruBitmapCache extends LruCache<String, Bitmap>
     @Override
     public void putBitmap(String url, Bitmap bitmap) {
         put(url, bitmap);
-    }
-
-    // Returns a cache size equal to approximately three screens worth of images.
-    public static int getCacheSize(Context ctx) {
-        return BytesPerPage * PagesToCache + BytesPerThumb * ThumbsToCache + BytesPerLqThumb * LqThumbsToCache;
     }
 }

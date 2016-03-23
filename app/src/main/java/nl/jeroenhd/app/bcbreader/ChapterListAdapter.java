@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageRequest;
 
 import java.util.ArrayList;
@@ -61,10 +62,15 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
 
     void DownloadImageToImageView(final String URL, final ViewHolder holder)
     {
-        int width = dpToPx(holder.ChapterThumbView.getWidth());
-        int height = dpToPx(holder.ChapterThumbView.getHeight());
+        /*int width = dpToPx(holder.ChapterThumbView.getWidth());
+        int height = dpToPx(holder.ChapterThumbView.getHeight());*/
 
-        
+        ImageLoader imageLoader = singleton.getImageLoader();
+        imageLoader.get(URL, ImageLoader.getImageListener(
+                holder.ChapterThumbView,
+                R.color.colorAccent/*R.drawable.dummy_chapter_thumb*/,
+                R.drawable.chapter_error
+        ));
     }
 
     @Override
