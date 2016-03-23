@@ -3,7 +3,21 @@
     android:layout_height="@dimen/list_item_max_height"
     android:layout_width="match_parent">
 
-    <de.hdodenhof.circleimageview.CircleImageView
+    <!--<de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="@dimen/list_item_image_size"
+        android:layout_height="@dimen/list_item_image_size"
+        android:contentDescription="@string/content_description_chapter_thumb"
+        android:src="@drawable/dummy_chapter_thumb"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:id="@+id/thumb"
+        android:transitionName="thumb"/>-->
+
+    <ImageView
         android:layout_width="@dimen/list_item_image_size"
         android:layout_height="@dimen/list_item_image_size"
         android:contentDescription="@string/content_description_chapter_thumb"

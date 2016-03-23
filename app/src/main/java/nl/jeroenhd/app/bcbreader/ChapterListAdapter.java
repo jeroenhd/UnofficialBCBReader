@@ -55,11 +55,6 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         return new ViewHolder(inflatedView, this.mOnItemClickListener);
     }
 
-    public int dpToPx(int dp) {
-        DisplayMetrics displayMetrics = mContext.getResources().getDisplayMetrics();
-        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
-    }
-
     void DownloadImageToImageView(final String URL, final ViewHolder holder)
     {
         ImageLoader imageLoader = singleton.getImageLoader();
@@ -99,7 +94,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public CircleImageView ChapterThumbView;
+        public ImageView ChapterThumbView;
         public TextView ChapterTitleView;
         public TextView ChapterDescriptionView;
         public AppCompatImageView FavouriteImageView;
@@ -112,7 +107,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
             itemView.setOnClickListener(this);
             this.ClickHandler = onClick;
 
-            this.ChapterThumbView = (CircleImageView) itemView.findViewById(R.id.thumb);
+            this.ChapterThumbView = (ImageView) itemView.findViewById(R.id.thumb);
             this.ChapterTitleView = (TextView) itemView.findViewById(R.id.title);
             this.ChapterDescriptionView = (TextView)itemView.findViewById(R.id.description);
             this.FavouriteImageView = (AppCompatImageView) itemView.findViewById(R.id.favourite);

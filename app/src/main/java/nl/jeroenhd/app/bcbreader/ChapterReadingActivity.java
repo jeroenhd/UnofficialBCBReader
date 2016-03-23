@@ -126,32 +126,9 @@ public class ChapterReadingActivity extends AppCompatActivity {
 
     void SetupAnimation()
     {
-        Transition transition = null;
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            transition = TransitionInflater.from(this).inflateTransition(R.transition.changebounds_with_arcmotion);
+            Transition transition = TransitionInflater.from(this).inflateTransition(R.transition.changebounds_with_arcmotion);
             getWindow().setSharedElementEnterTransition(transition);
-            transition.addListener(new Transition.TransitionListener() {
-                @Override
-                public void onTransitionStart(Transition transition) {
-                }
-
-                @Override
-                public void onTransitionEnd(Transition transition) {
-                    animateRevealShow(mCollapsingToolbarLayout);
-                }
-
-                @Override
-                public void onTransitionCancel(Transition transition) {
-                }
-
-                @Override
-                public void onTransitionPause(Transition transition) {
-                }
-
-                @Override
-                public void onTransitionResume(Transition transition) {
-                }
-            });
         } else {
             // Not supported!
             Log.d("Animation", "View animation is not supported by this platform!");
@@ -164,14 +141,14 @@ public class ChapterReadingActivity extends AppCompatActivity {
             int cy = (viewRoot.getTop() + viewRoot.getBottom()) / 2;
             int finalRadius = Math.max(viewRoot.getWidth(), viewRoot.getHeight());
 
-            Animator anim = null;
-                anim = ViewAnimationUtils.createCircularReveal(viewRoot, cx, cy, 0, finalRadius);
+            Animator anim = ViewAnimationUtils.createCircularReveal(viewRoot, cx, cy, 0, finalRadius);
             viewRoot.setVisibility(View.VISIBLE);
             anim.setDuration(1000);
             anim.setInterpolator(new AccelerateInterpolator());
             anim.start();
         } else {
             // Not supported
+            Log.d("animateRevealShow", "Not supported by platform");
         }
     }
 
@@ -188,6 +165,7 @@ public class ChapterReadingActivity extends AppCompatActivity {
                     window.setStatusBarColor(palette.getMutedColor(defaultColor));
                 } else {
                     //TODO: additional theming for <LOLLIPOP
+                    Log.d("UpdateTheme", "<Lollipop, not implemented yet");
                 }
             }
         });
