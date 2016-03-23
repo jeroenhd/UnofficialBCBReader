@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,6 +59,7 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
         holder.networkImageView.setPage(chapterNumber, pageNumber);
 
         holder.commentaryView.setText(Html.fromHtml(page.getDescription()));
+        holder.commentaryView.setMovementMethod(LinkMovementMethod.getInstance());
     }
     @Override
     public int getItemCount() {
