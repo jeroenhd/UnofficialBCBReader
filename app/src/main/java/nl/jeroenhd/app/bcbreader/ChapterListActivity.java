@@ -56,20 +56,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
 
         mCoordinatorLayout = (CoordinatorLayout)findViewById(R.id.coordinator);
 
-        /*mFab = (FloatingActionButton) findViewById(R.id.fab);
-        mFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-
-                Intent chapterTestIntent = new Intent(getApplicationContext(), ChapterReadingActivity.class);
-                startActivity(chapterTestIntent);
-            }
-        });*/
-
-        //SetupDummyData();
-
         singleton = SuperSingleton.getInstance(this);
 
         SetupData();
@@ -118,7 +104,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                     View thumbView = v.findViewById(R.id.thumb);
 
                     Pair<View, String> thumbPair = Pair.create(thumbView, thumbView.getTransitionName());
-                    //Pair<View, String> fabPair = Pair.create((View)mFab, mFab.getTransitionName());
 
                     ActivityOptionsCompat options;
                     //noinspection unchecked

@@ -1,5 +1,7 @@
 package nl.jeroenhd.app.bcbreader;
 
+import android.animation.Animator;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -8,6 +10,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -18,9 +21,14 @@ import android.support.v7.graphics.Palette;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.Window;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.ImageView;
 
 import com.android.volley.Cache;
@@ -34,6 +42,7 @@ import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.NetworkImageView;
 import com.google.gson.GsonBuilder;
 
+import java.io.Console;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +61,7 @@ public class ChapterReadingActivity extends AppCompatActivity {
     ArrayList<Page> mPages;
     Chapter mChapter;
     CoordinatorLayout mCoordinatorLayout;
+    CollapsingToolbarLayout mCollapsingToolbarLayout;
     NetworkImageView headerBackgroundImage;
 
     final ChapterReadingActivity thisActivity = this;
@@ -81,6 +91,9 @@ public class ChapterReadingActivity extends AppCompatActivity {
 
         headerBackgroundImage = (NetworkImageView)findViewById(R.id.backgroundImage);
         mCoordinatorLayout = (CoordinatorLayout)findViewById(R.id.coordinator);
+        mCollapsingToolbarLayout = (CollapsingToolbarLayout)findViewById(R.id.toolbar_layout);
+
+        SetupAnimation();
 
         mChapter = this.getIntent().getParcelableExtra(ChapterReadingActivity.CHAPTER);
         if (mChapter==null)
@@ -109,10 +122,57 @@ public class ChapterReadingActivity extends AppCompatActivity {
     {
         mPages = new ArrayList<>();
         mPages.addAll(chapter.getPageDescriptions());
-        /*for (Double i = 0.0; i < 20; i++)
-        {
-            mPages.add(new Page("Example commentary", i+1, 0.0));
-        }*/
+    }
+
+    void SetupAnimation()
+    {
+        Transition transition = null;
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            transition = TransitionInflater.from(this).inflateTransition(R.transition.changebounds_with_arcmotion);
+            getWindow().setSharedElementEnterTransition(transition);
+            transition.addListener(new Transition.TransitionListener() {
+                @Override
+                public void onTransitionStart(Transition transition) {
+                }
+
+                @Override
+                public void onTransitionEnd(Transition transition) {
+                    animateRevealShow(mCollapsingToolbarLayout);
+                }
+
+                @Override
+                public void onTransitionCancel(Transition transition) {
+                }
+
+                @Override
+                public void onTransitionPause(Transition transition) {
+                }
+
+                @Override
+                public void onTransitionResume(Transition transition) {
+                }
+            });
+        } else {
+            // Not supported!
+            Log.d("Animation", "View animation is not supported by this platform!");
+        }
+    }
+
+    private void animateRevealShow(View viewRoot) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            int cx = (viewRoot.getLeft() + viewRoot.getRight()) / 2;
+            int cy = (viewRoot.getTop() + viewRoot.getBottom()) / 2;
+            int finalRadius = Math.max(viewRoot.getWidth(), viewRoot.getHeight());
+
+            Animator anim = null;
+                anim = ViewAnimationUtils.createCircularReveal(viewRoot, cx, cy, 0, finalRadius);
+            viewRoot.setVisibility(View.VISIBLE);
+            anim.setDuration(1000);
+            anim.setInterpolator(new AccelerateInterpolator());
+            anim.start();
+        } else {
+            // Not supported
+        }
     }
 
     void UpdateTheme(Bitmap headerBitmap)
@@ -120,7 +180,7 @@ public class ChapterReadingActivity extends AppCompatActivity {
         Palette.from(headerBitmap).generate(new Palette.PaletteAsyncListener() {
             @Override
             public void onGenerated(Palette palette) {
-                // This only works on Lollipo and higher
+                // This only works on Lollipop and higher
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     Window window = getWindow();
                     int defaultColor = ContextCompat.getColor(thisActivity, R.color.colorPrimaryDark);

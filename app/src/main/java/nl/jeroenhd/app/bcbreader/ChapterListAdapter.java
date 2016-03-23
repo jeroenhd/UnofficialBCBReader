@@ -62,13 +62,10 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
 
     void DownloadImageToImageView(final String URL, final ViewHolder holder)
     {
-        /*int width = dpToPx(holder.ChapterThumbView.getWidth());
-        int height = dpToPx(holder.ChapterThumbView.getHeight());*/
-
         ImageLoader imageLoader = singleton.getImageLoader();
         imageLoader.get(URL, ImageLoader.getImageListener(
                 holder.ChapterThumbView,
-                R.color.colorAccent/*R.drawable.dummy_chapter_thumb*/,
+                R.color.colorAccent,
                 R.drawable.chapter_error
         ));
     }
@@ -76,7 +73,6 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         Chapter chapter = mData.get(position);
-        //holder.ChapterThumbView.setImageResource(R.drawable.dummy_chapter_thumb);
         DownloadImageToImageView(API.FormatChapterThumbURL(chapter.getNumber()),holder);
 
         holder.ChapterTitleView.setText(chapter.getTitle());
