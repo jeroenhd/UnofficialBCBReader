@@ -4,12 +4,12 @@
         android:title="@string/pref_title_about_version"
         android:summary="@string/app_version"/>
     <Preference
+        android:key="pref_license_volley"
         android:title="@string/pref_title_volley_license"
         android:summary="@string/pref_summary_volley_license"
-        android:action="nl.jeroenhd.app.bcbreader.license.volley"
         />
     <Preference
+        android:key="pref_license_gson"
         android:title="@string/pref_title_gson_license"
-        android:summary="@string/pref_summary_gson_license"
-        android:action="nl.jeroenhd.app.bcbreader.license.gson"/>
+        android:summary="@string/pref_summary_gson_license" />
 </PreferenceScreen>

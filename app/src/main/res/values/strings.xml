@@ -87,4 +87,6 @@
     <string name="sending_telemetry">Sending telemetry to server</string>
     <string name="thank_you_for_sending_telemetry">Thank you for sending this telemetry!</string>
     <string name="error_sending_telemetry">Failed to send telemetry, try again later</string>
+    <string name="pref_header_about"><![CDATA[About & Licenses]]></string>
+    <string name="title_license">License</string>
 </resources>

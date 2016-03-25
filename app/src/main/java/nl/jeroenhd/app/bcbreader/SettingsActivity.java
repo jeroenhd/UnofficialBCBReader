@@ -2,6 +2,8 @@ package nl.jeroenhd.app.bcbreader;
 
 
 import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -18,7 +20,9 @@ import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.webkit.WebView;
 
 import java.util.List;
 
@@ -161,7 +165,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName)
                 || DataSyncPreferenceFragment.class.getName().equals(fragmentName)
                 || NotificationPreferenceFragment.class.getName().equals(fragmentName)
-                || TelemetryPreferenceFragment.class.getName().equals(fragmentName);
+                || TelemetryPreferenceFragment.class.getName().equals(fragmentName)
+                || AboutPreferenceFragment.class.getName().equals(fragmentName);
     }
 
     /**
@@ -255,6 +260,62 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static class AboutPreferenceFragment extends PreferenceFragment{
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_about);
+            setHasOptionsMenu(true);
+
+            Preference volleyLicense = findPreference("pref_license_volley");
+            Preference gsonLicense = findPreference("pref_license_gson");
+
+            volleyLicense.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    showLicense("volley_license.html");
+                    return false;
+                }
+            });
+            gsonLicense.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    showLicense("gson_license.txt");
+                    return false;
+                }
+            });
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            int id = item.getItemId();
+            if (id == android.R.id.home) {
+                Activity activity = getActivity();
+                if (activity!=null)
+                {
+                    activity.onBackPressed();
+                } else {
+                    startActivity(new Intent(getActivity(), SettingsActivity.class));
+                }
+                return true;
+            }
+            return super.onOptionsItemSelected(item);
+        }
+
+        private void showLicense(String licenseAssetFile)
+        {
+            Context context = getActivity();
+            WebView view = (WebView) LayoutInflater.from(context).inflate(R.layout.activity_license, null);
+            view.loadUrl("file:///android_asset/" + licenseAssetFile);
+            AlertDialog dialog = new AlertDialog.Builder(context, R.style.AppTheme)
+                    .setTitle(getString(R.string.title_license))
+                    .setView(view)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show();
+        }
+    }
+
     /**
      * This fragment shows data and sync preferences only. It is used when the
      * activity is showing a two-pane settings UI.
@@ -303,8 +364,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public boolean onOptionsItemSelected(MenuItem item) {
             int id = item.getItemId();
             if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-                return true;
+                Activity activity = getActivity();
+                if (activity!=null)
+                {
+                    activity.onBackPressed();
+                } else {
+                    startActivity(new Intent(getActivity(), SettingsActivity.class));
+                }
             }
             return super.onOptionsItemSelected(item);
         }
