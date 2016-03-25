@@ -65,7 +65,7 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
-    <string name="pref_title_enable_telemetry">Enable telemetry</string>
+    <string name="pref_title_enable_telemetry">Send telemetry to developer</string>
     <string name="pref_title_telemetry_model">Device model</string>
     <string name="pref_title_telemetry_ram">RAM</string>
     <string name="pref_title_telemetry_android_version">Android version</string>
@@ -82,4 +82,9 @@
     <string name="pref_header_telemetry">Telemetry</string>
     <string name="pref_title_telemetry_sdcard_emulated">SD card is emulated</string>
     <string name="content_description_header">Header</string>
+    <string name="pref_title_telemetry_unique_identifier">Unique device identifier</string>
+    <string name="pref_title_telemetry_send_manually">Send telemetry now</string>
+    <string name="sending_telemetry">Sending telemetry to server</string>
+    <string name="thank_you_for_sending_telemetry">Thank you for sending this telemetry!</string>
+    <string name="error_sending_telemetry">Failed to send telemetry, try again later</string>
 </resources>

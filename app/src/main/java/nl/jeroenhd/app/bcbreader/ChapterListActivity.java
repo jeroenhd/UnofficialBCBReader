@@ -16,17 +16,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.android.volley.Cache;
-import com.android.volley.Network;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.BasicNetwork;
-import com.android.volley.toolbox.DiskBasedCache;
-import com.android.volley.toolbox.HurlStack;
-import com.google.gson.GsonBuilder;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +35,8 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     //private FloatingActionButton mFab;
 
     private final Activity thisActivity = this;
+
+    private Toolbar toolbar;
 
     private CoordinatorLayout mCoordinatorLayout;
     private SuperSingleton singleton;

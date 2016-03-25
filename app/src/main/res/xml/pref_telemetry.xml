@@ -5,27 +5,42 @@
         android:key="telemetry_enabled"
         android:title="@string/pref_title_enable_telemetry"/>
     <Preference
+        android:title="@string/pref_title_telemetry_unique_identifier"
+        android:key="telemetry_id"
+        android:defaultValue="Unknown"
+        android:dependency="telemetry_enabled"/>
+    <Preference
         android:title="@string/pref_title_telemetry_model"
         android:key="telemetry_model"
-        android:defaultValue="Unknown"/>
+        android:defaultValue="Unknown"
+        android:dependency="telemetry_enabled"/>
     <Preference
         android:title="@string/pref_title_telemetry_ram"
         android:key="telemetry_ram"
+        android:dependency="telemetry_enabled"
         android:defaultValue="Unknown"/>
     <Preference
         android:title="@string/pref_title_telemetry_android_version"
         android:key="telemetry_android_version"
+        android:dependency="telemetry_enabled"
         android:defaultValue="Unknown"/>
     <Preference
         android:title="@string/pref_title_telemetry_storage"
         android:key="telemetry_storage"
+        android:dependency="telemetry_enabled"
         android:defaultValue="Unknown"/>
     <Preference
         android:title="@string/pref_title_telemetry_sdcard"
         android:key="telemetry_sdcard"
+        android:dependency="telemetry_enabled"
         android:defaultValue="Unknown"/>
     <Preference
         android:title="@string/pref_title_telemetry_sdcard_emulated"
         android:key="telemetry_sdcard_emulated"
+        android:dependency="telemetry_enabled"
         android:defaultValue="Unknown"/>
+    <Preference
+        android:title="@string/pref_title_telemetry_send_manually"
+        android:key="telemetry_send_manually"
+        android:dependency="telemetry_enabled"/>
 </PreferenceScreen>

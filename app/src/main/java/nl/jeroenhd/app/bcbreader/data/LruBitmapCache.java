@@ -1,9 +1,9 @@
 package nl.jeroenhd.app.bcbreader.data;
 
 import android.content.Context;
-import android.util.LruCache;
 import android.graphics.Bitmap;
-import android.util.DisplayMetrics;
+import android.util.LruCache;
+
 import com.android.volley.toolbox.ImageLoader.ImageCache;
 
 public class LruBitmapCache extends LruCache<String, Bitmap>

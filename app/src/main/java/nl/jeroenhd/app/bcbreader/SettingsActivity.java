@@ -22,6 +22,8 @@ import android.view.MenuItem;
 
 import java.util.List;
 
+import nl.jeroenhd.app.bcbreader.data.Telemetry;
+
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
  * handset devices, settings are presented as a single list. On tablets,
@@ -265,12 +267,36 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             addPreferencesFromResource(R.xml.pref_telemetry);
             setHasOptionsMenu(true);
 
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            //bindPreferenceSummaryToValue(findPreference("sync_frequency"));
+            final Context context = getActivity();
 
+            Preference model, ram, androidVersion, storage, sdcard, sdcardEmulated, uniqueID;
+            Preference sendNow;
+
+            model = findPreference("telemetry_model");
+            ram = findPreference("telemetry_ram");
+            androidVersion = findPreference("telemetry_android_version");
+            storage = findPreference("telemetry_storage");
+            sdcard = findPreference("telemetry_sdcard");
+            sdcardEmulated = findPreference("telemetry_sdcard_emulated");
+            uniqueID = findPreference("telemetry_id");
+
+            final Telemetry telemetry = Telemetry.getInstance(getActivity());
+            model.setSummary(telemetry.getModel());
+            ram.setSummary(telemetry.getRAMSizeMB() + "MB");
+            androidVersion.setSummary(telemetry.getAndroidVersion());
+            storage.setSummary(telemetry.getInternalFreeMB() + "MB free out of " + telemetry.getInternalSizeMB() + "MB total");
+            sdcard.setSummary(telemetry.getSDCardFreeMB() + "MB free out of " + telemetry.getSDCardSizeMB() + "MB total");
+            sdcardEmulated.setSummary(telemetry.isSDCardEmulated()?"Yes":"No");
+            uniqueID.setSummary(telemetry.getUniqueID());
+
+            sendNow = findPreference("telemetry_send_manually");
+            sendNow.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    telemetry.send(true);
+                    return false;
+                }
+            });
         }
 
         @Override

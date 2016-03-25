@@ -12,8 +12,4 @@
         android:title="@string/pref_title_gson_license"
         android:summary="@string/pref_summary_gson_license"
         android:action="nl.jeroenhd.app.bcbreader.license.gson"/>
-    <Preference
-        android:title="@string/pref_title_circularimageview_license"
-        android:summary="@string/pref_summary_circularimageview_license"
-        android:action="nl.jeroenhd.app.bcbreader.license.circularimageview"/>
 </PreferenceScreen>
