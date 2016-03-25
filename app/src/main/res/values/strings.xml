@@ -81,4 +81,5 @@
     <string name="pref_summary_circularimageview_license">This app uses the CircularImageView library. Tap to view its license.</string>
     <string name="pref_header_telemetry">Telemetry</string>
     <string name="pref_title_telemetry_sdcard_emulated">SD card is emulated</string>
+    <string name="content_description_header">Header</string>
 </resources>

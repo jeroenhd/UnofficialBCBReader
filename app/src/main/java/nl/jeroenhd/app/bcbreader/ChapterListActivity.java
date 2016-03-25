@@ -33,6 +33,7 @@ import java.util.List;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
+import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 
 public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener {
     private RecyclerView mRecycler;
@@ -41,16 +42,10 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private ChapterListAdapter mAdapter;
     //private FloatingActionButton mFab;
 
-    Toolbar toolbar;
-
-    RequestQueue volleyRequestQueue;
-    GsonBuilder gsonBuilder;
-    Cache volleyCache;
-    Network volleyNetwork;
-
     private final Activity thisActivity = this;
 
     private CoordinatorLayout mCoordinatorLayout;
+    private SuperSingleton singleton;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,31 +57,10 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
 
         mCoordinatorLayout = (CoordinatorLayout)findViewById(R.id.coordinator);
 
-        /*mFab = (FloatingActionButton) findViewById(R.id.fab);
-        mFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+        singleton = SuperSingleton.getInstance(this);
 
-                Intent chapterTestIntent = new Intent(getApplicationContext(), ChapterReadingActivity.class);
-                startActivity(chapterTestIntent);
-            }
-        });*/
-
-        //SetupDummyData();
-        SetupVolley();
         SetupData();
         SetupRecycler();
-    }
-
-    void SetupVolley(){
-        gsonBuilder = new GsonBuilder();
-        volleyCache = new DiskBasedCache(new File(getCacheDir(), "volley"), 1024 * 1024 * 128);
-        volleyNetwork = new BasicNetwork(new HurlStack());
-
-        volleyRequestQueue = new RequestQueue(volleyCache, volleyNetwork);
-        volleyRequestQueue.start();
     }
 
     void SetupDummyData()
@@ -104,7 +78,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     {
         mChapterData = new ArrayList<>();
         ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), successListener, errorListener);
-        volleyRequestQueue.add(downloadRequest);
+        singleton.getVolleyRequestQueue().add(downloadRequest);
     }
 
     void SetupRecycler()
@@ -156,7 +130,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                     View thumbView = v.findViewById(R.id.thumb);
 
                     Pair<View, String> thumbPair = Pair.create(thumbView, thumbView.getTransitionName());
-                    //Pair<View, String> fabPair = Pair.create((View)mFab, mFab.getTransitionName());
 
                     ActivityOptionsCompat options;
                     //noinspection unchecked

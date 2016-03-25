@@ -1,6 +1,7 @@
 package nl.jeroenhd.app.bcbreader;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -12,12 +13,17 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageRequest;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Page;
+import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 
 /**
  * A class implementing a RecyclerView.Adapter for reading a chapter
@@ -25,13 +31,14 @@ import nl.jeroenhd.app.bcbreader.data.Page;
 public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAdapter.ViewHolder> {
     private Context mContext;
     private ArrayList<Page> mData;
-    private RequestQueue mRequestQueue;
+    private SuperSingleton singleton;
 
-    public ChapterReadingAdapter(Context context, ArrayList<Page> data, RequestQueue requestQueue)
+    public ChapterReadingAdapter(Context context, ArrayList<Page> data)
     {
         mContext = context;
         mData = data;
-        mRequestQueue = requestQueue;
+
+        singleton = SuperSingleton.getInstance(mContext);
     }
 
     @Override
@@ -81,13 +88,13 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
         }
 
         ApplyImage(holder, image);
-        StartLoading(API.FormatPageUrl(page.getChapter(), page.getPage()), holder);
+        //StartLoading(API.FormatPageUrl(page.getChapter(), page.getPage()), holder);
         holder.commentaryView.setText(Html.fromHtml(page.getDescription()));
     }
 
     private void StartLoading(String url, ChapterReadingAdapter.ViewHolder holder) {
-        /*ImageLoader img = ImageLoader.getImageListener(holder.);
-        img.get(url, new ImageLoader.ImageListener() {
+        //ImageLoader img = ImageLoader.getImageListener();
+        /*img.get(url, new ImageLoader.ImageListener() {
             @Override
             public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
 
