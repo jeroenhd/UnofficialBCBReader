@@ -52,19 +52,22 @@ public class ChapterReadingActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO: SetChapterIsFavorite(chapter, true);
-                Snackbar.make(view, "Added as favorite", Snackbar.LENGTH_LONG)
-                        .setAction("Undo", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                //TODO: SetChapterIsFavorite(chapter, false);
-                            }
-                        }).show();
-            }
-        });
+        if (fab!=null)
+        {
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //TODO: SetChapterIsFavorite(chapter, true);
+                    Snackbar.make(view, "Added as favorite", Snackbar.LENGTH_LONG)
+                            .setAction("Undo", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    //TODO: SetChapterIsFavorite(chapter, false);
+                                }
+                            }).show();
+                }
+            });
+        }
         if (getSupportActionBar()!=null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
