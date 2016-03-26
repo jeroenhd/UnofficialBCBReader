@@ -54,11 +54,26 @@ public class API {
 
     /**
      * Format a URL for a page
+     * This method is deprecated but kept because of version control reasons
+     * Please use FormatPageUrl(chapter, page, quality) instead
      * @param chapter The chapter number
      * @param page The page number
      * @return The URL to the page
      */
-    public static String FormatPageUrl(Double chapter, Double page) {
+    @Deprecated
+    public static String FormatPageUrl(Double chapter, Double page)
+    {
+        return FormatPageUrl(chapter, page, "@m");
+    }
+
+    /**
+     * Format a URL for a page
+     * @param chapter The chapter number
+     * @param page The page number
+     * @param quality The quality of the page
+     * @return The URL to the page
+     */
+    public static String FormatPageUrl(Double chapter, Double page, String quality){
         return CDNUrl + "comic/" + formatChapterNumber(chapter) + "/" + page.toString() + ".png";
     }
 
