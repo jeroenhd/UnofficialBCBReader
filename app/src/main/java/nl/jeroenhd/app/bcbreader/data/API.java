@@ -1,5 +1,10 @@
 package nl.jeroenhd.app.bcbreader.data;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.util.Log;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +26,30 @@ public class API {
         headers.put("User-Agent","Mozilla/5.0 (Unofficial BCB Android App; " + App.Version() + "; JeroenHD) Volley/" + App.VolleyVersion());
 
         return headers;
+    }
+
+    public static String getQualitySuffix(Context context) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        if (sharedPreferences == null)
+        {
+            Log.d("getQualitySuffix", "Failed to obtain shared preferences, returning default");
+            return "@m";
+        } else {
+            String p = sharedPreferences.getString("reading_quality","-1");
+            int quality = Integer.parseInt(p);
+
+            switch (quality)
+            {
+                case -1:
+                    return "@m";
+                case 0:
+                    return "";
+                case 1:
+                    return "@2x";
+                default:
+                    return "@m";
+            }
+        }
     }
 
     /**

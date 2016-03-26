@@ -200,6 +200,32 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     }
 
+    public static class ReadingPreferenceFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_reading);
+            setHasOptionsMenu(true);
+
+            bindPreferenceSummaryToValue(findPreference("reading_quality"));
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            int id = item.getItemId();
+            if (id == android.R.id.home) {
+                Activity activity = getActivity();
+                if (activity!=null)
+                {
+                    activity.onBackPressed();
+                } else {
+                    startActivity(new Intent(getActivity(), SettingsActivity.class));
+                }
+            }
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
     /**
      * This fragment shows notification preferences only. It is used when the
      * activity is showing a two-pane settings UI.

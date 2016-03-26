@@ -89,4 +89,6 @@
     <string name="error_sending_telemetry">Failed to send telemetry, try again later</string>
     <string name="pref_header_about"><![CDATA[About & Licenses]]></string>
     <string name="title_license">License</string>
+    <string name="pref_header_reading">Reading</string>
+    <string name="pref_title_reading_quality">Page quality</string>
 </resources>
