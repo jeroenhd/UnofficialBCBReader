@@ -10,4 +10,7 @@
     <string name="added_to_favourites">Chapter added to favourites</string>
     <string name="removed_from_favourites">Chapter removed from favourites</string>
     <string name="undo">Undo</string>
+    <string name="update_check_failed">Failed to check for updates. Check your network connection.</string>
+    <string name="retry">Retry</string>
+    <string name="chapter_list_download_failed">Couldn\'t download chapter list! Check your network connection</string>
 </resources>

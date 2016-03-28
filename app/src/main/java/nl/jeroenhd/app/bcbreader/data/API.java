@@ -10,6 +10,7 @@ public class API {
     private static final String BaseURL = "https://www.bittersweetcandybowl.com/";
     public static final String ChaptersDB = BaseURL + "app/json/db_main-1.2";
     private static final String CDNUrl = "https://blasto.enterprises/";
+    public static String CheckURI = BaseURL + "app/json/check";
 
     /**
      * Determine whether the files for a chapter end in JPG or are not
