@@ -24,7 +24,7 @@
             android:transitionName="title"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <com.android.volley.toolbox.NetworkImageView
+            <nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/backgroundImage"

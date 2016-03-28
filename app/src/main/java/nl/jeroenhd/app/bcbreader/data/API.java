@@ -17,6 +17,22 @@ public class API {
     public static final String CDNUrl = "https://blasto.enterprises/";
 
     /**
+     * Determine whether the files for a chapter end in JPG or are not
+     * @param chapter The chapter number to check
+     * @return True if the chapter is a JPG chapter, false otherwise
+     */
+    private static boolean isJpegChapter(double chapter)
+    {
+        // Exceptions to the rule below
+        if (chapter == 16.1 || chapter == 17.1 || chapter == 22.1 || chapter == 26.1 || chapter == 35.0 || chapter == 35.1 || chapter == 38.1)
+            return true;
+
+        // 70-88 is JPG for some reason
+        return chapter >= 70 && chapter <= 88;
+
+    }
+
+    /**
      * Prepare request headers for special Volley requests
      * @return A Map<String, String> containing all special headers
      */
@@ -77,6 +93,11 @@ public class API {
         return CDNUrl + "comic/" + formatChapterNumber(chapter) + "/" + page.toString() + ".png";
     }
 
+    public static String FormatLqThumbURL(double chapter, double page)
+    {
+        return CDNUrl + "app/comics/lqthumb/" + formatChapterNumber(chapter) + "-" + (long)page + ".jpg";
+    }
+
     private static String formatChapterNumber(double chapter)
     {
         String out;
@@ -108,4 +129,5 @@ public class API {
             return BaseURL + "app/comics/icon/" + formatChapterNumber(chapter) + ".png";
         }
     }
+
 }
