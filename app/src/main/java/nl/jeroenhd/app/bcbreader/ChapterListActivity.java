@@ -3,11 +3,11 @@ package nl.jeroenhd.app.bcbreader;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -15,6 +15,10 @@ import android.view.View;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
+import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
+import com.raizlabs.android.dbflow.sql.language.Select;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,12 +44,41 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         @Override
         public void onResponse(List<Chapter> response) {
             int currentCount = mChapterData.size();
-            // Houston, we've got data!
-            mChapterData.clear();
-            mAdapter.notifyItemRangeRemoved(0, currentCount);
 
-            mChapterData.addAll(response);
-            mAdapter.notifyItemRangeInserted(0, mChapterData.size());
+            TransactionManager.getInstance().addTransaction(new SaveModelTransaction<>(ProcessModelInfo.withModels(response)));
+
+            // Houston, we've got data!
+            int startingIndex = 0, count = 0;
+            // Look for each chapter
+            for (int i = 0; i < response.size(); i++) {
+                Chapter c = response.get(i);
+
+                boolean numberFound = false;
+                for (int j = 0; j < mChapterData.size(); j++) {
+                    Chapter oldChapter = mChapterData.get(j);
+
+                    // Don't add chapter that was already added:
+                    // Check if a chapter with the same number already exists
+                    if (oldChapter.getNumber().equals(c.getNumber())) {
+                        numberFound = true;
+                        // Check if the descriptions are the same, if so, don't add this one
+                        if (oldChapter != c) {
+                            c.setFavourite(oldChapter.isFavourite());
+                            // Metadata is not the same, update it!
+                            mChapterData.set(j, c);
+                            mAdapter.notifyItemChanged(j);
+                        }
+                    }
+                }
+
+                // If the chapter hasn't been found
+                if (!numberFound) {
+                    startingIndex = (startingIndex == 0 ? i : startingIndex);
+                    count++;
+                    mChapterData.add(c);
+                }
+            }
+            mAdapter.notifyItemRangeInserted(startingIndex, count);
 
             Snackbar.make(mRecycler, "Loaded chapters!", Snackbar.LENGTH_LONG).show();
         }
@@ -58,8 +91,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        CoordinatorLayout mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
-
         singleton = SuperSingleton.getInstance(this);
 
         SetupData();
@@ -68,6 +99,9 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
 
     private void SetupData() {
         mChapterData = new ArrayList<>();
+
+        mChapterData.addAll(new Select().from(Chapter.class).queryList());
+
         ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), successListener, errorListener);
         singleton.getVolleyRequestQueue().add(downloadRequest);
     }
@@ -115,5 +149,19 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 }
             }
         });
+    }
+
+    @Override
+    public void onChapterFavourite(AppCompatImageView v, Chapter c) {
+        // Switch between favourite/not favourite
+        c.setFavourite(!c.isFavourite());
+
+        // Save the fav state
+        c.save();
+
+        // Update the list
+        int index = mChapterData.indexOf(c);
+        mAdapter.notifyItemChanged(index);
+
     }
 }

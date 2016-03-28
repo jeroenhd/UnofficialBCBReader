@@ -3,7 +3,7 @@ package nl.jeroenhd.app.bcbreader.data.databases;
 import com.raizlabs.android.dbflow.annotation.Database;
 
 /**
- * Chapter Database for DBFlow
+ * CurrentChapter Database for DBFlow
  */
 @Database(name = ChapterDatabase.NAME, version = ChapterDatabase.VERSION)
 public class ChapterDatabase {

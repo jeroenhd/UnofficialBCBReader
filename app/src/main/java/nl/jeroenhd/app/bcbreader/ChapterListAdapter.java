@@ -61,10 +61,10 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         holder.ChapterTitleView.setText(chapter.getTitle());
         holder.ChapterDescriptionView.setText(chapter.getDescription());
         holder.FavouriteImageView.setImageResource(
-                position % 2 == 0 ?
-                        R.drawable.ic_favorite_border_white_48dp : R.drawable.ic_favorite_white_48dp
+                chapter.isFavourite() ?
+                        R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white_48dp
         );
-        holder.Chapter = chapter;
+        holder.CurrentChapter = chapter;
         int color;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -83,6 +83,8 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
 
     public interface OnChapterClickListener {
         void onChapterSelect(View v, Chapter c);
+
+        void onChapterFavourite(AppCompatImageView v, Chapter c);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -91,7 +93,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         public final TextView ChapterDescriptionView;
         public final AppCompatImageView FavouriteImageView;
         private final OnChapterClickListener ClickHandler;
-        public Chapter Chapter;
+        public Chapter CurrentChapter;
 
         public ViewHolder(View itemView, OnChapterClickListener onClick) {
             super(itemView);
@@ -103,11 +105,17 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
             this.ChapterTitleView = (TextView) itemView.findViewById(R.id.title);
             this.ChapterDescriptionView = (TextView) itemView.findViewById(R.id.description);
             this.FavouriteImageView = (AppCompatImageView) itemView.findViewById(R.id.favourite);
+            this.FavouriteImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ClickHandler.onChapterFavourite(FavouriteImageView, CurrentChapter);
+                }
+            });
         }
 
         @Override
         public void onClick(View v) {
-            this.ClickHandler.onChapterSelect(v, this.Chapter);
+            this.ClickHandler.onChapterSelect(v, this.CurrentChapter);
         }
     }
 }

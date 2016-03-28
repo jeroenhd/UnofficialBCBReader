@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.BaseModel;
@@ -33,8 +34,12 @@ public class Page extends BaseModel implements Parcelable {
     ForeignKeyContainer<Chapter> chapterForeignKeyContainer;
     @Column
     private String description;
+
+    @PrimaryKey
     @Column
     private Double page;
+
+    @PrimaryKey
     @Column
     private Double chapter;
 
@@ -47,6 +52,13 @@ public class Page extends BaseModel implements Parcelable {
     public Page(Parcel data) {
         this.description = data.readString();
         this.page = data.readDouble();
+    }
+
+    /**
+     * Required for DBFlow
+     */
+    public Page() {
+
     }
 
     public void associateChapter(Chapter chapter) {

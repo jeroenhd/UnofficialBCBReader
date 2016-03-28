@@ -35,24 +35,31 @@ public class Chapter extends BaseModel implements Parcelable {
     Double number;
 
     @Column
-    private String title;
+    String title;
 
     @Column
-    private String description;
+    String description;
 
     @Column
-    private Integer pageCount;
+    Integer pageCount;
 
     @Column
-    private Integer totalPages;
+    Integer totalPages;
 
     @Column
-    private String yearPublished;
+    String yearPublished;
 
     @Column
-    private boolean favourite;
+    boolean favourite;
 
-    private List<Page> pageDescriptions;
+    List<Page> pageDescriptions;
+
+    /**
+     * Required for DBFlow
+     */
+    public Chapter() {
+
+    }
 
     public Chapter(String title, String description, Integer pageCount, Integer totalPages, String yearPublished, Double number) {
         this.title = title;
@@ -73,7 +80,6 @@ public class Chapter extends BaseModel implements Parcelable {
         this.totalPages = data.readInt();
         this.yearPublished = data.readString();
         this.number = data.readDouble();
-        this.favourite = data.readInt() == 1;
 
         pageDescriptions = new ArrayList<>();
         // this only works if Page is parcelable!
@@ -81,6 +87,8 @@ public class Chapter extends BaseModel implements Parcelable {
         for (Page page : pageDescriptions) {
             page.setChapter(this.getNumber());
         }
+
+        this.favourite = data.readInt() == 1;
     }
 
     public Double getNumber() {
