@@ -49,6 +49,9 @@ public class Chapter extends BaseModel implements Parcelable {
     @Column
     private String yearPublished;
 
+    @Column
+    private boolean favourite;
+
     private List<Page> pageDescriptions;
 
     public Chapter(String title, String description, Integer pageCount, Integer totalPages, String yearPublished, Double number) {
@@ -70,6 +73,7 @@ public class Chapter extends BaseModel implements Parcelable {
         this.totalPages = data.readInt();
         this.yearPublished = data.readString();
         this.number = data.readDouble();
+        this.favourite = data.readInt() == 1;
 
         pageDescriptions = new ArrayList<>();
         // this only works if Page is parcelable!
@@ -136,6 +140,14 @@ public class Chapter extends BaseModel implements Parcelable {
         this.pageDescriptions = pageDescriptions;
     }
 
+    public boolean isFavourite() {
+        return favourite;
+    }
+
+    public void setFavourite(boolean favourite) {
+        this.favourite = favourite;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -150,5 +162,6 @@ public class Chapter extends BaseModel implements Parcelable {
         dest.writeString(this.yearPublished);
         dest.writeDouble(this.number);
         dest.writeList(pageDescriptions);
+        dest.writeInt(favourite ? 1 : 0);
     }
 }
