@@ -10,6 +10,7 @@ import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.ImageLoader;
 import com.google.gson.GsonBuilder;
+
 import java.io.File;
 
 /**
@@ -29,6 +30,18 @@ public class SuperSingleton {
     private Network volleyNetwork;
     private ImageLoader imageLoader;
 
+    private SuperSingleton(Context context) {
+        mContext = context;
+        InitVolley();
+    }
+
+    public static SuperSingleton getInstance(Context context) {
+        if (instance != null)
+            return instance;
+
+        return (instance = new SuperSingleton(context));
+    }
+
     public GsonBuilder getGsonBuilder() {
         return gsonBuilder;
     }
@@ -45,14 +58,7 @@ public class SuperSingleton {
         return volleyRequestQueue;
     }
 
-    private SuperSingleton(Context context)
-    {
-        mContext = context;
-        InitVolley();
-    }
-
-    private void InitVolley()
-    {
+    private void InitVolley() {
         gsonBuilder = new GsonBuilder();
         // 1MB general cache
         volleyCache = new DiskBasedCache(new File(mContext.getCacheDir(), "volley"), 1024 * 1024 * 1024);
@@ -74,13 +80,5 @@ public class SuperSingleton {
 
     public ImageLoader.ImageCache getImageCache() {
         return imageCache;
-    }
-
-    public static SuperSingleton getInstance(Context context)
-    {
-        if (instance != null)
-            return instance;
-
-        return (instance = new SuperSingleton(context));
     }
 }

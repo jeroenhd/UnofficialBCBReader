@@ -3,11 +3,11 @@ package nl.jeroenhd.app.bcbreader;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.os.Build;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.support.v7.widget.AppCompatImageView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -28,8 +28,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
     private final OnChapterClickListener mOnItemClickListener;
     private final SuperSingleton singleton;
 
-    public ChapterListAdapter(Context context, ArrayList<Chapter> data, OnChapterClickListener onItemClickListener)
-    {
+    public ChapterListAdapter(Context context, ArrayList<Chapter> data, OnChapterClickListener onItemClickListener) {
         this.mContext = context;
         this.mData = data;
         this.mOnItemClickListener = onItemClickListener;
@@ -45,8 +44,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         return new ViewHolder(inflatedView, this.mOnItemClickListener);
     }
 
-    private void DownloadImageToImageView(final String URL, final ViewHolder holder)
-    {
+    private void DownloadImageToImageView(final String URL, final ViewHolder holder) {
         ImageLoader imageLoader = singleton.getImageLoader();
         imageLoader.get(URL, ImageLoader.getImageListener(
                 holder.ChapterThumbView,
@@ -58,7 +56,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         Chapter chapter = mData.get(position);
-        DownloadImageToImageView(API.FormatChapterThumbURL(chapter.getNumber()),holder);
+        DownloadImageToImageView(API.FormatChapterThumbURL(chapter.getNumber()), holder);
 
         holder.ChapterTitleView.setText(chapter.getTitle());
         holder.ChapterDescriptionView.setText(chapter.getDescription());
@@ -83,13 +81,17 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         return mData == null ? 0 : mData.size();
     }
 
+    public interface OnChapterClickListener {
+        void onChapterSelect(View v, Chapter c);
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public final ImageView ChapterThumbView;
         public final TextView ChapterTitleView;
         public final TextView ChapterDescriptionView;
         public final AppCompatImageView FavouriteImageView;
-        public Chapter Chapter;
         private final OnChapterClickListener ClickHandler;
+        public Chapter Chapter;
 
         public ViewHolder(View itemView, OnChapterClickListener onClick) {
             super(itemView);
@@ -99,7 +101,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
 
             this.ChapterThumbView = (ImageView) itemView.findViewById(R.id.thumb);
             this.ChapterTitleView = (TextView) itemView.findViewById(R.id.title);
-            this.ChapterDescriptionView = (TextView)itemView.findViewById(R.id.description);
+            this.ChapterDescriptionView = (TextView) itemView.findViewById(R.id.description);
             this.FavouriteImageView = (AppCompatImageView) itemView.findViewById(R.id.favourite);
         }
 
@@ -107,10 +109,5 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         public void onClick(View v) {
             this.ClickHandler.onChapterSelect(v, this.Chapter);
         }
-    }
-
-    public interface OnChapterClickListener
-    {
-        void onChapterSelect(View v, Chapter c);
     }
 }

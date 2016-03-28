@@ -25,13 +25,31 @@ import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 
 public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener {
+    private final Activity thisActivity = this;
     private RecyclerView mRecycler;
+    private final Response.ErrorListener errorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Snackbar.make(mRecycler, error.getMessage(), Snackbar.LENGTH_LONG).show();
+        }
+    };
+    //private FloatingActionButton mFab;
     private ArrayList<Chapter> mChapterData;
     private ChapterListAdapter mAdapter;
-    //private FloatingActionButton mFab;
+    private final Response.Listener<List<Chapter>> successListener = new Response.Listener<List<Chapter>>() {
+        @Override
+        public void onResponse(List<Chapter> response) {
+            int currentCount = mChapterData.size();
+            // Houston, we've got data!
+            mChapterData.clear();
+            mAdapter.notifyItemRangeRemoved(0, currentCount);
 
-    private final Activity thisActivity = this;
+            mChapterData.addAll(response);
+            mAdapter.notifyItemRangeInserted(0, mChapterData.size());
 
+            Snackbar.make(mRecycler, "Loaded chapters!", Snackbar.LENGTH_LONG).show();
+        }
+    };
     private SuperSingleton singleton;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,15 +66,13 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         SetupRecycler();
     }
 
-    private void SetupData()
-    {
+    private void SetupData() {
         mChapterData = new ArrayList<>();
         ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), successListener, errorListener);
         singleton.getVolleyRequestQueue().add(downloadRequest);
     }
 
-    private void SetupRecycler()
-    {
+    private void SetupRecycler() {
         mRecycler = (RecyclerView) findViewById(R.id.chapterList);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
@@ -100,26 +116,4 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             }
         });
     }
-
-
-    private final Response.Listener<List<Chapter>> successListener = new Response.Listener<List<Chapter>>() {
-        @Override
-        public void onResponse(List<Chapter> response) {
-            int currentCount = mChapterData.size();
-            // Houston, we've got data!
-            mChapterData.clear();
-            mAdapter.notifyItemRangeRemoved(0, currentCount);
-
-            mChapterData.addAll(response);
-            mAdapter.notifyItemRangeInserted(0, mChapterData.size());
-
-            Snackbar.make(mRecycler, "Loaded chapters!", Snackbar.LENGTH_LONG).show();
-        }
-    };
-    private final Response.ErrorListener errorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Snackbar.make(mRecycler, error.getMessage(), Snackbar.LENGTH_LONG).show();
-        }
-    };
 }

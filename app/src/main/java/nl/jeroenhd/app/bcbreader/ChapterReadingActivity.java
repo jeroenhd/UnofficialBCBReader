@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -34,6 +33,7 @@ import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
 
 public class ChapterReadingActivity extends AppCompatActivity {
     public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.CHAPTER";
+    private final ChapterReadingActivity thisActivity = this;
     private RecyclerView mRecycler;
     private RecyclerView.LayoutManager mLayout;
     private ChapterReadingAdapter mAdapter;
@@ -42,8 +42,6 @@ public class ChapterReadingActivity extends AppCompatActivity {
     private CoordinatorLayout mCoordinatorLayout;
     private CallbackNetworkImageView headerBackgroundImage;
     private Toolbar toolbar;
-
-    private final ChapterReadingActivity thisActivity = this;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,18 +63,17 @@ public class ChapterReadingActivity extends AppCompatActivity {
                         }).show();
             }
         });
-        if (getSupportActionBar()!=null)
+        if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        headerBackgroundImage = (CallbackNetworkImageView)findViewById(R.id.backgroundImage);
-        mCoordinatorLayout = (CoordinatorLayout)findViewById(R.id.coordinator);
+        headerBackgroundImage = (CallbackNetworkImageView) findViewById(R.id.backgroundImage);
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
 
 
         SetupAnimation();
 
         mChapter = this.getIntent().getParcelableExtra(ChapterReadingActivity.CHAPTER);
-        if (mChapter==null)
-        {
+        if (mChapter == null) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -93,12 +90,11 @@ public class ChapterReadingActivity extends AppCompatActivity {
         SetupRecyclerView();
     }
 
-    private void SetupHeader()
-    {
+    private void SetupHeader() {
         headerBackgroundImage.setCallback(new CallbackNetworkImageView.ImageEventListener() {
             @Override
             public void onLoadSuccess(Bitmap bm) {
-                if (bm==null)
+                if (bm == null)
                     return;
                 Palette.PaletteAsyncListener paletteAsyncListener = new Palette.PaletteAsyncListener() {
                     @Override
@@ -124,14 +120,12 @@ public class ChapterReadingActivity extends AppCompatActivity {
         );
     }
 
-    private void SetupData(Chapter chapter)
-    {
+    private void SetupData(Chapter chapter) {
         mPages = new ArrayList<>();
         mPages.addAll(chapter.getPageDescriptions());
     }
 
-    private void SetupAnimation()
-    {
+    private void SetupAnimation() {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Transition transition = TransitionInflater.from(this).inflateTransition(R.transition.changebounds_with_arcmotion);
             getWindow().setSharedElementEnterTransition(transition);
@@ -158,8 +152,7 @@ public class ChapterReadingActivity extends AppCompatActivity {
         }
     }
 
-    void UpdateTheme(Bitmap headerBitmap)
-    {
+    void UpdateTheme(Bitmap headerBitmap) {
         Palette.from(headerBitmap).generate(new Palette.PaletteAsyncListener() {
             @Override
             public void onGenerated(Palette palette) {
@@ -177,8 +170,7 @@ public class ChapterReadingActivity extends AppCompatActivity {
         });
     }
 
-    private void SetupRecyclerView()
-    {
+    private void SetupRecyclerView() {
         mRecycler = (RecyclerView) findViewById(R.id.pages);
 
         mLayout = new LinearLayoutManager(this);

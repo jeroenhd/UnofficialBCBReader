@@ -9,6 +9,15 @@ import android.os.Parcelable;
 @SuppressWarnings("unused")
 public class Page implements Parcelable {
     public static final int NORMAL_WIDTH = 800;
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public Page createFromParcel(Parcel in) {
+            return new Page(in);
+        }
+
+        public Page[] newArray(int size) {
+            return new Page[size];
+        }
+    };
     private String description;
     private Double page;
     private Double chapter;
@@ -17,6 +26,11 @@ public class Page implements Parcelable {
         this.description = description;
         this.page = page;
         this.chapter = chapter;
+    }
+
+    public Page(Parcel data) {
+        this.description = data.readString();
+        this.page = data.readDouble();
     }
 
     public Double getChapter() {
@@ -53,19 +67,4 @@ public class Page implements Parcelable {
         dest.writeString(description);
         dest.writeDouble(page);
     }
-
-    public Page(Parcel data) {
-        this.description = data.readString();
-        this.page = data.readDouble();
-    }
-
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public Page createFromParcel(Parcel in) {
-            return new Page(in);
-        }
-
-        public Page[] newArray(int size) {
-            return new Page[size];
-        }
-    };
 }

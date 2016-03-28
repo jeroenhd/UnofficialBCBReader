@@ -10,13 +10,22 @@ import java.util.List;
  * A class containing all data about a chapter
  */
 @SuppressWarnings("unused")
-public class Chapter implements Parcelable{
+public class Chapter implements Parcelable {
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public Chapter createFromParcel(Parcel in) {
+            return new Chapter(in);
+        }
+
+        public Chapter[] newArray(int size) {
+            return new Chapter[size];
+        }
+    };
+    Double number;
     private String title;
     private String description;
     private Integer pageCount;
     private Integer totalPages;
     private String yearPublished;
-    Double number;
     private List<Page> pageDescriptions;
 
     public Chapter(String title, String description, Integer pageCount, Integer totalPages, String yearPublished, Double number) {
@@ -26,6 +35,25 @@ public class Chapter implements Parcelable{
         this.totalPages = totalPages;
         this.yearPublished = yearPublished;
         this.number = number;
+    }
+
+    /**
+     * Make the chapter parcelable!!!
+     */
+    public Chapter(Parcel data) {
+        this.title = data.readString();
+        this.description = data.readString();
+        this.pageCount = data.readInt();
+        this.totalPages = data.readInt();
+        this.yearPublished = data.readString();
+        this.number = data.readDouble();
+
+        pageDescriptions = new ArrayList<>();
+        // this only works if Page is parcelable!
+        data.readList(this.pageDescriptions, Page.class.getClassLoader());
+        for (Page page : pageDescriptions) {
+            page.setChapter(this.getNumber());
+        }
     }
 
     public Double getNumber() {
@@ -76,26 +104,6 @@ public class Chapter implements Parcelable{
         this.yearPublished = yearPublished;
     }
 
-    /**
-     * Make the chapter parcelable!!!
-     */
-    public Chapter(Parcel data)
-    {
-        this.title = data.readString();
-        this.description = data.readString();
-        this.pageCount = data.readInt();
-        this.totalPages = data.readInt();
-        this.yearPublished = data.readString();
-        this.number = data.readDouble();
-
-        pageDescriptions = new ArrayList<>();
-        // this only works if Page is parcelable!
-        data.readList(this.pageDescriptions, Page.class.getClassLoader());
-        for (Page page : pageDescriptions) {
-            page.setChapter(this.getNumber());
-        }
-    }
-
     public List<Page> getPageDescriptions() {
         return pageDescriptions;
     }
@@ -119,14 +127,4 @@ public class Chapter implements Parcelable{
         dest.writeDouble(this.number);
         dest.writeList(pageDescriptions);
     }
-
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public Chapter createFromParcel(Parcel in) {
-            return new Chapter(in);
-        }
-
-        public Chapter[] newArray(int size) {
-            return new Chapter[size];
-        }
-    };
 }

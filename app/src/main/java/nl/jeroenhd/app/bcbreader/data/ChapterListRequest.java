@@ -26,11 +26,11 @@ public class ChapterListRequest extends Request<List<Chapter>> {
     /**
      * Make a GET request and return a parsed object from JSON.
      *
-     * @param url URL of the request to make
+     * @param url     URL of the request to make
      * @param headers Map of request headers
      */
     public ChapterListRequest(String url, Map<String, String> headers,
-                          Response.Listener<List<Chapter>> listener, Response.ErrorListener errorListener) {
+                              Response.Listener<List<Chapter>> listener, Response.ErrorListener errorListener) {
         super(Method.GET, url, errorListener);
         this.headers = headers;
         this.listener = listener;
@@ -48,8 +48,7 @@ public class ChapterListRequest extends Request<List<Chapter>> {
 
     @Override
     protected Response<List<Chapter>> parseNetworkResponse(NetworkResponse response) {
-        try
-        {
+        try {
             // Build a new Gson
             GsonBuilder builder = new GsonBuilder();
             // Prepare a valid list

@@ -6,13 +6,11 @@ import nl.jeroenhd.app.bcbreader.BuildConfig;
  * Keep app data together
  */
 class App {
-    public static String Version()
-    {
+    public static String Version() {
         return BuildConfig.VERSION_NAME;
     }
 
-    public static String VolleyVersion()
-    {
+    public static String VolleyVersion() {
         return "1.0.19";
     }
 }

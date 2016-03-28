@@ -21,15 +21,13 @@ class ChapterListDeserializer implements JsonDeserializer<List<Chapter>> {
         ArrayList<Chapter> chapters = new ArrayList<>();
 
         // Loop over all members in the main object, and deserialize every one of them apart
-        for(Map.Entry<String, JsonElement> entry : jsonObject.entrySet())
-        {
+        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
             Chapter chapter = context.deserialize(entry.getValue(), Chapter.class);
             chapter.number = Double.parseDouble(
                     entry.getKey()
             );
 
-            for(Page p : chapter.getPageDescriptions())
-            {
+            for (Page p : chapter.getPageDescriptions()) {
                 p.setChapter(chapter.number);
             }
             chapters.add(chapter);
