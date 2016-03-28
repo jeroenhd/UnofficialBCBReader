@@ -12,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -37,14 +38,15 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             Snackbar.make(mRecycler, error.getMessage(), Snackbar.LENGTH_LONG).show();
         }
     };
+    private ProgressBar mLoadingProgressbar;
     //private FloatingActionButton mFab;
     private ArrayList<Chapter> mChapterData;
     private ChapterListAdapter mAdapter;
+
+
     private final Response.Listener<List<Chapter>> successListener = new Response.Listener<List<Chapter>>() {
         @Override
         public void onResponse(List<Chapter> response) {
-            int currentCount = mChapterData.size();
-
             TransactionManager.getInstance().addTransaction(new SaveModelTransaction<>(ProcessModelInfo.withModels(response)));
 
             // Houston, we've got data!
@@ -78,6 +80,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                     mChapterData.add(c);
                 }
             }
+            mLoadingProgressbar.setVisibility(View.GONE);
             mAdapter.notifyItemRangeInserted(startingIndex, count);
 
             Snackbar.make(mRecycler, "Loaded chapters!", Snackbar.LENGTH_LONG).show();
@@ -92,6 +95,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         setSupportActionBar(toolbar);
 
         singleton = SuperSingleton.getInstance(this);
+        mLoadingProgressbar = (ProgressBar) findViewById(R.id.progressBar);
 
         SetupData();
         SetupRecycler();
@@ -100,7 +104,11 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private void SetupData() {
         mChapterData = new ArrayList<>();
 
-        mChapterData.addAll(new Select().from(Chapter.class).queryList());
+        List<Chapter> chapters = new Select().from(Chapter.class).queryList();
+        if (chapters.size() > 0) {
+            mLoadingProgressbar.setVisibility(View.GONE);
+            mChapterData.addAll(chapters);
+        }
 
         ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), successListener, errorListener);
         singleton.getVolleyRequestQueue().add(downloadRequest);

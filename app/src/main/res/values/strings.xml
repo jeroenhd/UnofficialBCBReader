@@ -7,4 +7,7 @@
     <string name="action_settings">Settings</string>
     <string name="dummy_commentary">Debug: this is some medium-length commentary for the dummy page. Just look at dem cats.</string>
     <string name="content_description_header">Header</string>
+    <string name="added_to_favourites">Chapter added to favourites</string>
+    <string name="removed_from_favourites">Chapter removed from favourites</string>
+    <string name="undo">Undo</string>
 </resources>

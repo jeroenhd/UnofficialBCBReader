@@ -49,28 +49,6 @@ public class ChapterReadingActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO: SetChapterIsFavorite(chapter, true);
-                Snackbar.make(view, "Added as favorite", Snackbar.LENGTH_LONG)
-                        .setAction("Undo", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                //TODO: SetChapterIsFavorite(chapter, false);
-                            }
-                        }).show();
-            }
-        });
-        if (getSupportActionBar() != null)
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        headerBackgroundImage = (CallbackNetworkImageView) findViewById(R.id.backgroundImage);
-        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
-
-
-        SetupAnimation();
 
         mChapter = this.getIntent().getParcelableExtra(ChapterReadingActivity.CHAPTER);
         if (mChapter == null) {
@@ -83,6 +61,35 @@ public class ChapterReadingActivity extends AppCompatActivity {
         } else {
             this.setTitle(mChapter.getTitle());
         }
+
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white_48dp);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mChapter.setFavourite(!mChapter.isFavourite());
+                mChapter.save();
+
+                String msg;
+                if (mChapter.isFavourite()) {
+                    msg = getString(R.string.added_to_favourites);
+                } else {
+                    msg = getString(R.string.removed_from_favourites);
+                }
+
+                fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white_48dp);
+                fab.invalidate();
+                Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
+                        .setAction(getString(R.string.undo), this).show();
+            }
+        });
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        headerBackgroundImage = (CallbackNetworkImageView) findViewById(R.id.backgroundImage);
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
+
+        SetupAnimation();
 
         SetupHeader();
 
