@@ -3,14 +3,24 @@ package nl.jeroenhd.app.bcbreader.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.OneToMany;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.structure.BaseModel;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
+
 /**
  * A class containing all data about a chapter
+ * Annotations are for DBFlow
  */
 @SuppressWarnings("unused")
-public class Chapter implements Parcelable {
+@Table(database = ChapterDatabase.class)
+public class Chapter extends BaseModel implements Parcelable {
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         public Chapter createFromParcel(Parcel in) {
             return new Chapter(in);
@@ -20,12 +30,25 @@ public class Chapter implements Parcelable {
             return new Chapter[size];
         }
     };
+
+    @PrimaryKey
     Double number;
+
+    @Column
     private String title;
+
+    @Column
     private String description;
+
+    @Column
     private Integer pageCount;
+
+    @Column
     private Integer totalPages;
+
+    @Column
     private String yearPublished;
+
     private List<Page> pageDescriptions;
 
     public Chapter(String title, String description, Integer pageCount, Integer totalPages, String yearPublished, Double number) {
@@ -104,6 +127,7 @@ public class Chapter implements Parcelable {
         this.yearPublished = yearPublished;
     }
 
+    @OneToMany(methods = {OneToMany.Method.SAVE, OneToMany.Method.DELETE}, variableName = "pageDescriptions")
     public List<Page> getPageDescriptions() {
         return pageDescriptions;
     }

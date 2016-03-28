@@ -3,11 +3,22 @@ package nl.jeroenhd.app.bcbreader.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.structure.BaseModel;
+import com.raizlabs.android.dbflow.structure.container.ForeignKeyContainer;
+
+import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
+
 /**
  * A class representing a single page
+ * Annotations are for DBFlow
  */
 @SuppressWarnings("unused")
-public class Page implements Parcelable {
+@Table(database = ChapterDatabase.class)
+public class Page extends BaseModel implements Parcelable {
     public static final int NORMAL_WIDTH = 800;
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         public Page createFromParcel(Parcel in) {
@@ -18,8 +29,13 @@ public class Page implements Parcelable {
             return new Page[size];
         }
     };
+    @ForeignKey(saveForeignKeyModel = false)
+    ForeignKeyContainer<Chapter> chapterForeignKeyContainer;
+    @Column
     private String description;
+    @Column
     private Double page;
+    @Column
     private Double chapter;
 
     public Page(String description, Double page, double chapter) {
@@ -31,6 +47,10 @@ public class Page implements Parcelable {
     public Page(Parcel data) {
         this.description = data.readString();
         this.page = data.readDouble();
+    }
+
+    public void associateChapter(Chapter chapter) {
+        chapterForeignKeyContainer = FlowManager.getContainerAdapter(Chapter.class).toForeignKeyContainer(chapter);
     }
 
     public Double getChapter() {
