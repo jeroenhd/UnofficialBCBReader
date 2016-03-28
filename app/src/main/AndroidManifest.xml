@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <application
+        android:name="nl.jeroenhd.app.bcbreader.BCBReaderApplication"
         android:allowBackup="true"
         android:fullBackupContent="@xml/fullbackupscheme"
         android:icon="@mipmap/ic_launcher"
