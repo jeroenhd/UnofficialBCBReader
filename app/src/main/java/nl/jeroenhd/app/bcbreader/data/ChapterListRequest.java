@@ -20,7 +20,6 @@ import java.util.Map;
  * Stolen from https://developer.android.com/training/volley/request-custom.html
  */
 public class ChapterListRequest extends Request<List<Chapter>> {
-    private final Gson gson = new Gson();
     private final Map<String, String> headers;
     private final Response.Listener<List<Chapter>> listener;
 
@@ -66,6 +65,7 @@ public class ChapterListRequest extends Request<List<Chapter>> {
                     HttpHeaderParser.parseCharset(response.headers));
 
             // Decode the JSON
+            //noinspection unchecked
             chapterList = gson.fromJson(json, chapterList.getClass());
 
             return Response.success(

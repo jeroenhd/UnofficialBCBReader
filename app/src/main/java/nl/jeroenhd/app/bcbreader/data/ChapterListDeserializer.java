@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * An object to deserialize the chapter list
  */
-public class ChapterListDeserializer implements JsonDeserializer<List<Chapter>> {
+class ChapterListDeserializer implements JsonDeserializer<List<Chapter>> {
     @Override
     public List<Chapter> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();

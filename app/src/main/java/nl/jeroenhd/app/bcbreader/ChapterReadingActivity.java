@@ -1,20 +1,13 @@
 package nl.jeroenhd.app.bcbreader;
 
 import android.animation.Animator;
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
@@ -29,27 +22,11 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
-import android.widget.ImageView;
 
-import com.android.volley.Cache;
-import com.android.volley.Network;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.BasicNetwork;
-import com.android.volley.toolbox.DiskBasedCache;
-import com.android.volley.toolbox.HurlStack;
-import com.android.volley.toolbox.NetworkImageView;
-import com.google.gson.GsonBuilder;
-
-import java.io.Console;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
-import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
 import nl.jeroenhd.app.bcbreader.data.Page;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 import nl.jeroenhd.app.bcbreader.tools.ColorHelper;
@@ -57,17 +34,16 @@ import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
 
 public class ChapterReadingActivity extends AppCompatActivity {
     public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.CHAPTER";
-    RecyclerView mRecycler;
-    RecyclerView.LayoutManager mLayout;
-    ChapterReadingAdapter mAdapter;
-    ArrayList<Page> mPages;
-    Chapter mChapter;
-    CoordinatorLayout mCoordinatorLayout;
-    CollapsingToolbarLayout mCollapsingToolbarLayout;
-    CallbackNetworkImageView headerBackgroundImage;
-    Toolbar toolbar;
+    private RecyclerView mRecycler;
+    private RecyclerView.LayoutManager mLayout;
+    private ChapterReadingAdapter mAdapter;
+    private ArrayList<Page> mPages;
+    private Chapter mChapter;
+    private CoordinatorLayout mCoordinatorLayout;
+    private CallbackNetworkImageView headerBackgroundImage;
+    private Toolbar toolbar;
 
-    final ChapterReadingActivity thisActivity = this;
+    private final ChapterReadingActivity thisActivity = this;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,7 +70,7 @@ public class ChapterReadingActivity extends AppCompatActivity {
 
         headerBackgroundImage = (CallbackNetworkImageView)findViewById(R.id.backgroundImage);
         mCoordinatorLayout = (CoordinatorLayout)findViewById(R.id.coordinator);
-        mCollapsingToolbarLayout = (CollapsingToolbarLayout)findViewById(R.id.toolbar_layout);
+
 
         SetupAnimation();
 
@@ -117,7 +93,7 @@ public class ChapterReadingActivity extends AppCompatActivity {
         SetupRecyclerView();
     }
 
-    void SetupHeader()
+    private void SetupHeader()
     {
         headerBackgroundImage.setCallback(new CallbackNetworkImageView.ImageEventListener() {
             @Override
@@ -129,8 +105,8 @@ public class ChapterReadingActivity extends AppCompatActivity {
                     public void onGenerated(Palette palette) {
                         int backgroundColor = palette.getLightVibrantColor(0xffffffff);
                         int titleColor = ColorHelper.foregroundColor(backgroundColor);
-                        toolbar.setTitleTextColor(/*titleColor*/0x0);
-                        toolbar.setSubtitleTextColor(/*titleColor*/0x0);
+                        toolbar.setTitleTextColor(titleColor);
+                        toolbar.setSubtitleTextColor(titleColor);
                     }
                 };
                 Palette.from(bm).generate(paletteAsyncListener);
@@ -148,13 +124,13 @@ public class ChapterReadingActivity extends AppCompatActivity {
         );
     }
 
-    void SetupData(Chapter chapter)
+    private void SetupData(Chapter chapter)
     {
         mPages = new ArrayList<>();
         mPages.addAll(chapter.getPageDescriptions());
     }
 
-    void SetupAnimation()
+    private void SetupAnimation()
     {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Transition transition = TransitionInflater.from(this).inflateTransition(R.transition.changebounds_with_arcmotion);
@@ -201,7 +177,7 @@ public class ChapterReadingActivity extends AppCompatActivity {
         });
     }
 
-    void SetupRecyclerView()
+    private void SetupRecyclerView()
     {
         mRecycler = (RecyclerView) findViewById(R.id.pages);
 

@@ -6,6 +6,7 @@ import android.os.Parcelable;
 /**
  * A class representing a single page
  */
+@SuppressWarnings("unused")
 public class Page implements Parcelable {
     public static final int NORMAL_WIDTH = 800;
     private String description;

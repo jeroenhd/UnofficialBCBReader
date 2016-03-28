@@ -9,12 +9,15 @@ import java.util.List;
 /**
  * A class containing all data about a chapter
  */
+@SuppressWarnings("unused")
 public class Chapter implements Parcelable{
-    String title, description;
-    Integer pageCount, totalPages;
-    String yearPublished;
+    private String title;
+    private String description;
+    private Integer pageCount;
+    private Integer totalPages;
+    private String yearPublished;
     Double number;
-    List<Page> pageDescriptions;
+    private List<Page> pageDescriptions;
 
     public Chapter(String title, String description, Integer pageCount, Integer totalPages, String yearPublished, Double number) {
         this.title = title;

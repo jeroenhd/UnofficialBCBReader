@@ -1,13 +1,9 @@
 package nl.jeroenhd.app.bcbreader;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,16 +11,10 @@ import android.support.v7.widget.AppCompatImageView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.ImageRequest;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
@@ -33,10 +23,10 @@ import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
  * A list adapter for the RecyclerView of ChapterListActivity
  */
 public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.ViewHolder> {
-    private Context mContext;
-    private ArrayList<Chapter> mData;
-    private OnChapterClickListener mOnItemClickListener;
-    private SuperSingleton singleton;
+    private final Context mContext;
+    private final ArrayList<Chapter> mData;
+    private final OnChapterClickListener mOnItemClickListener;
+    private final SuperSingleton singleton;
 
     public ChapterListAdapter(Context context, ArrayList<Chapter> data, OnChapterClickListener onItemClickListener)
     {
@@ -55,7 +45,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         return new ViewHolder(inflatedView, this.mOnItemClickListener);
     }
 
-    void DownloadImageToImageView(final String URL, final ViewHolder holder)
+    private void DownloadImageToImageView(final String URL, final ViewHolder holder)
     {
         ImageLoader imageLoader = singleton.getImageLoader();
         imageLoader.get(URL, ImageLoader.getImageListener(
@@ -94,12 +84,12 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public ImageView ChapterThumbView;
-        public TextView ChapterTitleView;
-        public TextView ChapterDescriptionView;
-        public AppCompatImageView FavouriteImageView;
+        public final ImageView ChapterThumbView;
+        public final TextView ChapterTitleView;
+        public final TextView ChapterDescriptionView;
+        public final AppCompatImageView FavouriteImageView;
         public Chapter Chapter;
-        private OnChapterClickListener ClickHandler;
+        private final OnChapterClickListener ClickHandler;
 
         public ViewHolder(View itemView, OnChapterClickListener onClick) {
             super(itemView);

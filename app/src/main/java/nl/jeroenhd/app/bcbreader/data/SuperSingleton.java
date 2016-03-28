@@ -15,18 +15,19 @@ import java.io.File;
 /**
  * A singleton class to keep track of all unique objects within the app
  */
+@SuppressWarnings("unused")
 public class SuperSingleton {
-    protected static SuperSingleton instance;
+    private static SuperSingleton instance;
 
-    private Context mContext;
+    private final Context mContext;
 
     // Volley data
-    RequestQueue volleyRequestQueue;
-    GsonBuilder gsonBuilder;
-    Cache volleyCache;
-    ImageLoader.ImageCache imageCache;
-    Network volleyNetwork;
-    ImageLoader imageLoader;
+    private RequestQueue volleyRequestQueue;
+    private GsonBuilder gsonBuilder;
+    private Cache volleyCache;
+    private ImageLoader.ImageCache imageCache;
+    private Network volleyNetwork;
+    private ImageLoader imageLoader;
 
     public GsonBuilder getGsonBuilder() {
         return gsonBuilder;
@@ -44,7 +45,7 @@ public class SuperSingleton {
         return volleyRequestQueue;
     }
 
-    protected SuperSingleton(Context context)
+    private SuperSingleton(Context context)
     {
         mContext = context;
         InitVolley();

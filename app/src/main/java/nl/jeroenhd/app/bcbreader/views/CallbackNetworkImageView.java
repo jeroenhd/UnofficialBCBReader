@@ -14,13 +14,10 @@ import com.android.volley.toolbox.NetworkImageView;
 public class CallbackNetworkImageView extends NetworkImageView {
     public interface ImageEventListener{
         void onLoadSuccess(Bitmap bitmap);
+        @SuppressWarnings("EmptyMethod")
         void onLoadError();
     }
-    ImageEventListener callback;
-
-    public ImageEventListener getCallback() {
-        return callback;
-    }
+    private ImageEventListener callback;
 
     public void setCallback(ImageEventListener callback) {
         this.callback = callback;
@@ -62,7 +59,7 @@ public class CallbackNetworkImageView extends NetworkImageView {
      * {@link BitmapFactory} instead.</p>
      *
      * @param resId the resource identifier of the drawable
-     * @attr ref android.R.styleable#ImageView_src
+     *
      */
     @Override
     public void setImageResource(int resId) {

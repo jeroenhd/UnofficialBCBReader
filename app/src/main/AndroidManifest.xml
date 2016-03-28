@@ -2,8 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="nl.jeroenhd.app.bcbreader">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:allowBackup="true"
+        android:fullBackupContent="@xml/fullbackupscheme"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -28,5 +30,4 @@
                 android:value="nl.jeroenhd.app.bcbreader.ChapterListActivity" />
         </activity>
     </application>
-    <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>

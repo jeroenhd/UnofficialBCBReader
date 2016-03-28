@@ -7,9 +7,9 @@ import java.util.Map;
  * API URL container
  */
 public class API {
-    public static final String BaseURL = "https://www.bittersweetcandybowl.com/";
+    private static final String BaseURL = "https://www.bittersweetcandybowl.com/";
     public static final String ChaptersDB = BaseURL + "app/json/db_main-1.2";
-    public static final String CDNUrl = "https://blasto.enterprises/";
+    private static final String CDNUrl = "https://blasto.enterprises/";
 
     /**
      * Determine whether the files for a chapter end in JPG or are not

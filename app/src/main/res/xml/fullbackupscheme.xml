@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- TODO: When databases and such are added, add those file here. See https://developer.android.com/training/backup/autosyncapi.html for details -->
+</full-backup-content>
