@@ -23,8 +23,6 @@ import android.view.ViewAnimationUtils;
 import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
 
-import com.android.volley.toolbox.NetworkImageView;
-
 import java.util.ArrayList;
 
 import nl.jeroenhd.app.bcbreader.data.API;

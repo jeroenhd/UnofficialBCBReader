@@ -3,10 +3,8 @@ package nl.jeroenhd.app.bcbreader.data;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
-import com.android.volley.toolbox.ImageLoader;
-import android.util.LruCache;
 
-import com.android.volley.toolbox.ImageLoader.ImageCache;
+import com.android.volley.toolbox.ImageLoader;
 
 /**
  * copied from official documentation

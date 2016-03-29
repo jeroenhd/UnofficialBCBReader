@@ -9,8 +9,6 @@ import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.util.AttributeSet;
 
-import com.android.volley.toolbox.NetworkImageView;
-
 /**
  * An ImageView that fades between loading and displaying
  * Based on https://gist.github.com/benvd/5683818

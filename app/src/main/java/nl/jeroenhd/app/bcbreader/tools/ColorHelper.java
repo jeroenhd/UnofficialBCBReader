@@ -1,6 +1,5 @@
 package nl.jeroenhd.app.bcbreader.tools;
 
-import android.app.Application;
 import android.graphics.Color;
 
 /**
