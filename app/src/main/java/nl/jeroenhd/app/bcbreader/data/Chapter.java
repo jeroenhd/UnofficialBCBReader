@@ -31,6 +31,14 @@ public class Chapter extends BaseModel implements Parcelable {
         }
     };
 
+
+    @Override
+    public void save() {
+        super.save();
+        for (Page page : this.pageDescriptions)
+            page.save();
+    }
+
     @PrimaryKey
     Double number;
 
