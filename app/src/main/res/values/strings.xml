@@ -85,4 +85,12 @@
     <string name="added_to_favourites">Chapter added to favourites</string>
     <string name="removed_from_favourites">Chapter removed from favourites</string>
     <string name="undo">Undo</string>
+    <string name="pref_header_reading">Reading</string>
+    <string name="pref_header_about">About</string>
+    <string name="pref_title_reading_quality">Page quality</string>
+    <string name="pref_title_telemetry_unique_identifier">Unique identifier for this device</string>
+    <string name="pref_title_telemetry_send_manually">Send telemetry manually</string>
+    <string name="title_license">Licence</string>
+    <string name="thank_you_for_sending_telemetry">Thank you for sending telemetry!</string>
+    <string name="error_sending_telemetry">Error sending telemetry</string>
 </resources>

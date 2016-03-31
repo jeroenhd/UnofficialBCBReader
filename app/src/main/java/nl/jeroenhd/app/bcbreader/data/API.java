@@ -89,9 +89,9 @@ public class API {
      * @param quality The quality of the page
      * @return The URL to the page
      */
-    public static String FormatPageUrl(Double chapter, double page) {
+    public static String FormatPageUrl(Double chapter, double page, String quality) {
         String ext = isJpegChapter(chapter) ? ".jpg" : ".png";
-        return CDNUrl + "comics/" + formatChapterNumber(chapter) + "/" + "" + ((long) page) + ext;
+        return CDNUrl + "comics/" + formatChapterNumber(chapter) + "/" + "" + ((long) page) + quality + ext;
     }
 
     public static String FormatLqThumbURL(double chapter, double page) {
