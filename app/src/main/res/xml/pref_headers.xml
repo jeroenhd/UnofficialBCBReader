@@ -13,11 +13,12 @@
         android:title="@string/pref_header_reading"/>
 
     <header
+        android:fragment="nl.jeroenhd.app.bcbreader.SettingsActivity$TelemetryPreferenceFragment"
+        android:icon="@drawable/ic_memory_black_24dp"
+        android:title="@string/pref_header_telemetry"/>
+
+    <header
         android:fragment="nl.jeroenhd.app.bcbreader.SettingsActivity$AboutPreferenceFragment"
         android:icon="@drawable/ic_info_black_24dp"
         android:title="@string/pref_header_about"/>
-    <header
-        android:fragment="nl.jeroenhd.app.bcbreader.SettingsActivity$TelemetryPreferenceFragment"
-        android:icon="@drawable/ic_info_black_24dp"
-        android:title="@string/pref_header_telemetry"/>
 </preference-headers>
