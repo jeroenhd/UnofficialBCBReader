@@ -18,11 +18,10 @@ import nl.jeroenhd.app.bcbreader.views.PageImageView;
  * A class implementing a RecyclerView.Adapter for reading a chapter
  */
 public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAdapter.ViewHolder> {
-    private Context mContext;
-    private ArrayList<Page> mData;
+    private final Context mContext;
+    private final ArrayList<Page> mData;
 
-    public ChapterReadingAdapter(Context context, ArrayList<Page> data)
-    {
+    public ChapterReadingAdapter(Context context, ArrayList<Page> data) {
         mContext = context;
         mData = data;
     }
@@ -46,20 +45,21 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
         holder.commentaryView.setText(Html.fromHtml(page.getDescription()));
         holder.commentaryView.setMovementMethod(LinkMovementMethod.getInstance());
     }
+
     @Override
     public int getItemCount() {
         return mData == null ? 0 : mData.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public PageImageView networkImageView;
-        public TextView commentaryView;
+        public final PageImageView networkImageView;
+        public final TextView commentaryView;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            networkImageView = (PageImageView)itemView.findViewById(R.id.page);
-            commentaryView = (TextView)itemView.findViewById(R.id.commentary);
+            networkImageView = (PageImageView) itemView.findViewById(R.id.page);
+            commentaryView = (TextView) itemView.findViewById(R.id.commentary);
         }
     }
 }

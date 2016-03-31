@@ -19,9 +19,10 @@ import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
  * A class to view pages
  */
 public class PageImageView extends FadingNetworkImageView{
-    ImageLoader imageLoader;
-    boolean fullImageLoaded = false;
-    double lastPage, lastChapter;
+    private final ImageLoader imageLoader;
+    private boolean fullImageLoaded = false;
+    private double lastPage;
+    private double lastChapter;
 
     public PageImageView(Context context) {
         super(context);

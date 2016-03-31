@@ -16,18 +16,31 @@ import java.io.File;
 /**
  * A singleton class to keep track of all unique objects within the app
  */
+@SuppressWarnings("unused")
 public class SuperSingleton {
-    protected static SuperSingleton instance;
+    private static SuperSingleton instance;
 
-    private Context mContext;
+    private final Context mContext;
 
     // Volley data
-    RequestQueue volleyRequestQueue;
-    GsonBuilder gsonBuilder;
-    Cache volleyCache;
-    ImageLoader.ImageCache imageCache;
-    Network volleyNetwork;
-    ImageLoader imageLoader;
+    private RequestQueue volleyRequestQueue;
+    private GsonBuilder gsonBuilder;
+    private Cache volleyCache;
+    private ImageLoader.ImageCache imageCache;
+    private Network volleyNetwork;
+    private ImageLoader imageLoader;
+
+    private SuperSingleton(Context context) {
+        mContext = context;
+        InitVolley();
+    }
+
+    public static SuperSingleton getInstance(Context context) {
+        if (instance != null)
+            return instance;
+
+        return (instance = new SuperSingleton(context));
+    }
 
     public GsonBuilder getGsonBuilder() {
         return gsonBuilder;
@@ -45,14 +58,7 @@ public class SuperSingleton {
         return volleyRequestQueue;
     }
 
-    protected SuperSingleton(Context context)
-    {
-        mContext = context;
-        InitVolley();
-    }
-
-    private void InitVolley()
-    {
+    private void InitVolley() {
         gsonBuilder = new GsonBuilder();
         // 1MB general cache
         volleyCache = new DiskBasedCache(new File(mContext.getCacheDir(), "volley"), 1024 * 1024 * 1024);
@@ -74,13 +80,5 @@ public class SuperSingleton {
 
     public ImageLoader.ImageCache getImageCache() {
         return imageCache;
-    }
-
-    public static SuperSingleton getInstance(Context context)
-    {
-        if (instance != null)
-            return instance;
-
-        return (instance = new SuperSingleton(context));
     }
 }

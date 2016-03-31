@@ -20,18 +20,17 @@ import java.util.Map;
  * Stolen from https://developer.android.com/training/volley/request-custom.html
  */
 public class ChapterListRequest extends Request<List<Chapter>> {
-    private final Gson gson = new Gson();
     private final Map<String, String> headers;
     private final Response.Listener<List<Chapter>> listener;
 
     /**
      * Make a GET request and return a parsed object from JSON.
      *
-     * @param url URL of the request to make
+     * @param url     URL of the request to make
      * @param headers Map of request headers
      */
     public ChapterListRequest(String url, Map<String, String> headers,
-                          Response.Listener<List<Chapter>> listener, Response.ErrorListener errorListener) {
+                              Response.Listener<List<Chapter>> listener, Response.ErrorListener errorListener) {
         super(Method.GET, url, errorListener);
         this.headers = headers;
         this.listener = listener;
@@ -49,8 +48,7 @@ public class ChapterListRequest extends Request<List<Chapter>> {
 
     @Override
     protected Response<List<Chapter>> parseNetworkResponse(NetworkResponse response) {
-        try
-        {
+        try {
             // Build a new Gson
             GsonBuilder builder = new GsonBuilder();
             // Prepare a valid list
@@ -66,6 +64,7 @@ public class ChapterListRequest extends Request<List<Chapter>> {
                     HttpHeaderParser.parseCharset(response.headers));
 
             // Decode the JSON
+            //noinspection unchecked
             chapterList = gson.fromJson(json, chapterList.getClass());
 
             return Response.success(

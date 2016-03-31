@@ -14,7 +14,7 @@ import android.util.AttributeSet;
  * Based on https://gist.github.com/benvd/5683818
  */
 public class FadingNetworkImageView extends CallbackNetworkImageView {
-    int fadeInTime = 250;
+    private final int fadeInTime = 250;
 
     public FadingNetworkImageView(Context context) {
         super(context);
@@ -45,7 +45,7 @@ public class FadingNetworkImageView extends CallbackNetworkImageView {
         fadeInBitmap(from, bm);
     }
 
-    public void fadeInBitmap(Drawable from, Bitmap bm)
+    private void fadeInBitmap(Drawable from, Bitmap bm)
     {
 
         TransitionDrawable td = new TransitionDrawable(new Drawable[]{

@@ -82,13 +82,7 @@
     <string name="pref_header_telemetry">Telemetry</string>
     <string name="pref_title_telemetry_sdcard_emulated">SD card is emulated</string>
     <string name="content_description_header">Header</string>
-    <string name="pref_title_telemetry_unique_identifier">Unique device identifier</string>
-    <string name="pref_title_telemetry_send_manually">Send telemetry now</string>
-    <string name="sending_telemetry">Sending telemetry to server</string>
-    <string name="thank_you_for_sending_telemetry">Thank you for sending this telemetry!</string>
-    <string name="error_sending_telemetry">Failed to send telemetry, try again later</string>
-    <string name="pref_header_about"><![CDATA[About & Licenses]]></string>
-    <string name="title_license">License</string>
-    <string name="pref_header_reading">Reading</string>
-    <string name="pref_title_reading_quality">Page quality</string>
+    <string name="added_to_favourites">Chapter added to favourites</string>
+    <string name="removed_from_favourites">Chapter removed from favourites</string>
+    <string name="undo">Undo</string>
 </resources>
