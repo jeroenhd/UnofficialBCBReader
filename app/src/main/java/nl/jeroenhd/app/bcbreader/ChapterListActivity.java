@@ -18,9 +18,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
-import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
-import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
 import java.util.ArrayList;
@@ -31,6 +28,7 @@ import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 import nl.jeroenhd.app.bcbreader.data.check.Check;
+import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
 
 public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener {
     private final Activity thisActivity = this;
@@ -42,7 +40,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private final Response.Listener<List<Chapter>> chapterListDownloadSuccessListener = new Response.Listener<List<Chapter>>() {
         @Override
         public void onResponse(List<Chapter> response) {
-            TransactionManager.getInstance().addTransaction(new SaveModelTransaction<>(ProcessModelInfo.withModels(response)));
+            ChapterDatabase.SaveUpdate(response);
 
             // Houston, we've got data!
             int startingIndex = 0, count = 0;

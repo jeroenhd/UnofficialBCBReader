@@ -13,4 +13,7 @@
     <string name="update_check_failed">Failed to check for updates. Check your network connection.</string>
     <string name="retry">Retry</string>
     <string name="chapter_list_download_failed">Couldn\'t download chapter list! Check your network connection</string>
+
+    <string name="notification_title">New page!</string>
+    <string name="notification_description">Look! A new pages has been posted!</string>
 </resources>
