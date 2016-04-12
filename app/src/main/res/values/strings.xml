@@ -93,4 +93,8 @@
     <string name="title_license">Licence</string>
     <string name="thank_you_for_sending_telemetry">Thank you for sending telemetry!</string>
     <string name="error_sending_telemetry">Error sending telemetry</string>
+
+    <string name="title_activity_fullscreen_reader">FullscreenReaderActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>
