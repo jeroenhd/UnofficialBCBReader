@@ -20,6 +20,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -32,6 +35,8 @@ dependencies {
     compile 'com.mcxiaoke.volley:library:1.0.19'
     compile 'com.android.support:palette-v7:23.1.1'
 
+    testCompile 'org.mockito:mockito-core:1.10.19'
+
     // DBFlow options
     apt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
     // kapt for kotlin apt
@@ -40,4 +45,6 @@ dependencies {
 
     // sql-cipher database encyrption (optional)
     compile "com.github.Raizlabs.DBFlow:dbflow-sqlcipher:${dbflow_version}"
+    androidTestCompile 'org.testng:testng:6.9.6'
+    testCompile 'junit:junit:4.12'
 }
