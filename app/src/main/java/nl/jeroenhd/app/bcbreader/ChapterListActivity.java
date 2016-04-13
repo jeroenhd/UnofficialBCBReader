@@ -33,7 +33,7 @@ import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 
-public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener {
+public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener, Toolbar.OnMenuItemClickListener {
     private final Activity thisActivity = this;
     private RecyclerView mRecycler;
     private final Response.ErrorListener errorListener = new Response.ErrorListener() {
@@ -101,7 +101,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        toolbar.setOnMenuItemClickListener(toolbarMenuClick);
+        toolbar.setOnMenuItemClickListener(this);
 
         mCoordinatorLayout = (CoordinatorLayout)findViewById(R.id.coordinator);
 
@@ -145,20 +145,18 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         return true;
     }
 
-    Toolbar.OnMenuItemClickListener toolbarMenuClick = new Toolbar.OnMenuItemClickListener() {
-        @Override
-        public boolean onMenuItemClick(MenuItem item) {
-            int id = item.getItemId();
-            switch(id)
-            {
-                case R.id.menu_settings:
-                    Intent settingsIntent = new Intent(thisActivity, SettingsActivity.class);
-                    startActivity(settingsIntent);
-                    break;
-            }
-            return false;
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        int id = item.getItemId();
+        switch(id)
+        {
+            case R.id.menu_settings:
+                Intent settingsIntent = new Intent(thisActivity, SettingsActivity.class);
+                startActivity(settingsIntent);
+                break;
         }
-    };
+        return false;
+    }
 
     @Override
     public void onChapterSelect(final View v, final Chapter c) {
