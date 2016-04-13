@@ -90,8 +90,15 @@ public class API {
      * @return The URL to the page
      */
     public static String FormatPageUrl(Double chapter, double page, String quality) {
-        String ext = isJpegChapter(chapter) ? ".jpg" : ".png";
-        return CDNUrl + "comics/" + formatChapterNumber(chapter) + "/" + "" + ((long) page) + quality + ext;
+        String ext;
+        if (isJpegChapter(chapter) || quality.equals("@m"))
+            ext = ".jpg";
+        else
+            ext = ".png";
+
+        String url = CDNUrl + "comics/" + formatChapterNumber(chapter) + "/" + "" + ((long) page) + quality + ext;
+        Log.d("FormatPageUrl", "Formatted page URL: " + url);
+        return url;
     }
 
     public static String FormatLqThumbURL(double chapter, double page) {

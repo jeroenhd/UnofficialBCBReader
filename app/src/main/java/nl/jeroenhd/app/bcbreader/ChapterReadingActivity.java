@@ -1,6 +1,7 @@
 package nl.jeroenhd.app.bcbreader;
 
 import android.animation.Animator;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +17,8 @@ import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewAnimationUtils;
@@ -31,7 +34,7 @@ import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 import nl.jeroenhd.app.bcbreader.tools.ColorHelper;
 import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
 
-public class ChapterReadingActivity extends AppCompatActivity {
+public class ChapterReadingActivity extends AppCompatActivity implements Toolbar.OnMenuItemClickListener {
     public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.CHAPTER";
     private final ChapterReadingActivity thisActivity = this;
     private RecyclerView mRecycler;
@@ -65,26 +68,28 @@ public class ChapterReadingActivity extends AppCompatActivity {
         }
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white_48dp);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mChapter.setFavourite(!mChapter.isFavourite());
-                mChapter.save();
+        if (fab != null) {
+            fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mChapter.setFavourite(!mChapter.isFavourite());
+                    mChapter.save();
 
-                String msg;
-                if (mChapter.isFavourite()) {
-                    msg = getString(R.string.added_to_favourites);
-                } else {
-                    msg = getString(R.string.removed_from_favourites);
+                    String msg;
+                    if (mChapter.isFavourite()) {
+                        msg = getString(R.string.added_to_favourites);
+                    } else {
+                        msg = getString(R.string.removed_from_favourites);
+                    }
+
+                    fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white);
+                    fab.invalidate();
+                    Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
+                            .setAction(getString(R.string.undo), this).show();
                 }
-
-                fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white_48dp);
-                fab.invalidate();
-                Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
-                        .setAction(getString(R.string.undo), this).show();
-            }
-        });
+            });
+        }
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -97,6 +102,8 @@ public class ChapterReadingActivity extends AppCompatActivity {
 
         SetupData(mChapter);
         SetupRecyclerView();
+
+        toolbar.setOnMenuItemClickListener(this);
     }
 
     private void SetupHeader() {
@@ -190,13 +197,36 @@ public class ChapterReadingActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
-            case android.R.id.home:
-                this.onBackPressed();
-                return true;
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_chapter_reading, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        int id = item.getItemId();
+        switch(id)
+        {
+            case R.id.action_settings:
+                Intent settingsIntent = new Intent(thisActivity, SettingsActivity.class);
+                startActivity(settingsIntent);
+                break;
+            case R.id.action_fullscreen:
+                Intent fullScreenIntent = new Intent(thisActivity, FullscreenReaderActivity.class);
+
+                //TODO: Make a nice transition here
+
+                fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_CHAPTER, mChapter);
+                //TODO: get the central page and pass it to the reader
+                fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_CURRENT_PAGE, 1);
+
+                startActivity(fullScreenIntent);
+                break;
         }
-        return super.onOptionsItemSelected(item);
+        return false;
     }
 }

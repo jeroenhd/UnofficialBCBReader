@@ -2,6 +2,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="nl.jeroenhd.app.bcbreader.ChapterReadingActivity">
+    <item android:id="@+id/action_fullscreen"
+        android:orderInCategory="50"
+        android:title="@string/go_fullscreen"
+        android:icon="@drawable/ic_fullscreen_white_48dp"
+        app:showAsAction="ifRoom"
+        />
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"

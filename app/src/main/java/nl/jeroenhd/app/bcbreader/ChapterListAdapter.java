@@ -62,7 +62,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         holder.ChapterDescriptionView.setText(chapter.getDescription());
         holder.FavouriteImageView.setImageResource(
                 chapter.isFavourite() ?
-                        R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white_48dp
+                        R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white
         );
         holder.CurrentChapter = chapter;
         int color;

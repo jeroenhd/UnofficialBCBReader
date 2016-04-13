@@ -30,6 +30,10 @@ public class FullscreenReaderActivity extends AppCompatActivity {
      * and a change of the status and navigation bar.
      */
     private static final int UI_ANIMATION_DELAY = 300;
+
+    public static final String EXTRA_CHAPTER = "nl.jeroenhd.app.bcbreader.ChapterListActivity.EXTRA_CHAPTER";
+    public static final String EXTRA_CURRENT_PAGE = "nl.jeroenhd.app.bcbreader.ChapterListActivity.EXTRA_CURRENT_PAGE";
+
     private final Handler mHideHandler = new Handler();
     private View mContentView;
     private final Runnable mHidePart2Runnable = new Runnable() {
