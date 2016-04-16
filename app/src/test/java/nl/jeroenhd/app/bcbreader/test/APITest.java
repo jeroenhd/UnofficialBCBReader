@@ -9,6 +9,7 @@ import java.util.Map;
 import nl.jeroenhd.app.bcbreader.data.API;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * Class for checking if the API works as intended
@@ -24,6 +25,28 @@ public class APITest {
     @Test
     public void testGetQualitySuffix() throws Exception {
         //TODO: Find a way to fake a SharedPreferences object
+    }
+
+    @Test
+    public void testIsJpegChapter()
+    {
+        double[] singleChapters = {16.1, 17.1, 22.1, 26.1, 35.0, 35.1, 38.1};
+        double[][] chapterRanges = {{70, 88}};
+
+        for(double singleChapter : singleChapters)
+        {
+            assertTrue(API.isJpegChapter(singleChapter));
+        }
+
+        for(double[] range : chapterRanges)
+        {
+            double start = range[0];
+            double end = range[0];
+            for (double c = start; c < end; c++)
+            {
+                assertTrue(API.isJpegChapter(c));
+            }
+        }
     }
 
     @SuppressWarnings("deprecation")
