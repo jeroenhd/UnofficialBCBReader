@@ -29,7 +29,6 @@ public class API {
 
         // 70-88 is JPG for some reason
         return chapter >= 70 && chapter <= 88;
-
     }
 
     /**

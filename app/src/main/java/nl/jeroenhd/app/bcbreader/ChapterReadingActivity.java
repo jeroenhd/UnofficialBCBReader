@@ -65,7 +65,11 @@ public class ChapterReadingActivity extends AppCompatActivity {
         }
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+        assert fab!=null;
+
         fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white_48dp);
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
