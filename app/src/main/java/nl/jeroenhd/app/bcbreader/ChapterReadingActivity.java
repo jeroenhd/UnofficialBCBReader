@@ -130,6 +130,7 @@ public class ChapterReadingActivity extends AppCompatActivity {
     private void SetupData(Chapter chapter) {
         mPages = new ArrayList<>();
         mPages.addAll(chapter.getPageDescriptions());
+        Log.d("SetupData", "Loaded " + chapter.getDescription().length() + " pages");
     }
 
     private void SetupAnimation() {

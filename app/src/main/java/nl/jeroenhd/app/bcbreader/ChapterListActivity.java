@@ -136,7 +136,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        singleton = SuperSingleton.getInstance(this);
+        singleton = SuperSingleton.getInstance(this); 
         mLoadingProgressbar = (ProgressBar) findViewById(R.id.progressBar);
 
         SetupData();
