@@ -15,9 +15,9 @@ import nl.jeroenhd.app.bcbreader.data.check.UpdateTimes;
  */
 public class NotificationPlanner {
     private static NotificationPlanner planner;
-    Context context;
+    private final Context context;
 
-    protected NotificationPlanner(Context context) {
+    private NotificationPlanner(Context context) {
         this.context = context;
     }
 

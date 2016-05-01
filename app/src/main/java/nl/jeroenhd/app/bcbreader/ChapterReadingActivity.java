@@ -34,9 +34,6 @@ import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
 public class ChapterReadingActivity extends AppCompatActivity {
     public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.CHAPTER";
     private final ChapterReadingActivity thisActivity = this;
-    private RecyclerView mRecycler;
-    private RecyclerView.LayoutManager mLayout;
-    private ChapterReadingAdapter mAdapter;
     private ArrayList<Page> mPages;
     private Chapter mChapter;
     private CoordinatorLayout mCoordinatorLayout;
@@ -185,12 +182,12 @@ public class ChapterReadingActivity extends AppCompatActivity {
     }
 
     private void SetupRecyclerView() {
-        mRecycler = (RecyclerView) findViewById(R.id.pages);
+        RecyclerView mRecycler = (RecyclerView) findViewById(R.id.pages);
 
-        mLayout = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager mLayout = new LinearLayoutManager(this);
         mRecycler.setLayoutManager(mLayout);
 
-        mAdapter = new ChapterReadingAdapter(this, mPages);
+        ChapterReadingAdapter mAdapter = new ChapterReadingAdapter(this, mPages);
         mRecycler.setAdapter(mAdapter);
     }
 

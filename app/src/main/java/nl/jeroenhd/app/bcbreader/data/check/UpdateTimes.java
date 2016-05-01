@@ -5,7 +5,10 @@ package nl.jeroenhd.app.bcbreader.data.check;
  * Contains when the comic updates
  */
 public class UpdateTimes {
-    String updateString, updateStringError, updateDays, updateHour;
+    private String updateString;
+    private String updateStringError;
+    private String updateDays;
+    private String updateHour;
 
     public UpdateTimes(String updateString, String updateStringError, String updateDays, String updateHour) {
         this.updateString = updateString;

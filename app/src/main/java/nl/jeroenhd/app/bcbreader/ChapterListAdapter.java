@@ -28,7 +28,8 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
     private final ArrayList<Chapter> mData;
     private final OnChapterClickListener mOnItemClickListener;
     private final SuperSingleton singleton;
-    private Drawable clonedFavDrawable, clonedFavDrawableBorder;
+    private final Drawable clonedFavDrawable;
+    private final Drawable clonedFavDrawableBorder;
 
     public ChapterListAdapter(Context context, ArrayList<Chapter> data, OnChapterClickListener onItemClickListener) {
         this.mContext = context;

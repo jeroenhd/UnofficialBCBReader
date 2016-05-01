@@ -44,7 +44,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
      */
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
+    private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
@@ -269,7 +269,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             Context context = getActivity();
             WebView view = (WebView) LayoutInflater.from(context).inflate(R.layout.activity_license, null);
             view.loadUrl("file:///android_asset/" + licenseAssetFile);
-            AlertDialog dialog = new AlertDialog.Builder(context, R.style.AppTheme)
+            new AlertDialog.Builder(context, R.style.AppTheme)
                     .setTitle(getString(R.string.title_license))
                     .setView(view)
                     .setPositiveButton(android.R.string.ok, null)
@@ -288,8 +288,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_telemetry);
             setHasOptionsMenu(true);
-
-            final Context context = getActivity();
 
             Preference model, ram, androidVersion, storage, sdcard, sdcardEmulated, uniqueID;
             Preference sendNow;

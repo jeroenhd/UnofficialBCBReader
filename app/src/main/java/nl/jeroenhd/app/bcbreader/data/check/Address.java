@@ -5,8 +5,9 @@ package nl.jeroenhd.app.bcbreader.data.check;
  * Why is it called address? Only suitcase knows
  */
 public class Address {
-    Double latestChapter, latestPage;
-    String latestGalleryHash;
+    private Double latestChapter;
+    private Double latestPage;
+    private String latestGalleryHash;
 
     public Address(Double latestChapter, Double latestPage, String latestGalleryHash) {
         this.latestChapter = latestChapter;

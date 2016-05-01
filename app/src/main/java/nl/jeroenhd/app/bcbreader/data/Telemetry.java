@@ -26,17 +26,20 @@ import nl.jeroenhd.app.bcbreader.R;
  * Class to detect telemetry
  */
 public class Telemetry {
-    static final String TelemetryURL = "https://www.jeroenhd.nl/proj/app/androidTelemetry.php";
-    protected static Telemetry instance;
-    protected Context mContext;
-    String Model, AndroidVersion;
-    long InternalSize, InternalFree;
-    long SDCardSize, SDCardFree;
-    long RAMSize;
-    boolean SDCardEmulated;
-    String uniqueID;
+    private static final String TelemetryURL = "https://www.jeroenhd.nl/proj/app/androidTelemetry.php";
+    private static Telemetry instance;
+    private final Context mContext;
+    private final String Model;
+    private final String AndroidVersion;
+    private final long InternalSize;
+    private final long InternalFree;
+    private final long RAMSize;
+    private final String uniqueID;
+    private long SDCardSize;
+    private long SDCardFree;
+    private boolean SDCardEmulated;
 
-    protected Telemetry(Context context) {
+    private Telemetry(Context context) {
         mContext = context;
 
         Model = Build.MODEL;
@@ -72,7 +75,8 @@ public class Telemetry {
         return instance;
     }
 
-    protected long getVolumeSizeByPath(File path) {
+    @SuppressWarnings("deprecation")
+    private long getVolumeSizeByPath(File path) {
         StatFs stat = new StatFs(path.toString());
         long blockSize, blockCount;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -85,7 +89,8 @@ public class Telemetry {
         return blockCount * blockSize;
     }
 
-    protected long getVolumeFreeByPath(File path) {
+    @SuppressWarnings("deprecation")
+    private long getVolumeFreeByPath(File path) {
         StatFs stat = new StatFs(path.toString());
         long blockSize, blockCount;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {

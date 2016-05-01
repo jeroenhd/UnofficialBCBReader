@@ -10,15 +10,14 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import java.util.List;
 
 import nl.jeroenhd.app.bcbreader.data.Chapter;
-import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 
 /**
  * CurrentChapter Database for DBFlow
  */
 @Database(name = ChapterDatabase.NAME, version = ChapterDatabase.VERSION)
 public class ChapterDatabase {
-    public static final String NAME = "ChapterInfo";
-    public static final int VERSION = 1;
+    static final String NAME = "ChapterInfo";
+    static final int VERSION = 1;
     private static Chapter lastChapter;
 
     public static void SaveUpdate(List<Chapter> chapters) {
@@ -26,8 +25,7 @@ public class ChapterDatabase {
     }
 
     public static Chapter getLastChapter() {
-        Chapter c = new Select(Method.ALL_PROPERTY, Method.max(Chapter_Table.number)).from(Chapter.class).querySingle();
 
-        return c;
+        return new Select(Method.ALL_PROPERTY, Method.max(Chapter_Table.number)).from(Chapter.class).querySingle();
     }
 }

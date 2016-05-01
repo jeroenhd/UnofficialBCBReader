@@ -5,8 +5,8 @@ package nl.jeroenhd.app.bcbreader.data.check;
  * basically, it checks https://www.bittersweetcandybowl.com/app/json/check
  */
 public class Check {
-    Address address;
-    UpdateTimes updatetimes;
+    private Address address;
+    private UpdateTimes updatetimes;
 
     public Address getAddress() {
         return address;

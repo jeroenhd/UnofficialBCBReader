@@ -32,7 +32,7 @@ public class ChapterListDeserializerTest {
         TestChapterFile("src/test/assets/fullChapterList.json");
     }
 
-    void TestBasicChapterList() throws FileNotFoundException {
+    private void TestBasicChapterList() throws FileNotFoundException {
         /*** Small chapter list test ***/
         // Test a small sample
         List<Chapter> singleChapterList = decodeString(loadFile("src/test/assets/singleChapterList.json"));
@@ -42,7 +42,7 @@ public class ChapterListDeserializerTest {
         Assert.assertEquals(singleChapterPages.size(), 2);
     }
 
-    void TestChapterFile(String path) throws FileNotFoundException {
+    private void TestChapterFile(String path) throws FileNotFoundException {
         /*** FULL chapter list test ***/
         // Test a full chapters file
         String largeInput = loadFile(path);
@@ -67,7 +67,7 @@ public class ChapterListDeserializerTest {
      * @param jsonIn The JSON input (MUST be valid!)
      * @return The decoded chapter list
      */
-    public List decodeString(String jsonIn) {
+    private List decodeString(String jsonIn) {
         GsonBuilder builder = new GsonBuilder();
         List chapterList = new ArrayList<>();
 

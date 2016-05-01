@@ -31,9 +31,21 @@ import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
  */
 public class UpdateBroadcastReceiver extends BroadcastReceiver {
     public static final int NewChapterNotificationId = 0xB00B;
-    int errorCount;
-    Context mContext;
-    private Response.Listener<Check> checkListener = new Response.Listener<Check>() {
+    private int errorCount;
+    private final Response.ErrorListener checkError = new Response.ErrorListener() {
+        /**
+         * Callback method that an error has been occurred with the
+         * provided error code and optional user-readable message.
+         *
+         * @param error The error that caused this problem
+         */
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            errorCount++;
+        }
+    };
+    private Context mContext;
+    private final Response.Listener<Check> checkListener = new Response.Listener<Check>() {
         @Override
         public void onResponse(Check response) {
             SuperSingleton.getInstance(mContext).getVolleyRequestQueue().add(new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), new Response.Listener<List<Chapter>>() {
@@ -52,20 +64,8 @@ public class UpdateBroadcastReceiver extends BroadcastReceiver {
             }));
         }
     };
-    private Response.ErrorListener checkError = new Response.ErrorListener() {
-        /**
-         * Callback method that an error has been occurred with the
-         * provided error code and optional user-readable message.
-         *
-         * @param error The error that caused this problem
-         */
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            errorCount++;
-        }
-    };
 
-    public void DisplayNotification() {
+    private void DisplayNotification() {
         Intent intent = new Intent(mContext, ChapterReadingActivity.class);
         Bundle extras = new Bundle();
 
@@ -73,7 +73,7 @@ public class UpdateBroadcastReceiver extends BroadcastReceiver {
 
         extras.putParcelable(ChapterReadingActivity.CHAPTER, chapter);
 
-        PendingIntent pendingIntent = null;
+        PendingIntent pendingIntent;
         intent.putExtras(extras);
         pendingIntent = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -114,7 +114,7 @@ public class UpdateBroadcastReceiver extends BroadcastReceiver {
      * and in application manifests are <em>not</em> guaranteed to be exclusive. They
      * are hints to the operating system about how to find suitable recipients. It is
      * possible for senders to force delivery to specific recipients, bypassing filter
-     * resolution.  For this reason, {@link #onReceive(Context, Intent) onReceive()}
+     * resolution.  For this reason, onReceive()
      * implementations should respond only to known actions, ignoring any unexpected
      * Intents that they may receive.
      *
