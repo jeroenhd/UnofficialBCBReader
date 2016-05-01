@@ -23,10 +23,18 @@ public class API {
      * @param chapter The chapter number to check
      * @return True if the chapter is a JPG chapter, false otherwise
      */
-    public static boolean isJpegChapter(double chapter) {
+    public static boolean isJpegChapter(double chapter, String quality) {
         // Exceptions to the rule below
         if (chapter == 16.1 || chapter == 17.1 || chapter == 22.1 || chapter == 26.1 || chapter == 35.0 || chapter == 35.1 || chapter == 38.1)
             return true;
+
+        // Well this is fun
+        if (quality.equals("@m")) {
+            return chapter == 35
+                    || chapter == 50
+                    || (chapter > 60 && chapter < 89)
+                    || chapter > 90;
+        }
 
         // 70-88 is JPG for some reason
         return chapter >= 70 && chapter <= 88;
@@ -88,7 +96,7 @@ public class API {
      * @return The URL to the page
      */
     public static String FormatPageUrl(Double chapter, double page, String quality) {
-        String ext = isJpegChapter(chapter) ? ".jpg" : ".png";
+        String ext = isJpegChapter(chapter, quality) ? ".jpg" : ".png";
 
         /**
          * Check if we need JPG of PNG files for the chapter pages
