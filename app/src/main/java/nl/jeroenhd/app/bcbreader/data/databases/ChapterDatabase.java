@@ -10,6 +10,7 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import java.util.List;
 
 import nl.jeroenhd.app.bcbreader.data.Chapter;
+import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 
 /**
  * CurrentChapter Database for DBFlow
