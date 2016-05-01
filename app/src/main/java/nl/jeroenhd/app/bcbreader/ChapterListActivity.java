@@ -3,6 +3,7 @@ package nl.jeroenhd.app.bcbreader;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
@@ -11,6 +12,9 @@ import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -32,12 +36,31 @@ import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
 
 public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener {
     private final Activity thisActivity = this;
+    Toolbar.OnMenuItemClickListener toolbarMenuClick = new Toolbar.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            int id = item.getItemId();
+            switch (id) {
+                case R.id.menu_settings:
+                    Intent settingsIntent = new Intent(thisActivity, SettingsActivity.class);
+                    startActivity(settingsIntent);
+                    break;
+            }
+            return false;
+        }
+    };
     private RecyclerView mRecycler;
+    private final Response.ErrorListener errorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Snackbar.make(mRecycler, error.getMessage(), Snackbar.LENGTH_LONG).show();
+        }
+    };
     private ProgressBar mLoadingProgressbar;
     //private FloatingActionButton mFab;
     private ArrayList<Chapter> mChapterData;
     private ChapterListAdapter mAdapter;
-    private final Response.Listener<List<Chapter>> chapterListDownloadSuccessListener = new Response.Listener<List<Chapter>>() {
+    private final Response.Listener<List<Chapter>> chapterDownloadSuccessListener = new Response.Listener<List<Chapter>>() {
         @Override
         public void onResponse(List<Chapter> response) {
             ChapterDatabase.SaveUpdate(response);
@@ -79,6 +102,8 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             Snackbar.make(mRecycler, "Loaded chapters!", Snackbar.LENGTH_LONG).show();
         }
     };
+    private Toolbar toolbar;
+    private CoordinatorLayout mCoordinatorLayout;
     private SuperSingleton singleton;
     private Response.Listener<String> checkSuccessListener = new Response.Listener<String>() {
         @Override
@@ -98,7 +123,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             )
                     ) {
                 // List needs an update
-                ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), chapterListDownloadSuccessListener, chapterListDownloadErrorListener);
+                ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), chapterDownloadSuccessListener, chapterListDownloadErrorListener);
                 singleton.getVolleyRequestQueue().add(downloadRequest);
             }
         }
@@ -133,10 +158,14 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chapter_list);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        singleton = SuperSingleton.getInstance(this); 
+        toolbar.setOnMenuItemClickListener(toolbarMenuClick);
+
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
+
+        singleton = SuperSingleton.getInstance(this);
         mLoadingProgressbar = (ProgressBar) findViewById(R.id.progressBar);
 
         SetupData();
@@ -168,6 +197,16 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
 
         mAdapter = new ChapterListAdapter(this, mChapterData, this);
         mRecycler.setAdapter(mAdapter);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_chapter_list, menu);
+
+        return true;
     }
 
     @Override

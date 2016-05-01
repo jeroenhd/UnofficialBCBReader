@@ -53,7 +53,7 @@ public class PageImageView extends FadingNetworkImageView{
         }
 
         String thumbURL = API.FormatLqThumbURL(chapter, page);
-        String fullURL = API.FormatPageUrl(chapter, page);
+        String fullURL = API.FormatPageUrl(chapter, page, API.getQualitySuffix(getContext()));
 
         // Reload the image if the user taps the image while the image hasn't loaded yet
         this.setOnClickListener(new OnClickListener() {

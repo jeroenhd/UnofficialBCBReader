@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:summary="@string/app_version"
+        android:title="@string/pref_title_about_version" />
+    <Preference
+        android:key="pref_license_volley"
+        android:summary="@string/pref_summary_volley_license"
+        android:title="@string/pref_title_volley_license" />
+    <Preference
+        android:key="pref_license_gson"
+        android:summary="@string/pref_summary_gson_license"
+        android:title="@string/pref_title_gson_license" />
+</PreferenceScreen>

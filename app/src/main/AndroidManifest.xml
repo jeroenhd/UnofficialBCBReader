@@ -30,5 +30,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="nl.jeroenhd.app.bcbreader.ChapterListActivity" />
         </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings" />
     </application>
+
 </manifest>
