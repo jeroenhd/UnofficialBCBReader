@@ -33,14 +33,14 @@ public class APITest {
         double[][] chapterRanges = {{70, 88}};
 
         for (double singleChapter : singleChapters) {
-            assertTrue(API.isJpegChapter(singleChapter));
+            assertTrue(API.isJpegChapter(singleChapter, ""));
         }
 
         for (double[] range : chapterRanges) {
             double start = range[0];
             double end = range[0];
             for (double c = start; c < end; c++) {
-                assertTrue(API.isJpegChapter(c));
+                assertTrue(API.isJpegChapter(c, ""));
             }
         }
     }
