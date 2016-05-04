@@ -222,7 +222,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
 
                 fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_CHAPTER, mChapter);
                 //TODO: get the central page and pass it to the reader
-                fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_CURRENT_PAGE, 1);
+                fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_PAGE, 1);
 
                 startActivity(fullScreenIntent);
                 break;
