@@ -71,7 +71,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
 
         assert fab != null;
 
-        fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white_48dp);
+        fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,7 +92,6 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
                             .setAction(getString(R.string.undo), this).show();
                 }
             });
-        }
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
