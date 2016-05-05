@@ -37,6 +37,20 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
      */
     private static final int UI_ANIMATION_DELAY = 300;
     private final Handler mHideHandler = new Handler();
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
+        }
+    };
     Button buttonPrev, buttonNext;
     SeekBar seekBar;
     private View mContentView;
@@ -76,20 +90,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             hide();
         }
     };
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
     private Chapter currentChapter;
     private ViewPager viewPager;
     private FullscreenPagePagerAdapter mPagerAdapter;
@@ -102,7 +102,8 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
-        mContentView = findViewById(R.id.fullscreen_content);
+        //mContentView = findViewById(R.id.fullscreen_content);
+        mContentView = findViewById(R.id.pager);
 
         // Set up the user interaction to manually show or hide the system UI.
         mContentView.setOnClickListener(new View.OnClickListener() {
@@ -115,10 +116,12 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         buttonNext = (Button) findViewById(R.id.button_right);
         buttonPrev = (Button) findViewById(R.id.button_left);
         seekBar = (SeekBar) findViewById(R.id.seekbar);
+        viewPager = (ViewPager) mContentView;
 
         assert buttonPrev != null;
         assert buttonNext != null;
         assert seekBar != null;
+        assert viewPager != null;
 
         buttonNext.setOnTouchListener(mDelayHideTouchListener);
         buttonPrev.setOnTouchListener(mDelayHideTouchListener);
@@ -157,6 +160,8 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         }
         seekBar.setMax(currentChapter.getPageCount());
         seekBar.setProgress(currentPage);
+
+        viewPager.setAdapter(new FullscreenPagePagerAdapter(getSupportFragmentManager(), this.currentChapter));
         viewPager.setCurrentItem(currentPage);
     }
 
