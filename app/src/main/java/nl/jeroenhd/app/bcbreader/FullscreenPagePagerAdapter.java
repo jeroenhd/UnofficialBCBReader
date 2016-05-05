@@ -21,7 +21,8 @@ public class FullscreenPagePagerAdapter extends FragmentStatePagerAdapter{
 
     @Override
     public Fragment getItem(int position) {
-        return FullScreenPageFragment.newInstance(mChapter, position);
+        // Pages are 1-based, while positions are 0-based!
+        return FullScreenPageFragment.newInstance(mChapter, position + 1);
     }
 
     @Override
