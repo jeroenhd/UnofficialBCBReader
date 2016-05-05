@@ -3,10 +3,12 @@ package nl.jeroenhd.app.bcbreader;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -36,21 +38,8 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
      * and a change of the status and navigation bar.
      */
     private static final int UI_ANIMATION_DELAY = 300;
+    private final FullscreenReaderActivity thisActivity = this;
     private final Handler mHideHandler = new Handler();
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
     Button buttonPrev, buttonNext;
     SeekBar seekBar;
     private View mContentView;
@@ -90,6 +79,20 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             hide();
         }
     };
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
+        }
+    };
     private Chapter currentChapter;
     private ViewPager viewPager;
     private FullscreenPagePagerAdapter mPagerAdapter;
@@ -104,14 +107,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         //mContentView = findViewById(R.id.fullscreen_content);
         mContentView = findViewById(R.id.pager);
-
-        // Set up the user interaction to manually show or hide the system UI.
-        mContentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggle();
-            }
-        });
 
         buttonNext = (Button) findViewById(R.id.button_right);
         buttonPrev = (Button) findViewById(R.id.button_left);
@@ -163,6 +158,28 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
         viewPager.setAdapter(new FullscreenPagePagerAdapter(getSupportFragmentManager(), this.currentChapter));
         viewPager.setCurrentItem(currentPage);
+        // Set up the user interaction to manually show or hide the system UI.
+        /***
+         * Turns out onClick doesn't work on ViewPager
+         viewPager.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggle();
+            }
+        });*/
+        viewPager.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                new GestureDetectorCompat(thisActivity, new GestureDetector.SimpleOnGestureListener(){
+                    @Override
+                    public boolean onSingleTapUp(MotionEvent e) {
+                        toggle();
+                        return super.onSingleTapConfirmed(e);
+                    }
+                }).onTouchEvent(event);
+                return false;
+            }
+        });
     }
 
     @Override
