@@ -2,17 +2,16 @@ package nl.jeroenhd.app.bcbreader.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.data.API;
-import nl.jeroenhd.app.bcbreader.data.Page;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 
 /**
@@ -52,31 +51,17 @@ public class PageImageView extends FadingNetworkImageView{
             this.setImageDrawable(getResources().getDrawable(R.drawable.dummy_page));
         }
 
-        String thumbURL = API.FormatLqThumbURL(chapter, page);
         String fullURL = API.FormatPageUrl(chapter, page, API.getQualitySuffix(getContext()));
 
         // Reload the image if the user taps the image while the image hasn't loaded yet
         this.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!fullImageLoaded){
+                if (!fullImageLoaded) {
                     Log.d("PageImageViewer", "User reloaded the image by tapping the page!");
                     // Try again!
                     setPage(lastChapter, lastPage);
                 }
-            }
-        });
-
-        // This should be very quick
-        imageLoader.get(thumbURL, new ImageLoader.ImageListener() {
-            @Override
-            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                setImageBitmap(response.getBitmap());
-            }
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                // Just pray the normal request works
             }
         });
         this.setImageUrl(fullURL, this.imageLoader);
@@ -88,26 +73,27 @@ public class PageImageView extends FadingNetworkImageView{
         {
             return;
         }
-        if (bm.getWidth() < Page.NORMAL_WIDTH)
-        {
+        super.setImageBitmap(bm);
+        fullImageLoaded = true;
+    }
 
-            // LqThumb
-            if (!fullImageLoaded)
-            {
-                super.setImageBitmap(bm);
-            } else {
-                // Already loaded
-                Log.w("setImageBitmap", "Setting LqThumb bitmap while the full images has already been set??? How about no");
-            }
+    /**
+     * Overridden to prevent ImageView from being stretched/centered in landscape mode
+     * Stolen from http://stackoverflow.com/questions/13992535/android-imageview-scale-smaller-image-to-width-with-flexible-height-without-crop
+     *
+     * @param widthMeasureSpec  No idea
+     * @param heightMeasureSpec No idea
+     */
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        final Drawable d = getDrawable();
+
+        if (d != null) {
+            final int width = MeasureSpec.getSize(widthMeasureSpec);
+            final int height = (int) Math.ceil(width * (float) d.getIntrinsicHeight() / (float) d.getIntrinsicWidth());
+            this.setMeasuredDimension(width, height);
         } else {
-            // Normal page
-            if (fullImageLoaded)
-            {
-                Log.w("setImageBitmap", "Setting full image even though it has been downloaded before!");
-            }
-
-            super.setImageBitmap(bm);
-            fullImageLoaded = true;
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }
     }
 }

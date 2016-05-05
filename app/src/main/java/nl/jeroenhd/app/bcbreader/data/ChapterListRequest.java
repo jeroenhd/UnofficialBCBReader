@@ -66,6 +66,11 @@ public class ChapterListRequest extends Request<List<Chapter>> {
             // Decode the JSON
             //noinspection unchecked
             chapterList = gson.fromJson(json, chapterList.getClass());
+            for (Chapter c : chapterList) {
+                for (Page p : c.pageDescriptions) {
+                    p.setChapter(c.getNumber());
+                }
+            }
 
             return Response.success(
                     chapterList,

@@ -44,7 +44,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
      */
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
+    private static final Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
@@ -183,8 +183,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             int id = item.getItemId();
             if (id == android.R.id.home) {
                 Activity activity = getActivity();
-                if (activity!=null)
-                {
+                if (activity != null) {
                     activity.onBackPressed();
                 } else {
                     startActivity(new Intent(getActivity(), SettingsActivity.class));
@@ -225,7 +224,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class AboutPreferenceFragment extends PreferenceFragment{
+    public static class AboutPreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -256,8 +255,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             int id = item.getItemId();
             if (id == android.R.id.home) {
                 Activity activity = getActivity();
-                if (activity!=null)
-                {
+                if (activity != null) {
                     activity.onBackPressed();
                 } else {
                     startActivity(new Intent(getActivity(), SettingsActivity.class));
@@ -267,12 +265,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             return super.onOptionsItemSelected(item);
         }
 
-        private void showLicense(String licenseAssetFile)
-        {
+        private void showLicense(String licenseAssetFile) {
             Context context = getActivity();
             WebView view = (WebView) LayoutInflater.from(context).inflate(R.layout.activity_license, null);
             view.loadUrl("file:///android_asset/" + licenseAssetFile);
-            AlertDialog dialog = new AlertDialog.Builder(context, R.style.AppTheme)
+            new AlertDialog.Builder(context, R.style.AppTheme)
                     .setTitle(getString(R.string.title_license))
                     .setView(view)
                     .setPositiveButton(android.R.string.ok, null)
@@ -292,8 +289,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             addPreferencesFromResource(R.xml.pref_telemetry);
             setHasOptionsMenu(true);
 
-            final Context context = getActivity();
-
             Preference model, ram, androidVersion, storage, sdcard, sdcardEmulated, uniqueID;
             Preference sendNow;
 
@@ -311,7 +306,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             androidVersion.setSummary(telemetry.getAndroidVersion());
             storage.setSummary(telemetry.getInternalFreeMB() + "MB free out of " + telemetry.getInternalSizeMB() + "MB total");
             sdcard.setSummary(telemetry.getSDCardFreeMB() + "MB free out of " + telemetry.getSDCardSizeMB() + "MB total");
-            sdcardEmulated.setSummary(telemetry.isSDCardEmulated()?"Yes":"No");
+            sdcardEmulated.setSummary(telemetry.isSDCardEmulated() ? "Yes" : "No");
             uniqueID.setSummary(telemetry.getUniqueID());
 
             sendNow = findPreference("telemetry_send_manually");
@@ -329,8 +324,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             int id = item.getItemId();
             if (id == android.R.id.home) {
                 Activity activity = getActivity();
-                if (activity!=null)
-                {
+                if (activity != null) {
                     activity.onBackPressed();
                 } else {
                     startActivity(new Intent(getActivity(), SettingsActivity.class));

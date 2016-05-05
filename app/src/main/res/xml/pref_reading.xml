@@ -7,6 +7,5 @@
         android:key="reading_quality"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
-        android:title="@string/pref_title_reading_quality"
-        />
+        android:title="@string/pref_title_reading_quality" />
 </PreferenceScreen>

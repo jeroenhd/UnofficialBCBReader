@@ -11,7 +11,7 @@ import java.lang.reflect.Type;
 /**
  * An object to serialize the telemetry
  */
-public class TelemetrySerializer implements JsonSerializer<Telemetry> {
+class TelemetrySerializer implements JsonSerializer<Telemetry> {
     @Override
     public JsonElement serialize(Telemetry src, Type typeOfSrc, JsonSerializationContext context) {
         JsonObject result = new JsonObject();

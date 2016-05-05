@@ -30,36 +30,20 @@ public class Chapter extends BaseModel implements Parcelable {
             return new Chapter[size];
         }
     };
-
-
-    @Override
-    public void save() {
-        super.save();
-        for (Page page : this.pageDescriptions)
-            page.save();
-    }
-
     @PrimaryKey
     Double number;
-
     @Column
     String title;
-
     @Column
     String description;
-
     @Column
     Integer pageCount;
-
     @Column
     Integer totalPages;
-
     @Column
     String yearPublished;
-
     @Column
     boolean favourite;
-
     List<Page> pageDescriptions;
 
     /**
@@ -97,6 +81,13 @@ public class Chapter extends BaseModel implements Parcelable {
         }
 
         this.favourite = data.readInt() == 1;
+    }
+
+    @Override
+    public void save() {
+        super.save();
+        for (Page page : this.pageDescriptions)
+            page.save();
     }
 
     public Double getNumber() {

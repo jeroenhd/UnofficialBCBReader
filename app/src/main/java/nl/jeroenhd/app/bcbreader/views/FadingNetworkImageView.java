@@ -14,7 +14,6 @@ import android.util.AttributeSet;
  * Based on https://gist.github.com/benvd/5683818
  */
 public class FadingNetworkImageView extends CallbackNetworkImageView {
-    private final int fadeInTime = 250;
 
     public FadingNetworkImageView(Context context) {
         super(context);
@@ -54,6 +53,7 @@ public class FadingNetworkImageView extends CallbackNetworkImageView {
         });
         td.setCrossFadeEnabled(true);
         setImageDrawable(td);
-        td.startTransition(this.fadeInTime);
+        int fadeInTime = 250;
+        td.startTransition(fadeInTime);
     }
 }

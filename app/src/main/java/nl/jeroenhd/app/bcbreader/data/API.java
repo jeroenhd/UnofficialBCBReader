@@ -14,6 +14,7 @@ import java.util.Map;
 public class API {
     private static final String BaseURL = "https://www.bittersweetcandybowl.com/";
     public static final String ChaptersDB = BaseURL + "app/json/db_main-1.2";
+    public static final String CheckURI = BaseURL + "app/json/check";
     private static final String CDNUrl = "https://blasto.enterprises/";
 
     /**
@@ -22,14 +23,21 @@ public class API {
      * @param chapter The chapter number to check
      * @return True if the chapter is a JPG chapter, false otherwise
      */
-    public static boolean isJpegChapter(double chapter) {
+    public static boolean isJpegChapter(double chapter, String quality) {
         // Exceptions to the rule below
         if (chapter == 16.1 || chapter == 17.1 || chapter == 22.1 || chapter == 26.1 || chapter == 35.0 || chapter == 35.1 || chapter == 38.1)
             return true;
 
+        // Well this is fun
+        if (quality.equals("@m")) {
+            return chapter == 35
+                    || chapter == 50
+                    || (chapter > 60 && chapter < 89)
+                    || chapter > 90;
+        }
+
         // 70-88 is JPG for some reason
         return chapter >= 70 && chapter <= 88;
-
     }
 
     /**
@@ -46,16 +54,14 @@ public class API {
 
     public static String getQualitySuffix(Context context) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        if (sharedPreferences == null)
-        {
+        if (sharedPreferences == null) {
             Log.d("getQualitySuffix", "Failed to obtain shared preferences, returning default");
             return "@m";
         } else {
-            String p = sharedPreferences.getString("reading_quality","-1");
+            String p = sharedPreferences.getString("reading_quality", "-1");
             int quality = Integer.parseInt(p);
 
-            switch (quality)
-            {
+            switch (quality) {
                 case -1:
                     return "@m";
                 case 0:
@@ -77,19 +83,21 @@ public class API {
      * @return The URL to the page
      */
     @Deprecated
-    public static String FormatPageUrl(Double chapter, Double page)
-    {
+    public static String FormatPageUrl(Double chapter, Double page) {
         return FormatPageUrl(chapter, page, "@m");
     }
 
     /**
      * Format a URL for a page
+     *
      * @param chapter The chapter number
-     * @param page The page number
+     * @param page    The page number
      * @param quality The quality of the page
      * @return The URL to the page
      */
     public static String FormatPageUrl(Double chapter, double page, String quality) {
+        String ext = isJpegChapter(chapter, quality) ? ".jpg" : ".png";
+
         /**
          * Check if we need JPG of PNG files for the chapter pages
          * Proposed fix: use CDN, leave out extension
@@ -105,16 +113,7 @@ public class API {
          * 2:00 PM <SuitCase> dont use that
          * 2:00 PM <SuitCase> use the site itself, https://www.
          **/
-
-        String ext;
-        if (isJpegChapter(chapter) || quality.equals("@m"))
-            ext = ".jpg";
-        else
-            ext = ".png";
-
-        String url = CDNUrl + "comics/" + formatChapterNumber(chapter) + "/" + "" + ((long) page) + quality + ext;
-        Log.d("FormatPageUrl", "Formatted page URL: " + url);
-        return url;
+        return CDNUrl + "comics/" + formatChapterNumber(chapter) + "/" + "" + ((long) page) + quality + ext;
     }
 
     public static String FormatLqThumbURL(double chapter, double page) {

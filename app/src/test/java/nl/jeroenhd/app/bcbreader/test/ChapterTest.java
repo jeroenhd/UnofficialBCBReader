@@ -22,9 +22,8 @@ public class ChapterTest {
     public void testParcelable() {
         Chapter source = new Chapter("Test chapter", "This is a test chapter", 10, 15, "Just now", 99.9);
         List<Page> pages = new ArrayList<>();
-        for (int i = 0; i < source.getPageCount(); i++)
-        {
-            pages.add(new Page("Test page " + i, (double)i, source.getNumber()));
+        for (int i = 0; i < source.getPageCount(); i++) {
+            pages.add(new Page("Test page " + i, (double) i, source.getNumber()));
         }
         source.setPageDescriptions(pages);
 

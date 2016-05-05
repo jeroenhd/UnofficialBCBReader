@@ -1,19 +1,19 @@
 {
-	"1.0": {
-		"title": "Simple test",
-		"description": "This is a simple unit test",
-		"pageCount": 2,
-		"totalPages": 2,
-		"yearPublished": "Not yet published",
-		"pageDescriptions": [
-			{
-				"page": 1,
-				"description": "This is the first test page"
-			},
-			{
-				"page": 2,
-				"description": "This is the second test page"
-			}
-		]
-	}
+  "1.0": {
+    "title": "Simple test",
+    "description": "This is a simple unit test",
+    "pageCount": 2,
+    "totalPages": 2,
+    "yearPublished": "Not yet published",
+    "pageDescriptions": [
+      {
+        "page": 1,
+        "description": "This is the first test page"
+      },
+      {
+        "page": 2,
+        "description": "This is the second test page"
+      }
+    ]
+  }
 }

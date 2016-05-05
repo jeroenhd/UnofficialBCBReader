@@ -52,7 +52,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (getSupportActionBar()!=null)
+        if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mChapter = this.getIntent().getParcelableExtra(ChapterReadingActivity.CHAPTER);
@@ -68,13 +68,16 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
         }
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        if (fab != null) {
-            fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white);
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mChapter.setFavourite(!mChapter.isFavourite());
-                    mChapter.save();
+
+        assert fab != null;
+
+        fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white_48dp);
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mChapter.setFavourite(!mChapter.isFavourite());
+                mChapter.save();
 
                     String msg;
                     if (mChapter.isFavourite()) {
@@ -139,6 +142,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
     private void SetupData(Chapter chapter) {
         mPages = new ArrayList<>();
         mPages.addAll(chapter.getPageDescriptions());
+        Log.d("SetupData", "Loaded " + chapter.getDescription().length() + " pages");
     }
 
     private void SetupAnimation() {
@@ -227,6 +231,6 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
                 startActivity(fullScreenIntent);
                 break;
         }
-        return false;
+        return super.onOptionsItemSelected(item);
     }
 }

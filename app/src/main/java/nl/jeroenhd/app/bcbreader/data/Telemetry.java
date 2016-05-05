@@ -26,19 +26,20 @@ import nl.jeroenhd.app.bcbreader.R;
  * Class to detect telemetry
  */
 public class Telemetry {
-    String Model, AndroidVersion;
-    long InternalSize, InternalFree;
-    long SDCardSize, SDCardFree;
-    long RAMSize;
-    boolean SDCardEmulated;
-    String uniqueID;
-    static final String TelemetryURL = "https://www.jeroenhd.nl/proj/app/androidTelemetry.php";
+    private static final String TelemetryURL = "https://www.jeroenhd.nl/proj/app/androidTelemetry.php";
+    private static Telemetry instance;
+    private final Context mContext;
+    private final String Model;
+    private final String AndroidVersion;
+    private final long InternalSize;
+    private final long InternalFree;
+    private final long RAMSize;
+    private final String uniqueID;
+    private long SDCardSize;
+    private long SDCardFree;
+    private boolean SDCardEmulated;
 
-    protected Context mContext;
-
-    protected static Telemetry instance;
-
-    protected Telemetry(Context context) {
+    private Telemetry(Context context) {
         mContext = context;
 
         Model = Build.MODEL;
@@ -53,7 +54,7 @@ public class Telemetry {
         InternalSize = getVolumeSizeByPath(Environment.getDataDirectory());
         InternalFree = getVolumeFreeByPath(Environment.getDataDirectory());
 
-        ActivityManager activityManager = (ActivityManager)mContext.getSystemService(Context.ACTIVITY_SERVICE);
+        ActivityManager activityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
         ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
         activityManager.getMemoryInfo(memoryInfo);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -67,8 +68,15 @@ public class Telemetry {
         uniqueID = "V1[" + Integer.toHexString(Settings.Secure.getString(mContext.getContentResolver(), Settings.Secure.ANDROID_ID).hashCode()) + "]";
     }
 
-    protected long getVolumeSizeByPath(File path)
-    {
+    public static Telemetry getInstance(Context context) {
+        if (null == instance)
+            instance = new Telemetry(context);
+
+        return instance;
+    }
+
+    @SuppressWarnings("deprecation")
+    private long getVolumeSizeByPath(File path) {
         StatFs stat = new StatFs(path.toString());
         long blockSize, blockCount;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -78,11 +86,11 @@ public class Telemetry {
             blockSize = stat.getBlockSize();
             blockCount = stat.getBlockCount();
         }
-        return blockCount*blockSize;
+        return blockCount * blockSize;
     }
 
-    protected long getVolumeFreeByPath(File path)
-    {
+    @SuppressWarnings("deprecation")
+    private long getVolumeFreeByPath(File path) {
         StatFs stat = new StatFs(path.toString());
         long blockSize, blockCount;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -93,14 +101,6 @@ public class Telemetry {
             blockCount = stat.getAvailableBlocks();
         }
         return blockSize * blockCount;
-    }
-
-    public static Telemetry getInstance(Context context)
-    {
-        if (null == instance)
-            instance = new Telemetry(context);
-
-        return instance;
     }
 
     public String getModel() {
@@ -127,10 +127,21 @@ public class Telemetry {
         return SDCardFree;
     }
 
-    public long getInternalSizeMB(){ return getInternalSize() / (1024*1024); }
-    public long getInternalFreeMB(){ return getInternalFree() / (1024*1024); }
-    public long getSDCardSizeMB()  { return getSDCardSize() / (1024*1024); }
-    public long getSDCardFreeMB()  { return getSDCardFree() / (1024*1024);}
+    public long getInternalSizeMB() {
+        return getInternalSize() / (1024 * 1024);
+    }
+
+    public long getInternalFreeMB() {
+        return getInternalFree() / (1024 * 1024);
+    }
+
+    public long getSDCardSizeMB() {
+        return getSDCardSize() / (1024 * 1024);
+    }
+
+    public long getSDCardFreeMB() {
+        return getSDCardFree() / (1024 * 1024);
+    }
 
     public boolean isSDCardEmulated() {
         return SDCardEmulated;
@@ -140,19 +151,19 @@ public class Telemetry {
         return RAMSize;
     }
 
-    public long getRAMSizeMB(){ return getRAMSize() / (1024*1024);}
+    public long getRAMSizeMB() {
+        return getRAMSize() / (1024 * 1024);
+    }
 
     public String getUniqueID() {
         return uniqueID;
     }
 
-    public void send()
-    {
+    public void send() {
         send(false);
     }
 
-    public void send(final boolean showNotifications)
-    {
+    public void send(final boolean showNotifications) {
         SuperSingleton superSingleton = SuperSingleton.getInstance(mContext);
         RequestQueue queue = superSingleton.getVolleyRequestQueue();
         Gson gson = new GsonBuilder()
@@ -164,8 +175,7 @@ public class Telemetry {
             @Override
             public void onResponse(String response) {
                 Log.d("SendTelemetry", "Telemetry has been sent, server responded with: " + response);
-                if (showNotifications)
-                {
+                if (showNotifications) {
                     Toast.makeText(mContext, mContext.getString(R.string.thank_you_for_sending_telemetry), Toast.LENGTH_LONG).show();
                 }
             }
@@ -174,7 +184,7 @@ public class Telemetry {
             @Override
             public void onErrorResponse(VolleyError error) {
                 String msg = error.getMessage();
-                Log.e("SendTelemetry", "Failed to send telemetry: "+ msg);
+                Log.e("SendTelemetry", "Failed to send telemetry: " + msg);
                 error.printStackTrace();
 
                 if (showNotifications)
@@ -182,7 +192,7 @@ public class Telemetry {
             }
         };
 
-        Request<String> request = new StringRequest(StringRequest.Method.POST, TelemetryURL, onSuccess, onFailure){
+        Request<String> request = new StringRequest(StringRequest.Method.POST, TelemetryURL, onSuccess, onFailure) {
             @Override
             public byte[] getBody() throws AuthFailureError {
                 return json.getBytes();

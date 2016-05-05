@@ -32,7 +32,7 @@ public class ChapterListDeserializerTest {
         TestChapterFile("src/test/assets/fullChapterList.json");
     }
 
-    void TestBasicChapterList() throws FileNotFoundException {
+    private void TestBasicChapterList() throws FileNotFoundException {
         /*** Small chapter list test ***/
         // Test a small sample
         List<Chapter> singleChapterList = decodeString(loadFile("src/test/assets/singleChapterList.json"));
@@ -42,7 +42,7 @@ public class ChapterListDeserializerTest {
         Assert.assertEquals(singleChapterPages.size(), 2);
     }
 
-    void TestChapterFile(String path) throws FileNotFoundException {
+    private void TestChapterFile(String path) throws FileNotFoundException {
         /*** FULL chapter list test ***/
         // Test a full chapters file
         String largeInput = loadFile(path);
@@ -52,10 +52,9 @@ public class ChapterListDeserializerTest {
         // Check for each chapter
         for (Chapter c : largeChapterList) {
             // * Whether or not the pagecount is correct
-            assertEquals((int)c.getPageCount(), c.getPageDescriptions().size());
+            assertEquals((int) c.getPageCount(), c.getPageDescriptions().size());
 
-            for(Page p : c.getPageDescriptions())
-            {
+            for (Page p : c.getPageDescriptions()) {
                 // Whether or not all pages have the correct page number
                 assertEquals(c.getNumber(), p.getChapter());
             }
@@ -64,11 +63,11 @@ public class ChapterListDeserializerTest {
 
     /**
      * Decode a chapter list JSON to a chapter list
+     *
      * @param jsonIn The JSON input (MUST be valid!)
      * @return The decoded chapter list
      */
-    public List decodeString(String jsonIn)
-    {
+    private List decodeString(String jsonIn) {
         GsonBuilder builder = new GsonBuilder();
         List chapterList = new ArrayList<>();
 
@@ -88,8 +87,7 @@ public class ChapterListDeserializerTest {
         String line;
 
         try {
-            while (null != (line = reader.readLine()))
-            {
+            while (null != (line = reader.readLine())) {
                 builder.append(line);
             }
         } catch (IOException e) {
