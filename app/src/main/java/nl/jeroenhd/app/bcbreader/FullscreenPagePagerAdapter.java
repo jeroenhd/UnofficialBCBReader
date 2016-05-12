@@ -12,17 +12,19 @@ import nl.jeroenhd.app.bcbreader.data.Chapter;
  */
 public class FullscreenPagePagerAdapter extends FragmentStatePagerAdapter{
     Chapter mChapter;
+    FullScreenPageFragment.FullscreenPageFragmentCallback mPageCallback;
 
-    public FullscreenPagePagerAdapter(FragmentManager fm, Chapter chapter) {
+    public FullscreenPagePagerAdapter(FragmentManager fm, Chapter chapter, FullScreenPageFragment.FullscreenPageFragmentCallback callback) {
         super(fm);
 
         mChapter = chapter;
+        mPageCallback = callback;
     }
 
     @Override
     public Fragment getItem(int position) {
         // Pages are 1-based, while positions are 0-based!
-        return FullScreenPageFragment.newInstance(mChapter, position + 1);
+        return FullScreenPageFragment.newInstance(mChapter, position + 1, mPageCallback);
     }
 
     @Override

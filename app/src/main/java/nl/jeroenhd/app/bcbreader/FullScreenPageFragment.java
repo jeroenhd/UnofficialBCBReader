@@ -18,14 +18,16 @@ public class FullScreenPageFragment extends Fragment {
     PageImageView imageView;
     private Chapter chapter;
     private int page;
+    private FullscreenPageFragmentCallback callback;
 
-    public static FullScreenPageFragment newInstance(Chapter mChapter, int page)
+    public static FullScreenPageFragment newInstance(Chapter mChapter, int page, FullscreenPageFragmentCallback callback)
     {
         FullScreenPageFragment fullScreenPageFragment = new FullScreenPageFragment();
         Bundle args = new Bundle();
         args.putParcelable(FullscreenReaderActivity.EXTRA_CHAPTER, mChapter);
         args.putInt(FullscreenReaderActivity.EXTRA_PAGE, page);
         fullScreenPageFragment.setArguments(args);
+        fullScreenPageFragment.callback = callback;
 
         return fullScreenPageFragment;
     }
@@ -52,7 +54,18 @@ public class FullScreenPageFragment extends Fragment {
         imageView = (PageImageView) v.findViewById(R.id.page);
 
         imageView.setPage(chapter.getNumber(), page);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callback.onTap(v);
+            }
+        });
 
         return v;
+    }
+
+    public interface FullscreenPageFragmentCallback
+    {
+        void onTap(View view);
     }
 }
