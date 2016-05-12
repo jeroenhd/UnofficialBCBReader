@@ -18,8 +18,6 @@ import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 public class PageImageView extends FadingNetworkImageView{
     private final ImageLoader imageLoader;
     private boolean fullImageLoaded = false;
-    private double lastPage;
-    private double lastChapter;
 
     public PageImageView(Context context) {
         super(context);
@@ -38,8 +36,6 @@ public class PageImageView extends FadingNetworkImageView{
 
     public void setPage(double chapter, double page)
     {
-        this.lastChapter = chapter;
-        this.lastPage = page;
         fullImageLoaded = false;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
