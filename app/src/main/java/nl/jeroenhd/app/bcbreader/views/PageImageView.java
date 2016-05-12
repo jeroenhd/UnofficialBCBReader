@@ -17,7 +17,6 @@ import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
  */
 public class PageImageView extends FadingNetworkImageView{
     private final ImageLoader imageLoader;
-    private boolean fullImageLoaded = false;
 
     public PageImageView(Context context) {
         super(context);
@@ -36,8 +35,6 @@ public class PageImageView extends FadingNetworkImageView{
 
     public void setPage(double chapter, double page)
     {
-        fullImageLoaded = false;
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             this.setImageDrawable(getResources().getDrawable(R.drawable.dummy_page, getContext().getTheme()));
         } else {
@@ -57,7 +54,6 @@ public class PageImageView extends FadingNetworkImageView{
             return;
         }
         super.setImageBitmap(bm);
-        fullImageLoaded = true;
     }
 
     /**
