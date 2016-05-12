@@ -1,5 +1,5 @@
 # UnofficialBCBReader
-The unofficial BCB reader app for Android!
+The unofficial Bittersweet Candy Bowl reader app for Android!
 This project was started in my free time, and originally the code was meant to be only visible to me.
 This means the code can be messy and some details are not explained well (because I know them on the top of my head).
 If you're interested in contributing and you have any questions, recommendations, complaints, etc. feel free to let me know or create an issue.
