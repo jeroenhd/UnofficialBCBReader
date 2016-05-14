@@ -42,7 +42,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         // Without cloning, setting the tint on them causes the drawable to have the tint
         //  in other parts of the app as well
         clonedFavDrawable = cloneDrawable(R.drawable.ic_favorite_white_48dp);
-        clonedFavDrawableBorder = cloneDrawable(R.drawable.ic_favorite_border_white_48dp);
+        clonedFavDrawableBorder = cloneDrawable(R.drawable.ic_favorite_border_white);
     }
 
     @Override

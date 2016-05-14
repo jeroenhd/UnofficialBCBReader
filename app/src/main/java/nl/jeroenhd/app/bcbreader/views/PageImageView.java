@@ -5,8 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.View;
 
 import com.android.volley.toolbox.ImageLoader;
 
@@ -19,9 +17,6 @@ import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
  */
 public class PageImageView extends FadingNetworkImageView{
     private final ImageLoader imageLoader;
-    private boolean fullImageLoaded = false;
-    private double lastPage;
-    private double lastChapter;
 
     public PageImageView(Context context) {
         super(context);
@@ -40,10 +35,6 @@ public class PageImageView extends FadingNetworkImageView{
 
     public void setPage(double chapter, double page)
     {
-        this.lastChapter = chapter;
-        this.lastPage = page;
-        fullImageLoaded = false;
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             this.setImageDrawable(getResources().getDrawable(R.drawable.dummy_page, getContext().getTheme()));
         } else {
@@ -53,17 +44,6 @@ public class PageImageView extends FadingNetworkImageView{
 
         String fullURL = API.FormatPageUrl(chapter, page, API.getQualitySuffix(getContext()));
 
-        // Reload the image if the user taps the image while the image hasn't loaded yet
-        this.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!fullImageLoaded) {
-                    Log.d("PageImageViewer", "User reloaded the image by tapping the page!");
-                    // Try again!
-                    setPage(lastChapter, lastPage);
-                }
-            }
-        });
         this.setImageUrl(fullURL, this.imageLoader);
     }
 
@@ -74,7 +54,6 @@ public class PageImageView extends FadingNetworkImageView{
             return;
         }
         super.setImageBitmap(bm);
-        fullImageLoaded = true;
     }
 
     /**

@@ -4,9 +4,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
  * Annotations are for DBFlow
  */
 @SuppressWarnings("unused")
+@ModelContainer
 @Table(database = ChapterDatabase.class)
 public class Chapter extends BaseModel implements Parcelable {
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
@@ -30,20 +33,28 @@ public class Chapter extends BaseModel implements Parcelable {
             return new Chapter[size];
         }
     };
+    @Column
     @PrimaryKey
     Double number;
+
     @Column
     String title;
+
     @Column
     String description;
+
     @Column
     Integer pageCount;
+
     @Column
     Integer totalPages;
+
     @Column
     String yearPublished;
+
     @Column
     boolean favourite;
+
     List<Page> pageDescriptions;
 
     /**
@@ -81,13 +92,6 @@ public class Chapter extends BaseModel implements Parcelable {
         }
 
         this.favourite = data.readInt() == 1;
-    }
-
-    @Override
-    public void save() {
-        super.save();
-        for (Page page : this.pageDescriptions)
-            page.save();
     }
 
     public Double getNumber() {
@@ -138,8 +142,15 @@ public class Chapter extends BaseModel implements Parcelable {
         this.yearPublished = yearPublished;
     }
 
-    @OneToMany(methods = {OneToMany.Method.SAVE, OneToMany.Method.DELETE}, variableName = "pageDescriptions")
+    @OneToMany(methods = {OneToMany.Method.ALL}, variableName = "pageDescriptions")
     public List<Page> getPageDescriptions() {
+        if (pageDescriptions == null)
+        {
+            pageDescriptions = SQLite.select()
+                    .from(Page.class)
+                    .where(Page_Table.chapter.eq(this.getNumber()))
+                    .queryList();
+        }
         return pageDescriptions;
     }
 

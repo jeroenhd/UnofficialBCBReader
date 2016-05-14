@@ -2,9 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="nl.jeroenhd.app.bcbreader">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
-        android:name="nl.jeroenhd.app.bcbreader.BCBReaderApplication"
+        android:name=".BCBReaderApplication"
         android:allowBackup="true"
         android:fullBackupContent="@xml/fullbackupscheme"
         android:icon="@mipmap/ic_launcher"
@@ -33,6 +34,11 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
+        <activity
+            android:name=".FullscreenReaderActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_fullscreen_reader"
+            android:theme="@style/FullscreenTheme"/>
     </application>
 
 </manifest>

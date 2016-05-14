@@ -1,7 +1,9 @@
 package nl.jeroenhd.app.bcbreader;
 
 import android.animation.Animator;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -16,6 +18,8 @@ import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewAnimationUtils;
@@ -28,12 +32,14 @@ import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.Page;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
-import nl.jeroenhd.app.bcbreader.tools.ColorHelper;
 import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
 
-public class ChapterReadingActivity extends AppCompatActivity {
+public class ChapterReadingActivity extends AppCompatActivity implements Toolbar.OnMenuItemClickListener {
     public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.CHAPTER";
     private final ChapterReadingActivity thisActivity = this;
+    private RecyclerView mRecycler;
+    private RecyclerView.LayoutManager mLayout;
+    private ChapterReadingAdapter mAdapter;
     private ArrayList<Page> mPages;
     private Chapter mChapter;
     private CoordinatorLayout mCoordinatorLayout;
@@ -65,7 +71,7 @@ public class ChapterReadingActivity extends AppCompatActivity {
 
         assert fab != null;
 
-        fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white_48dp);
+        fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,19 +79,19 @@ public class ChapterReadingActivity extends AppCompatActivity {
                 mChapter.setFavourite(!mChapter.isFavourite());
                 mChapter.save();
 
-                String msg;
-                if (mChapter.isFavourite()) {
-                    msg = getString(R.string.added_to_favourites);
-                } else {
-                    msg = getString(R.string.removed_from_favourites);
-                }
+                    String msg;
+                    if (mChapter.isFavourite()) {
+                        msg = getString(R.string.added_to_favourites);
+                    } else {
+                        msg = getString(R.string.removed_from_favourites);
+                    }
 
-                fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white_48dp);
-                fab.invalidate();
-                Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
-                        .setAction(getString(R.string.undo), this).show();
-            }
-        });
+                    fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white);
+                    fab.invalidate();
+                    Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
+                            .setAction(getString(R.string.undo), this).show();
+                }
+            });
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -98,6 +104,8 @@ public class ChapterReadingActivity extends AppCompatActivity {
 
         SetupData(mChapter);
         SetupRecyclerView();
+
+        toolbar.setOnMenuItemClickListener(this);
     }
 
     private void SetupHeader() {
@@ -105,22 +113,39 @@ public class ChapterReadingActivity extends AppCompatActivity {
             @Override
             public void onLoadSuccess(Bitmap bm) {
                 if (bm == null)
+                {
+                    Log.e("SetupHeader","Failed to load image (bg=null)!");
                     return;
+                }
                 Palette.PaletteAsyncListener paletteAsyncListener = new Palette.PaletteAsyncListener() {
                     @Override
                     public void onGenerated(Palette palette) {
-                        int backgroundColor = palette.getLightVibrantColor(0xffffffff);
+                        int darkBgColor = palette.getVibrantColor(0xff00ff);
+                        View textSkim = findViewById(R.id.toolbar_text_skim);
+
+                        assert textSkim != null;
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                            textSkim.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{0, darkBgColor}));
+                        } else {
+                            //noinspection deprecation
+                            textSkim.setBackgroundDrawable(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{0, darkBgColor}));
+                        }
+                        /*int backgroundColor = palette.getLightVibrantColor(0xffffffff);
                         int titleColor = ColorHelper.foregroundColor(backgroundColor);
                         toolbar.setTitleTextColor(titleColor);
-                        toolbar.setSubtitleTextColor(titleColor);
+                        toolbar.setSubtitleTextColor(titleColor);*/
                     }
                 };
-                Palette.from(bm).generate(paletteAsyncListener);
+
+                //TODO: Make this code work
+                //Palette.from(bm).generate(paletteAsyncListener);
             }
 
             @Override
             public void onLoadError() {
                 // Default colors are alright
+                Log.e("SetupHeader","Error while loading!!!");
             }
         });
         headerBackgroundImage.setErrorImageResId(R.color.colorPrimary);
@@ -182,22 +207,54 @@ public class ChapterReadingActivity extends AppCompatActivity {
     }
 
     private void SetupRecyclerView() {
-        RecyclerView mRecycler = (RecyclerView) findViewById(R.id.pages);
+        mRecycler = (RecyclerView) findViewById(R.id.pages);
 
-        RecyclerView.LayoutManager mLayout = new LinearLayoutManager(this);
+        mLayout = new LinearLayoutManager(this);
         mRecycler.setLayoutManager(mLayout);
 
-        ChapterReadingAdapter mAdapter = new ChapterReadingAdapter(this, mPages);
+        mAdapter = new ChapterReadingAdapter(this, mPages);
         mRecycler.setAdapter(mAdapter);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
-            case android.R.id.home:
-                this.onBackPressed();
-                return true;
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_chapter_reading, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        int id = item.getItemId();
+        switch(id)
+        {
+            case R.id.action_settings:
+                Intent settingsIntent = new Intent(thisActivity, SettingsActivity.class);
+                startActivity(settingsIntent);
+                break;
+            case R.id.action_fullscreen:
+                Intent fullScreenIntent = new Intent(thisActivity, FullscreenReaderActivity.class);
+
+                //TODO: Make a nice transition here
+                fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_CHAPTER, mChapter);
+
+                //Get the central page and pass it to the reader
+                LinearLayoutManager linearLayoutManager = (LinearLayoutManager)mLayout;
+                int page = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
+
+                // If no page was found (the screen doesn't show a complete page),
+                // just get the first one
+                if (page < 1)
+                {
+                    page = linearLayoutManager.findFirstVisibleItemPosition();
+                }
+                fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_PAGE, page);
+
+                startActivity(fullScreenIntent);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
