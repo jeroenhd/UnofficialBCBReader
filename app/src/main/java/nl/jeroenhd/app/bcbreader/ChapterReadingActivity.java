@@ -222,10 +222,19 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
                 Intent fullScreenIntent = new Intent(thisActivity, FullscreenReaderActivity.class);
 
                 //TODO: Make a nice transition here
-
                 fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_CHAPTER, mChapter);
-                //TODO: get the central page and pass it to the reader
-                fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_PAGE, 1);
+
+                //Get the central page and pass it to the reader
+                LinearLayoutManager linearLayoutManager = (LinearLayoutManager)mLayout;
+                int page = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
+
+                // If no page was found (the screen doesn't show a complete page),
+                // just get the first one
+                if (page < 1)
+                {
+                    page = linearLayoutManager.findFirstVisibleItemPosition();
+                }
+                fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_PAGE, page);
 
                 startActivity(fullScreenIntent);
                 break;
