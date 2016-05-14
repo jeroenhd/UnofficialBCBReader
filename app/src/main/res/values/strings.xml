@@ -25,8 +25,8 @@
     <string name="pref_title_telemetry_android_version">Android version</string>
     <string name="pref_title_telemetry_storage">Internal storage</string>
     <string name="pref_title_telemetry_sdcard">SD card</string>
-    <string name="pref_title_about_version">Version</string>
-    <string name="app_version">Pre-release</string>
+    <string name="pref_title_about_version">App version name</string>
+    <string name="app_version">Kindergarten</string>
     <string name="pref_title_volley_license">Volley license</string>
     <string name="pref_summary_volley_license">This app uses the Volley library. Tap to view its license.</string>
     <string name="pref_title_gson_license">GSON license</string>
