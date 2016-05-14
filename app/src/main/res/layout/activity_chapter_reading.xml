@@ -35,13 +35,19 @@
                 android:transitionName="thumb"
                 app:layout_collapseMode="parallax" />
 
+            <View
+                android:id="@+id/toolbar_text_skim"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_gravity="center_horizontal|bottom"
+                android:background="@drawable/toolbar_backdrop"/>
+
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
-
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
