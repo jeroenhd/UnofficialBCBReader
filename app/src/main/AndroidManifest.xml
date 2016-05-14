@@ -38,7 +38,7 @@
             android:name=".FullscreenReaderActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_fullscreen_reader"
-            android:theme="@style/FullscreenTheme"></activity>
+            android:theme="@style/FullscreenTheme"/>
     </application>
 
 </manifest>
