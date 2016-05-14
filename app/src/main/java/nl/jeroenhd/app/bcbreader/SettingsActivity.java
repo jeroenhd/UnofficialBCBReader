@@ -233,6 +233,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
             Preference volleyLicense = findPreference("pref_license_volley");
             Preference gsonLicense = findPreference("pref_license_gson");
+            Preference dbflowLicense = findPreference("pref_license_dbflow");
 
             volleyLicense.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -245,6 +246,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     showLicense("gson_license.txt");
+                    return false;
+                }
+            });
+            dbflowLicense.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    showLicense("dbflow_license.txt");
                     return false;
                 }
             });

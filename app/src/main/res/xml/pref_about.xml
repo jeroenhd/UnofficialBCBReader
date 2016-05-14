@@ -11,4 +11,8 @@
         android:key="pref_license_gson"
         android:summary="@string/pref_summary_gson_license"
         android:title="@string/pref_title_gson_license" />
+    <Preference
+        android:key="pref_license_dbflow"
+        android:summary="@string/pref_summary_dbflow_license"
+        android:title="@string/pref_title_dbflow_license" />
 </PreferenceScreen>
