@@ -3,6 +3,7 @@ package nl.jeroenhd.app.bcbreader;
 import android.animation.Animator;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -31,7 +32,6 @@ import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.Page;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
-import nl.jeroenhd.app.bcbreader.tools.ColorHelper;
 import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
 
 public class ChapterReadingActivity extends AppCompatActivity implements Toolbar.OnMenuItemClickListener {
@@ -113,22 +113,39 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
             @Override
             public void onLoadSuccess(Bitmap bm) {
                 if (bm == null)
+                {
+                    Log.e("SetupHeader","Failed to load image (bg=null)!");
                     return;
+                }
                 Palette.PaletteAsyncListener paletteAsyncListener = new Palette.PaletteAsyncListener() {
                     @Override
                     public void onGenerated(Palette palette) {
-                        int backgroundColor = palette.getLightVibrantColor(0xffffffff);
+                        int darkBgColor = palette.getVibrantColor(0xff00ff);
+                        View textSkim = findViewById(R.id.toolbar_text_skim);
+
+                        assert textSkim != null;
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                            textSkim.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{0, darkBgColor}));
+                        } else {
+                            //noinspection deprecation
+                            textSkim.setBackgroundDrawable(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{0, darkBgColor}));
+                        }
+                        /*int backgroundColor = palette.getLightVibrantColor(0xffffffff);
                         int titleColor = ColorHelper.foregroundColor(backgroundColor);
                         toolbar.setTitleTextColor(titleColor);
-                        toolbar.setSubtitleTextColor(titleColor);
+                        toolbar.setSubtitleTextColor(titleColor);*/
                     }
                 };
-                Palette.from(bm).generate(paletteAsyncListener);
+
+                //TODO: Make this code work
+                //Palette.from(bm).generate(paletteAsyncListener);
             }
 
             @Override
             public void onLoadError() {
                 // Default colors are alright
+                Log.e("SetupHeader","Error while loading!!!");
             }
         });
         headerBackgroundImage.setErrorImageResId(R.color.colorPrimary);
