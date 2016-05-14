@@ -19,14 +19,12 @@ import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 public class ChapterDatabase {
     static final String NAME = "ChapterInfo";
     static final int VERSION = 1;
-    private static Chapter lastChapter;
 
     public static void SaveUpdate(List<Chapter> chapters) {
         TransactionManager.getInstance().addTransaction(new SaveModelTransaction<>(ProcessModelInfo.withModels(chapters)));
     }
 
     public static Chapter getLastChapter() {
-
         return new Select(Method.ALL_PROPERTY, Method.max(Chapter_Table.number)).from(Chapter.class).querySingle();
     }
 }
