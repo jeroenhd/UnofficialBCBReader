@@ -25,12 +25,14 @@
     <string name="pref_title_telemetry_android_version">Android version</string>
     <string name="pref_title_telemetry_storage">Internal storage</string>
     <string name="pref_title_telemetry_sdcard">SD card</string>
-    <string name="pref_title_about_version">Version</string>
-    <string name="app_version">Pre-release</string>
+    <string name="pref_title_about_version">App version name</string>
+    <string name="app_version">Kindergarten</string>
     <string name="pref_title_volley_license">Volley license</string>
     <string name="pref_summary_volley_license">This app uses the Volley library. Tap to view its license.</string>
     <string name="pref_title_gson_license">GSON license</string>
-    <string name="pref_summary_gson_license">This app uses the GSON Library. Tap to view its license.</string>
+    <string name="pref_summary_gson_license">This app uses the GSON library. Tap to view its license.</string>
+    <string name="pref_title_dbflow_license">DBFlow license</string>
+    <string name="pref_summary_dbflow_license">This app uses the DBFlow library. Tap to view its license.</string>
     <string name="pref_header_telemetry">Telemetry</string>
     <string name="pref_title_telemetry_sdcard_emulated">SD card is emulated</string>
     <string name="content_description_header">Header</string>
