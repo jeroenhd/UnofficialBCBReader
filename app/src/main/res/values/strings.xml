@@ -59,4 +59,5 @@
     <string name="go_fullscreen">Full screen</string>
     <string name="previous"><![CDATA[<]]></string>
     <string name="next"><![CDATA[>]]></string>
+    <string name="share">Share</string>
 </resources>
