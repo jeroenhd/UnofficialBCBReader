@@ -39,6 +39,13 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_fullscreen_reader"
             android:theme="@style/FullscreenTheme"/>
+
+        <receiver android:name=".notifications.UpdateBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="nl.jeroenhd.app.bcbreader.notification.UPDATE" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -35,6 +35,7 @@ import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 import nl.jeroenhd.app.bcbreader.data.check.Check;
+import nl.jeroenhd.app.bcbreader.notifications.UpdateBroadcastReceiver;
 
 public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener, Toolbar.OnMenuItemClickListener {
     private final Activity thisActivity = this;
@@ -270,6 +271,11 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                         Snackbar.make(mRecycler, "DEBUG! YOU'RE NOT ALLOWED TO SEE THIS", Snackbar.LENGTH_SHORT).show();
                     }
                 });
+            }
+            break;
+            case R.id.menu_debug: {
+                Intent i = new Intent(UpdateBroadcastReceiver.UPDATE);
+                this.sendBroadcast(i);
             }
             break;
         }

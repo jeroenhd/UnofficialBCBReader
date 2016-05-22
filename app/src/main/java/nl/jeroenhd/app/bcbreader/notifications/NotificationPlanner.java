@@ -21,7 +21,7 @@ public class NotificationPlanner {
         this.context = context;
     }
 
-    public NotificationPlanner getInstance(Context context) {
+    public static NotificationPlanner getInstance(Context context) {
         if (planner == null)
             planner = new NotificationPlanner(context);
         return planner;

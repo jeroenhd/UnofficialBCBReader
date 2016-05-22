@@ -10,4 +10,8 @@
         android:id="@+id/menu_settings"
         android:title="@string/action_settings"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_debug"
+        android:title="@string/test_notification"
+        app:showAsAction="never" />
 </menu>
