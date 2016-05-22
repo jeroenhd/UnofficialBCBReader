@@ -13,4 +13,11 @@
         android:key="reading_enable_preloading"
         android:summary="@string/pref_summary_preloading"
         android:title="@string/pref_title_enable_preloading" />
+
+    <!-- TODO: remove this preference in production -->
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="reading_use_cdn"
+        android:summary="@string/pref_summary_use_cdn"
+        android:title="@string/pref_title_use_cdn" />
 </PreferenceScreen>

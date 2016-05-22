@@ -75,6 +75,20 @@ public class API {
     }
 
     /**
+     * Find the base URL for all resources
+     *
+     * @param context The context to check preferences with
+     * @return A string containing the base URL (protocol + hostname + '/') of the resource server
+     */
+    public static String getResourceBaseURL(Context context) {
+        if (UseCDN(context)) {
+            return CDNUrl;
+        } else {
+            return BaseURL;
+        }
+    }
+
+    /**
      * Format a URL for a page
      * This method is deprecated but kept because of version control reasons
      * Please use FormatPageUrl(chapter, page, quality) instead
@@ -90,11 +104,13 @@ public class API {
     /**
      * Format a URL for a page
      *
+     * @deprecated Use FormatPageUrl(Context, Double, double, String) instead
      * @param chapter The chapter number
      * @param page    The page number
      * @param quality The quality of the page
      * @return The URL to the page
      */
+    @Deprecated
     public static String FormatPageUrl(Double chapter, double page, String quality) {
         String ext = isJpegChapter(chapter, quality) ? ".jpg" : ".png";
 
@@ -116,8 +132,27 @@ public class API {
         return CDNUrl + "comics/" + formatChapterNumber(chapter) + "/" + "" + ((long) page) + quality + ext;
     }
 
+    /**
+     * Format a URL for a page
+     *
+     * @param context The context for the application
+     * @param chapter The chapter number
+     * @param page    The page number
+     * @param quality The quality of the page
+     * @return The URL to the page
+     */
+    public static String FormatPageUrl(Context context, Double chapter, double page, String quality) {
+        String ext = isJpegChapter(chapter, quality) ? ".jpg" : ".png";
+        return getResourceBaseURL(context) + "comics/" + formatChapterNumber(chapter) + "/" + "" + ((long) page) + quality + ext;
+    }
+
+    @Deprecated
     public static String FormatLqThumbURL(double chapter, double page) {
         return CDNUrl + "app/comics/lqthumb/" + formatChapterNumber(chapter) + "-" + (long) page + ".jpg";
+    }
+
+    public static String FormatLqThumbURL(Context context, double chapter, double page) {
+        return getResourceBaseURL(context) + "app/comics/lqthumb/" + formatChapterNumber(chapter) + "-" + (long) page + ".jpg";
     }
 
     private static String formatChapterNumber(double chapter) {
@@ -134,9 +169,11 @@ public class API {
     /**
      * Format a URL for a thumb in the chapter list
      *
+     * @deprecated Use FormatChapterThumbURL(Context, Double) instead
      * @param chapter The chapter number to decode for
      * @return The full URL to the chapter thumb on the CDN server
      */
+    @Deprecated
     public static String FormatChapterThumbURL(Double chapter) {
         /***
          * CDN returns 404 page instead of empty image for unknown chapters
@@ -150,4 +187,33 @@ public class API {
         }
     }
 
+    /**
+     * Format a URL for a thumb in the chapter list
+     *
+     * @param chapter The chapter number to decode for
+     * @return The full URL to the chapter thumb on the CDN server
+     */
+    public static String FormatChapterThumbURL(Context context, Double chapter) {
+        /***
+         * CDN returns 404 page instead of empty image for unknown chapters
+         *
+         */
+
+        if (UseCDN(context)) {
+            return CDNUrl + "app/comics/icon/" + formatChapterNumber(chapter) + ".png";
+        } else {
+            return BaseURL + "app/comics/icon/" + formatChapterNumber(chapter) + ".png";
+        }
+    }
+
+    /**
+     * Check if we need to use the CDN
+     *
+     * @param context Used to read the settings
+     * @return True if we need to download from the CDN
+     */
+    public static boolean UseCDN(Context context) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return sharedPreferences.getBoolean("reading_use_cdn", true);
+    }
 }
