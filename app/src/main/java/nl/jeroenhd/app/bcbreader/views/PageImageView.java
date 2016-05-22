@@ -17,19 +17,23 @@ import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
  */
 public class PageImageView extends FadingNetworkImageView{
     private final ImageLoader imageLoader;
+    Context mContext;
 
     public PageImageView(Context context) {
         super(context);
+        mContext = context;
         imageLoader = SuperSingleton.getInstance(context).getImageLoader();
     }
 
     public PageImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mContext = context;
         imageLoader = SuperSingleton.getInstance(context).getImageLoader();
     }
 
     public PageImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        mContext = context;
         imageLoader = SuperSingleton.getInstance(context).getImageLoader();
     }
 
@@ -42,7 +46,7 @@ public class PageImageView extends FadingNetworkImageView{
             this.setImageDrawable(getResources().getDrawable(R.drawable.dummy_page));
         }
 
-        String fullURL = API.FormatPageUrl(chapter, page, API.getQualitySuffix(getContext()));
+        String fullURL = API.FormatPageUrl(mContext, chapter, page, API.getQualitySuffix(getContext()));
 
         this.setImageUrl(fullURL, this.imageLoader);
     }

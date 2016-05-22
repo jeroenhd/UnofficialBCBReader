@@ -119,12 +119,12 @@ public class FullScreenPageFragment extends Fragment {
 
             // Forward, then back
             for (int i = page; i <= maxPage; i++) {
-                String nextPageURL = API.FormatPageUrl(chapter.getNumber(), page + i, API.getQualitySuffix(mContext));
+                String nextPageURL = API.FormatPageUrl(mContext, chapter.getNumber(), page + i, API.getQualitySuffix(mContext));
                 SuperSingleton.getInstance(mContext).getImageLoader().get(nextPageURL, dummyListener);
             }
 
             for (int i = page; i >= minPage; i--) {
-                String nextPageURL = API.FormatPageUrl(chapter.getNumber(), page + i, API.getQualitySuffix(mContext));
+                String nextPageURL = API.FormatPageUrl(mContext, chapter.getNumber(), page + i, API.getQualitySuffix(mContext));
                 SuperSingleton.getInstance(mContext).getImageLoader().get(nextPageURL, dummyListener);
             }
         }
