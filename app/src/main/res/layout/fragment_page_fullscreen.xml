@@ -12,6 +12,6 @@
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
             android:scaleType="fitXY"
-            android:src="@drawable/dummy_page"/>
+            android:src="@drawable/dummy_page_black" />
     </ScrollView>
 </RelativeLayout>
