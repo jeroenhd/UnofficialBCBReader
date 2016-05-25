@@ -150,7 +150,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
         });
         headerBackgroundImage.setErrorImageResId(R.color.colorPrimary);
         headerBackgroundImage.setImageUrl(
-                API.FormatChapterThumbURL(mChapter.getNumber()),
+                API.FormatChapterThumbURL(this, mChapter.getNumber()),
                 SuperSingleton.getInstance(this).getImageLoader()
         );
     }

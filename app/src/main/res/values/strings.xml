@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">BCB Reader</string>
-    <string name="title_activity_chapter_list">Chapters</string>
     <string name="dummy_chapter_title">Very long dummy title</string>
     <string name="dummy_chapter_description">A detailed description of the chapter</string>
     <string name="title_activity_chapter_reading">Chapter</string>
@@ -56,10 +55,12 @@
     <string name="reload">Reload</string>
 
     <string name="title_activity_fullscreen_reader">FullscreenReaderActivity</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="go_fullscreen">Full screen</string>
     <string name="previous"><![CDATA[<]]></string>
     <string name="next"><![CDATA[>]]></string>
+    <string name="pref_title_enable_preloading">Enable preloading</string>
+    <string name="pref_summary_preloading">Preloading allows a smoother experience but increases data usage</string>
+    <string name="pref_title_use_cdn">Use quick servers</string>
+    <string name="pref_summary_use_cdn">Try toggling this preference if pages load slowly</string>
     <string name="share">Share</string>
 </resources>

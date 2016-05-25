@@ -65,7 +65,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         Chapter chapter = mData.get(position);
-        DownloadImageToImageView(API.FormatChapterThumbURL(chapter.getNumber()), holder);
+        DownloadImageToImageView(API.FormatChapterThumbURL(mContext, chapter.getNumber()), holder);
 
         holder.ChapterTitleView.setText(chapter.getTitle());
         holder.ChapterDescriptionView.setText(chapter.getDescription());
