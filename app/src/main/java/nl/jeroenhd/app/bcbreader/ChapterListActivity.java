@@ -93,6 +93,33 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         }
     };
     private SuperSingleton singleton;
+    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Snackbar.make(mRecycler, R.string.update_check_failed, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
+        }
+    };
+    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            error.printStackTrace();
+            Snackbar.make(mRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
+        }
+    };
     private final Response.Listener<String> checkSuccessListener = new Response.Listener<String>() {
         @Override
         public void onResponse(String response) {
@@ -114,32 +141,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), chapterDownloadSuccessListener, chapterListDownloadErrorListener);
                 singleton.getVolleyRequestQueue().add(downloadRequest);
             }
-        }
-    };
-    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Snackbar.make(mRecycler, R.string.update_check_failed, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-        }
-    };
-    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Snackbar.make(mRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
         }
     };
 
