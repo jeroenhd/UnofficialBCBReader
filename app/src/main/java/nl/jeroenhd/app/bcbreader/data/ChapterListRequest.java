@@ -57,7 +57,9 @@ public class ChapterListRequest extends Request<List<Chapter>> {
             /** builder.registerTypeAdapter(chapterList.getClass(), new ChapterListDeserializer()); **/
 
             // Create the usable Gson object
-            Gson gson = builder.create();
+            Gson gson = builder
+                    .excludeFieldsWithoutExposeAnnotation()
+                    .create();
 
             // Get the downloaded JSON
             String json = new String(

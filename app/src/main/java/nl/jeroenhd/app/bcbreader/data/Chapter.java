@@ -3,6 +3,7 @@ package nl.jeroenhd.app.bcbreader.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ModelContainer;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
@@ -34,27 +35,34 @@ public class Chapter extends BaseModel implements Parcelable {
         }
     };
     @Column
+    @Expose
     @PrimaryKey
     Double number;
 
     @Column
+    @Expose
     String title;
 
     @Column
+    @Expose
     String description;
 
     @Column
+    @Expose
     Integer pageCount;
 
     @Column
+    @Expose
     Integer totalPages;
 
     @Column
+    @Expose
     String yearPublished;
 
     @Column
     boolean favourite;
 
+    @Expose
     List<Page> pageDescriptions;
 
     /**
