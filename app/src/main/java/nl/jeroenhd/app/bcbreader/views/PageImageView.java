@@ -2,7 +2,9 @@ package nl.jeroenhd.app.bcbreader.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 
 import com.android.volley.toolbox.ImageLoader;
@@ -38,6 +40,12 @@ public class PageImageView extends FadingNetworkImageView{
     public void setPage(double chapter, double page)
     {
         String fullURL = API.FormatPageUrl(mContext, chapter, page, API.getQualitySuffix(getContext()));
+
+        // Fix showing previous (cached) image
+        Drawable currentDrawable = getDrawable();
+        ColorDrawable colorDrawable = new ColorDrawable(ContextCompat.getColor(getContext(), android.R.color.white));
+        colorDrawable.setBounds(currentDrawable.getBounds());
+        this.setImageDrawable(colorDrawable);
 
         this.setImageUrl(fullURL, this.imageLoader);
     }
