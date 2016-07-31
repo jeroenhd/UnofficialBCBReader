@@ -8,4 +8,9 @@
     <color name="colorAccent">#ff4081</color>
 
     <color name="black_overlay">#66000000</color>
+    <color name="mike">#FF94D0EF</color>
+    <color name="lucy">#FFF79594</color>
+    <color name="paulo">#FFF79C64</color>
+    <color name="david">#FF6B5242</color>
+    <color name="daisy">#FFFEDFC5</color>
 </resources>
