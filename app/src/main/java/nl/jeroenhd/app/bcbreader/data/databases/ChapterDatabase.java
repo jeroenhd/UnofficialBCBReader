@@ -1,11 +1,13 @@
 package nl.jeroenhd.app.bcbreader.data.databases;
 
+import android.util.Log;
+
 import com.raizlabs.android.dbflow.annotation.Database;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
-import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
-import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.Method;
 import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 import java.util.List;
 
@@ -21,7 +23,27 @@ public class ChapterDatabase {
     static final int VERSION = 1;
 
     public static void SaveUpdate(List<Chapter> chapters) {
-        TransactionManager.getInstance().addTransaction(new SaveModelTransaction<>(ProcessModelInfo.withModels(chapters)));
+        FlowManager.getDatabase(ChapterDatabase.class)
+                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(
+                        new ProcessModelTransaction.ProcessModel<Chapter>() {
+                            @Override
+                            public void processModel(Chapter model) {
+                                model.update();
+                            }
+                        }).addAll(chapters).build())
+                .error(new Transaction.Error() {
+                    @Override
+                    public void onError(Transaction transaction, Throwable error) {
+                        Log.e("SaveChapters", "Error during transaction " + transaction.name());
+                        error.printStackTrace();
+                    }
+                }).success(new Transaction.Success() {
+            @Override
+            public void onSuccess(Transaction transaction) {
+                // Yay
+            }
+        })
+                .build().execute();
     }
 
     public static Chapter getLastChapter() {

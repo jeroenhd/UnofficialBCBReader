@@ -22,9 +22,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
-import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
-import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
 import java.util.ArrayList;
@@ -35,6 +32,7 @@ import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 import nl.jeroenhd.app.bcbreader.data.check.Check;
+import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
 
 public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener, Toolbar.OnMenuItemClickListener {
     private final Activity thisActivity = this;
@@ -55,8 +53,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private final Response.Listener<List<Chapter>> chapterDownloadSuccessListener = new Response.Listener<List<Chapter>>() {
         @Override
         public void onResponse(List<Chapter> response) {
-            //ChapterDatabase.SaveUpdate(response);
-            TransactionManager.getInstance().addTransaction(new SaveModelTransaction<>(ProcessModelInfo.withModels(response)));
+            ChapterDatabase.SaveUpdate(response);
 
             // Houston, we've got data!
             int startingIndex = 0, count = 0;
@@ -96,6 +93,29 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         }
     };
     private SuperSingleton singleton;
+    private final Response.Listener<String> checkSuccessListener = new Response.Listener<String>() {
+        @Override
+        public void onResponse(String response) {
+            Gson gson = SuperSingleton.getInstance(thisActivity).getGsonBuilder().create();
+            Check check = gson.fromJson(response, Check.class);
+
+            double latestChapterNumber = check.getAddress().getLatestChapter();
+            double latestPageNumber = check.getAddress().getLatestPage();
+            Chapter latestChapterInBuffer = mChapterData.size() > 0 ? mChapterData.get(mChapterData.size() - 1) : null;
+
+            // latestChapter > bufferChapter || ( latestChapter == bufferChapter && latestPage > bufferChapter.latestPage )
+            if (latestChapterInBuffer == null ||
+                    latestChapterNumber > latestChapterInBuffer.getNumber() || (
+                    latestChapterInBuffer.getNumber().equals(latestChapterNumber) &&
+                            latestChapterInBuffer.getPageCount() < latestPageNumber
+            )
+                    ) {
+                // List needs an update
+                ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), chapterDownloadSuccessListener, chapterListDownloadErrorListener);
+                singleton.getVolleyRequestQueue().add(downloadRequest);
+            }
+        }
+    };
     private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
@@ -120,29 +140,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                         }
                     })
                     .show();
-        }
-    };
-    private final Response.Listener<String> checkSuccessListener = new Response.Listener<String>() {
-        @Override
-        public void onResponse(String response) {
-            Gson gson = SuperSingleton.getInstance(thisActivity).getGsonBuilder().create();
-            Check check = gson.fromJson(response, Check.class);
-
-            double latestChapterNumber = check.getAddress().getLatestChapter();
-            double latestPageNumber = check.getAddress().getLatestPage();
-            Chapter latestChapterInBuffer = mChapterData.size() > 0 ? mChapterData.get(mChapterData.size() - 1) : null;
-
-            // latestChapter > bufferChapter || ( latestChapter == bufferChapter && latestPage > bufferChapter.latestPage )
-            if (latestChapterInBuffer == null ||
-                    latestChapterNumber > latestChapterInBuffer.getNumber() || (
-                    latestChapterInBuffer.getNumber().equals(latestChapterNumber) &&
-                            latestChapterInBuffer.getPageCount() < latestPageNumber
-            )
-                    ) {
-                // List needs an update
-                ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), chapterDownloadSuccessListener, chapterListDownloadErrorListener);
-                singleton.getVolleyRequestQueue().add(downloadRequest);
-            }
         }
     };
 
