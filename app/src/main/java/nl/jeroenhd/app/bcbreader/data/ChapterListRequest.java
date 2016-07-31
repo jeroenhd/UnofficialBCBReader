@@ -54,7 +54,8 @@ public class ChapterListRequest extends Request<List<Chapter>> {
             // Prepare a valid list
             List<Chapter> chapterList = new ArrayList<>();
             // Have Gson use out ChapterListDeserializer for the chapter list
-            builder.registerTypeAdapter(chapterList.getClass(), new ChapterListDeserializer());
+            /** builder.registerTypeAdapter(chapterList.getClass(), new ChapterListDeserializer()); **/
+
             // Create the usable Gson object
             Gson gson = builder.create();
 
