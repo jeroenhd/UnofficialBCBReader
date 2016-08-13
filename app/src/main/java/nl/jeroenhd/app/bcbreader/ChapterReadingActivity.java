@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -27,6 +28,7 @@ import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
@@ -55,7 +57,21 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mChapter = this.getIntent().getParcelableExtra(ChapterReadingActivity.CHAPTER);
+
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        if (action == null || action.equals(Intent.ACTION_VIEW)) {
+            mChapter = intent.getParcelableExtra(ChapterReadingActivity.CHAPTER);
+        } else {
+            Uri data = intent.getData();
+            Log.d("ActivityFromUri", "Data: " + data.toString());
+            String scheme = data.getScheme();
+            String host = data.getHost();
+            List<String> queryParams = data.getPathSegments();
+            Double chapter = Double.parseDouble(queryParams.get(0).substring(1));
+            Integer page = Integer.parseInt(queryParams.get(1).substring(1));
+        }
+
         if (mChapter == null) {
             runOnUiThread(new Runnable() {
                 @Override
