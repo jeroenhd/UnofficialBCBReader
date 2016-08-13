@@ -29,6 +29,7 @@ public class ChapterDatabase {
                             @Override
                             public void processModel(Chapter model) {
                                 model.update();
+                                model.save();
                             }
                         }).addAll(chapters).build())
                 .error(new Transaction.Error() {
@@ -41,6 +42,7 @@ public class ChapterDatabase {
             @Override
             public void onSuccess(Transaction transaction) {
                 // Yay
+                Log.e("SaveChapters", "Saved chapters!");
             }
         })
                 .build().execute();
