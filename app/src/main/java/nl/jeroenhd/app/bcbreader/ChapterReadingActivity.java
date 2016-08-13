@@ -242,6 +242,8 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
 
         mAdapter = new ChapterReadingAdapter(this, mPages);
         mRecycler.setAdapter(mAdapter);
+
+        mRecycler.scrollToPosition(mScrollToPage);
     }
 
     @Override
