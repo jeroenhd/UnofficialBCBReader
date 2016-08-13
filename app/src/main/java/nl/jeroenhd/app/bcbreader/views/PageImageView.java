@@ -77,7 +77,7 @@ public class PageImageView extends FadingNetworkImageView{
 
         if (d != null) {
             final int width = MeasureSpec.getSize(widthMeasureSpec);
-            final int height = (int) Math.ceil(width * (float) d.getIntrinsicHeight() / (float) d.getIntrinsicWidth());
+            final int height = (int) Math.ceil(width * (float) d.getIntrinsicHeight() / d.getIntrinsicWidth());
             this.setMeasuredDimension(width, height);
         } else {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
