@@ -27,22 +27,27 @@ import android.view.ViewAnimationUtils;
 import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
 
+import com.raizlabs.android.dbflow.sql.language.Select;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
+import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 import nl.jeroenhd.app.bcbreader.data.Page;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
 
 public class ChapterReadingActivity extends AppCompatActivity implements Toolbar.OnMenuItemClickListener {
     public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.CHAPTER";
+    public static final String SCROLL_TO = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.SCROLL_TO";
     private final ChapterReadingActivity thisActivity = this;
     private RecyclerView mRecycler;
     private RecyclerView.LayoutManager mLayout;
     private ChapterReadingAdapter mAdapter;
     private ArrayList<Page> mPages;
+    private int mScrollToPage = -1;
     private Chapter mChapter;
     private CoordinatorLayout mCoordinatorLayout;
     private CallbackNetworkImageView headerBackgroundImage;
@@ -60,9 +65,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
 
         Intent intent = getIntent();
         String action = intent.getAction();
-        if (action == null || action.equals(Intent.ACTION_VIEW)) {
-            mChapter = intent.getParcelableExtra(ChapterReadingActivity.CHAPTER);
-        } else {
+        if (action != null && action.equals(Intent.ACTION_VIEW)) {
             Uri data = intent.getData();
             Log.d("ActivityFromUri", "Data: " + data.toString());
             String scheme = data.getScheme();
@@ -70,6 +73,17 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
             List<String> queryParams = data.getPathSegments();
             Double chapter = Double.parseDouble(queryParams.get(0).substring(1));
             Integer page = Integer.parseInt(queryParams.get(1).substring(1));
+
+            mChapter = new Select().from(Chapter.class).where(Chapter_Table.number.is(chapter)).querySingle();
+            mScrollToPage = page;
+
+            if (mChapter == null) {
+                //TODO: Download Chapter, Chapter does not exist yet!
+                Log.d("ActivityFromUri", "Downloading new chapters has not been implemented from URLs!");
+            }
+        } else {
+            mChapter = intent.getParcelableExtra(ChapterReadingActivity.CHAPTER);
+            mScrollToPage = intent.getIntExtra(ChapterReadingActivity.SCROLL_TO, -1);
         }
 
         if (mChapter == null) {
