@@ -68,13 +68,11 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
         if (action != null && action.equals(Intent.ACTION_VIEW)) {
             Uri data = intent.getData();
             Log.d("ActivityFromUri", "Data: " + data.toString());
-            String scheme = data.getScheme();
-            String host = data.getHost();
             List<String> queryParams = data.getPathSegments();
             Double chapter = Double.parseDouble(queryParams.get(0).substring(1));
-            Integer page = Integer.parseInt(queryParams.get(1).substring(1));
+            Integer page = Integer.parseInt(queryParams.get(1).replaceAll("[^0-9]", ""));
 
-            mChapter = new Select().from(Chapter.class).where(Chapter_Table.number.is(chapter)).querySingle();
+            mChapter = new Select().from(Chapter.class).where(Chapter_Table.number.eq(chapter)).querySingle();
             mScrollToPage = page;
 
             if (mChapter == null) {
