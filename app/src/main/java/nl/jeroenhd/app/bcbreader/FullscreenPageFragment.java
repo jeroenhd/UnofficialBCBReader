@@ -71,6 +71,7 @@ public class FullscreenPageFragment extends Fragment {
 
         assert v != null;
         imageView = (PageImageView) v.findViewById(R.id.page);
+        imageView.setBackgroundColorId(android.R.color.black);
         imageView.setPage(chapter.getNumber(), page);
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override

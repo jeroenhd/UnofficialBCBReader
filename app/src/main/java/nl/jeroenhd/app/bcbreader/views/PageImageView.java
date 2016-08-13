@@ -18,6 +18,7 @@ import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 public class PageImageView extends FadingNetworkImageView{
     private final ImageLoader imageLoader;
     Context mContext;
+    private int backgroundColorId = android.R.color.white;
 
     public PageImageView(Context context) {
         super(context);
@@ -37,13 +38,17 @@ public class PageImageView extends FadingNetworkImageView{
         imageLoader = SuperSingleton.getInstance(context).getImageLoader();
     }
 
+    public void setBackgroundColorId(int backgroundColorId) {
+        this.backgroundColorId = backgroundColorId;
+    }
+
     public void setPage(double chapter, double page)
     {
         String fullURL = API.FormatPageUrl(mContext, chapter, page, API.getQualitySuffix(getContext()));
 
         // Fix showing previous (cached) image
         Drawable currentDrawable = getDrawable();
-        ColorDrawable colorDrawable = new ColorDrawable(ContextCompat.getColor(getContext(), android.R.color.white));
+        ColorDrawable colorDrawable = new ColorDrawable(ContextCompat.getColor(getContext(), this.backgroundColorId));
         colorDrawable.setBounds(currentDrawable.getBounds());
         this.setImageDrawable(colorDrawable);
 
