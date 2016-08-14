@@ -69,7 +69,7 @@ public class ShareManager {
     }
 
     /**
-     * Store a BitmapDrawable and create a share URI
+     * Store a BitmapDrawable and create a share URI.
      * @param bitmap The bitmap to share
      * @return An URI pointing to the drawable, which is shareable with other apps
      */
