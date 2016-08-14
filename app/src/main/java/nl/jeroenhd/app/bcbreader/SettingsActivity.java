@@ -321,7 +321,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             sendNow.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    telemetry.send(true);
+                    telemetry.send(true, getActivity());
                     return false;
                 }
             });

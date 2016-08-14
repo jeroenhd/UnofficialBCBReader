@@ -43,20 +43,17 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
     public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.CHAPTER";
     public static final String SCROLL_TO = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.SCROLL_TO";
     private final ChapterReadingActivity thisActivity = this;
-    private RecyclerView mRecycler;
     private RecyclerView.LayoutManager mLayout;
-    private ChapterReadingAdapter mAdapter;
     private ArrayList<Page> mPages;
     private int mScrollToPage = -1;
     private Chapter mChapter;
     private CoordinatorLayout mCoordinatorLayout;
     private CallbackNetworkImageView headerBackgroundImage;
-    private Toolbar toolbar;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chapter_reading);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         if (getSupportActionBar() != null)
@@ -235,12 +232,12 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
     }
 
     private void SetupRecyclerView() {
-        mRecycler = (RecyclerView) findViewById(R.id.pages);
+        RecyclerView mRecycler = (RecyclerView) findViewById(R.id.pages);
 
         mLayout = new LinearLayoutManager(this);
         mRecycler.setLayoutManager(mLayout);
 
-        mAdapter = new ChapterReadingAdapter(this, mPages);
+        ChapterReadingAdapter mAdapter = new ChapterReadingAdapter(this, mPages);
         mRecycler.setAdapter(mAdapter);
 
         mRecycler.scrollToPosition(mScrollToPage);

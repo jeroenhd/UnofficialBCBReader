@@ -14,8 +14,8 @@ import nl.jeroenhd.app.bcbreader.data.check.UpdateTimes;
  * Sets alarms and things
  */
 public class NotificationPlanner {
-    private static NotificationPlanner planner;
     private final Context context;
+    private NotificationPlanner planner;
 
     private NotificationPlanner(Context context) {
         this.context = context;

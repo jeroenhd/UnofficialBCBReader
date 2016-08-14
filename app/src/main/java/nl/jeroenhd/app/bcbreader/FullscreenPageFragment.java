@@ -56,7 +56,7 @@ public class FullscreenPageFragment extends Fragment {
      * Called when a fragment is first attached to its context.
      * {@link #onCreate(Bundle)} will be called after this.
      *
-     * @param context
+     * @param context The context the fragment is being attached to
      */
     @Override
     public void onAttach(Context context) {
@@ -105,7 +105,7 @@ public class FullscreenPageFragment extends Fragment {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     //Empty
-                    Log.e("FSPF_Preloader", "Exception ocurred while preloading: ");
+                    Log.e("FSPF_Preloader", "Exception occurred while preloading: ");
                     error.printStackTrace();
                 }
             };

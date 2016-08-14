@@ -80,7 +80,7 @@ public class ShareManager {
             return null;
 
         File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "bcbshare_" + System.currentTimeMillis() + ".png");
-        FileOutputStream outputStream = null;
+        FileOutputStream outputStream;
         try {
             outputStream = new FileOutputStream(file);
             bitmap.compress(Bitmap.CompressFormat.PNG, 90, outputStream);
