@@ -13,6 +13,7 @@ import com.android.volley.toolbox.ImageLoader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Random;
 
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 
@@ -24,13 +25,13 @@ public class ShareManager {
 
     /**
      * Share an image and add a tag line
-     * @param context The context to share from
-     * @param image The image to share
-     * @param message The message to add to the image
+     *
+     * @param context          The context to share from
+     * @param image            The image to share
+     * @param message          The message to add to the image
      * @param shareIntentTitle The title of the intent picker
      */
-    public static void ShareImageWithText(Context context, Bitmap image, String message, String shareIntentTitle)
-    {
+    public static void ShareImageWithText(Context context, Bitmap image, String message, String shareIntentTitle) {
         Uri pictureUri = getBitmapUri(context, image);
         Intent shareIntent = new Intent();
 
@@ -45,14 +46,14 @@ public class ShareManager {
     /**
      * Share an online image and add a tag line.
      * Warning: this method is asynchronous! It adds an element to the Volley queue.
-     * @param context The context to share from
-     * @param url The URL of the image to share
-     * @param message The message to add to the image
+     *
+     * @param context          The context to share from
+     * @param url              The URL of the image to share
+     * @param message          The message to add to the image
      * @param shareIntentTitle The title of the intent picker
-     * @param errorListener An error listener in case something goes wrong downloading the image
+     * @param errorListener    An error listener in case something goes wrong downloading the image
      */
-    public static void ShareImageWithText(final Context context, String url, final String message, final String shareIntentTitle, final Response.ErrorListener errorListener)
-    {
+    public static void ShareImageWithText(final Context context, String url, final String message, final String shareIntentTitle, final Response.ErrorListener errorListener) {
         SuperSingleton superSingleton = SuperSingleton.getInstance(context);
         superSingleton.getImageLoader().get(url, new ImageLoader.ImageListener() {
             @Override
@@ -70,11 +71,11 @@ public class ShareManager {
 
     /**
      * Store a BitmapDrawable and create a share URI.
+     *
      * @param bitmap The bitmap to share
      * @return An URI pointing to the drawable, which is shareable with other apps
      */
-    private static Uri getBitmapUri(Context context, Bitmap bitmap)
-    {
+    private static Uri getBitmapUri(Context context, Bitmap bitmap) {
         File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "bcbshare_" + System.currentTimeMillis() + ".png");
         FileOutputStream outputStream = null;
         try {
@@ -86,5 +87,32 @@ public class ShareManager {
             return null;
         }
         return Uri.fromFile(file);
+    }
+
+    /**
+     * Get a stupid pun/comment the user should replace with something they want
+     * @return A string, probably a pun
+     */
+    public static String getStupidPhrase() {
+        // Stolen from the BCB site
+        String[] stupidPhrases =
+                new String[]{"protect this cat at all costs",
+                        "This BCB page is the cat’s pajamas! It left me feline purretty great!",
+                        "*screaming internally* DAISY.......",
+                        "If I had to rate this page of Bittersweet Candy Bowl it would be canine out of ten!",
+                        "You know, if you guys aren’t reading Bittersweet Candy Bowl then it’s claws for concern!",
+                        "Stop purrcrastinating and read this Bittersweet Candy Bowl page! It’s mewtiful!",
+                        "Reading this Bittersweet Candy Bowl page will claws you to to experience true mewphoria!",
+                        "★ ★ LUCY ABUSE MASTERPOST ★ ★",
+                        "I still think BCB’s Mike is highly problematic.",
+                        "protect this cat at all costs",
+                        "Whenever I have a ruff day Bittersweet Candy Bowl is always there to cheer me pup!",
+                        "aesthetic",
+                        "omG AUGUSTUS i’m cry",
+                        "daisy is a precious cinnamon roll too sweet too pure for this world",
+                        "LOOK AT HIM.... MY BEAUTIFUL TRASH BF",
+                };
+
+        return stupidPhrases[new Random().nextInt()%stupidPhrases.length];
     }
 }

@@ -6,13 +6,21 @@ import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
+import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Page;
+import nl.jeroenhd.app.bcbreader.tools.ShareManager;
 import nl.jeroenhd.app.bcbreader.views.PageImageView;
 
 /**
@@ -40,12 +48,30 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
     public void onBindViewHolder(ChapterReadingAdapter.ViewHolder holder, int position) {
         Page page = mData.get(position);
 
-        Double chapterNumber = page.getChapter();
-        Double pageNumber = page.getPage();
+        final Double chapterNumber = page.getChapter();
+        final Double pageNumber = page.getPage();
         holder.networkImageView.setPage(chapterNumber, pageNumber);
 
         holder.commentaryView.setText(Html.fromHtml(page.getDescription()));
         holder.commentaryView.setMovementMethod(LinkMovementMethod.getInstance());
+
+        holder.toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.action_share:
+                        ShareManager.ShareImageWithText(mContext, API.FormatPageUrl(mContext, chapterNumber, pageNumber, API.getQualitySuffix(mContext)), ShareManager.getStupidPhrase(), mContext.getString(R.string.share), new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(mContext, String.format(Locale.getDefault(), mContext.getString(R.string.error_while_sharing), error.getLocalizedMessage()), Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        break;
+                }
+
+                return true;
+            }
+        });
     }
 
     @Override
@@ -63,7 +89,7 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
 
             networkImageView = (PageImageView) itemView.findViewById(R.id.page);
             commentaryView = (TextView) itemView.findViewById(R.id.commentary);
-            toolbar = (Toolbar)itemView.findViewById(R.id.cardToolbar);
+            toolbar = (Toolbar) itemView.findViewById(R.id.cardToolbar);
         }
     }
 }
