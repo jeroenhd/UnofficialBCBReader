@@ -5,7 +5,7 @@ import android.graphics.Color;
 /**
  * A class to help with coloring
  */
-public class ColorHelper {
+class ColorHelper {
     /***
      * Code stolen from
      * http://stackoverflow.com/questions/1855884/determine-font-color-based-on-background-color

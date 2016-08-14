@@ -19,8 +19,8 @@ import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
  */
 @Database(name = ChapterDatabase.NAME, version = ChapterDatabase.VERSION)
 public class ChapterDatabase {
-    static final String NAME = "ChapterInfo";
-    static final int VERSION = 1;
+    private static final String NAME = "ChapterInfo";
+    private static final int VERSION = 1;
 
     public static void SaveUpdate(List<Chapter> chapters) {
         FlowManager.getDatabase(ChapterDatabase.class)

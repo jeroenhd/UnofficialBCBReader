@@ -42,8 +42,23 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private static final int UI_ANIMATION_DELAY = 300;
     private final FullscreenReaderActivity thisActivity = this;
     private final Handler mHideHandler = new Handler();
-    Button buttonPrev, buttonNext;
-    SeekBar seekBar;
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
+        }
+    };
+    private Button buttonPrev;
+    private Button buttonNext;
+    private SeekBar seekBar;
     private View mContentView;
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
@@ -79,20 +94,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         @Override
         public void run() {
             hide();
-        }
-    };
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
         }
     };
     private Chapter currentChapter;
@@ -246,7 +247,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
      * Handle the request to show the previous page
      * @param clickedView The button that was clicked to start this action
      */
-    public void onNext(View clickedView)
+    private void onNext(View clickedView)
     {
         //TODO: Maybe allow loading the next chapter?
         int currentItem = viewPager.getCurrentItem();
@@ -262,7 +263,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
      * Handle the request to show the previous page
      * @param clickedView The button that was clicked to start this action
      */
-    public void onPrev(View clickedView)
+    private void onPrev(View clickedView)
     {
         //TODO: Maybe allow loading the previous chapter?
         int currentItem = viewPager.getCurrentItem();

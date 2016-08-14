@@ -23,7 +23,7 @@ import nl.jeroenhd.app.bcbreader.views.PageImageView;
  * A fragment to show a single page
  */
 public class FullscreenPageFragment extends Fragment {
-    PageImageView imageView;
+    private PageImageView imageView;
     private Chapter chapter;
     private int page;
     private FullscreenPageFragmentCallback callback;

@@ -80,7 +80,7 @@ public class API {
      * @param context The context to check preferences with
      * @return A string containing the base URL (protocol + hostname + '/') of the resource server
      */
-    public static String getResourceBaseURL(Context context) {
+    private static String getResourceBaseURL(Context context) {
         if (UseCDN(context)) {
             return CDNUrl;
         } else {
@@ -212,7 +212,7 @@ public class API {
      * @param context Used to read the settings
      * @return True if we need to download from the CDN
      */
-    public static boolean UseCDN(Context context) {
+    private static boolean UseCDN(Context context) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         return sharedPreferences.getBoolean("reading_use_cdn", true);
     }

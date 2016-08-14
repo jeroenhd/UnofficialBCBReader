@@ -10,9 +10,9 @@ import nl.jeroenhd.app.bcbreader.data.Chapter;
  * A pager adapter for the full screen comic reader
  * TODO: Implement
  */
-public class FullscreenPagePagerAdapter extends FragmentStatePagerAdapter{
-    Chapter mChapter;
-    FullscreenPageFragment.FullscreenPageFragmentCallback mPageCallback;
+class FullscreenPagePagerAdapter extends FragmentStatePagerAdapter {
+    private final Chapter mChapter;
+    private final FullscreenPageFragment.FullscreenPageFragmentCallback mPageCallback;
 
     public FullscreenPagePagerAdapter(FragmentManager fm, Chapter chapter, FullscreenPageFragment.FullscreenPageFragmentCallback callback) {
         super(fm);

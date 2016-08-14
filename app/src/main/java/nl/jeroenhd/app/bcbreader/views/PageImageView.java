@@ -17,7 +17,7 @@ import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
  */
 public class PageImageView extends FadingNetworkImageView{
     private final ImageLoader imageLoader;
-    Context mContext;
+    private final Context mContext;
     private int backgroundColorId = android.R.color.white;
 
     public PageImageView(Context context) {

@@ -31,7 +31,7 @@ public class ShareManager {
      * @param message          The message to add to the image
      * @param shareIntentTitle The title of the intent picker
      */
-    public static void ShareImageWithText(Context context, Bitmap image, String message, String shareIntentTitle) {
+    private static void ShareImageWithText(Context context, Bitmap image, String message, String shareIntentTitle) {
         Uri pictureUri = getBitmapUri(context, image);
         Intent shareIntent = new Intent();
 
