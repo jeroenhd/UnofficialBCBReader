@@ -76,6 +76,9 @@ public class ShareManager {
      * @return An URI pointing to the drawable, which is shareable with other apps
      */
     private static Uri getBitmapUri(Context context, Bitmap bitmap) {
+        if (bitmap == null)
+            return null;
+
         File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "bcbshare_" + System.currentTimeMillis() + ".png");
         FileOutputStream outputStream = null;
         try {
@@ -113,6 +116,10 @@ public class ShareManager {
                         "LOOK AT HIM.... MY BEAUTIFUL TRASH BF",
                 };
 
-        return stupidPhrases[new Random().nextInt()%stupidPhrases.length];
+        // The documentation says this number is always positive
+        // It is not.
+        // That's what you get when you use Java
+        int index = new Random().nextInt(stupidPhrases.length);
+        return stupidPhrases[index];
     }
 }
