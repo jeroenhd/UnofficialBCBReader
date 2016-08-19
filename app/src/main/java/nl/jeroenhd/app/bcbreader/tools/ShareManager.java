@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -15,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Random;
 
+import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 
 /**
@@ -32,13 +34,19 @@ public class ShareManager {
      * @param shareIntentTitle The title of the intent picker
      */
     private static void ShareImageWithText(Context context, Bitmap image, String message, String shareIntentTitle) {
-        Uri pictureUri = getBitmapUri(context, image);
         Intent shareIntent = new Intent();
 
         shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, message);
         shareIntent.putExtra(Intent.EXTRA_TEXT, message);
-        shareIntent.putExtra(Intent.EXTRA_STREAM, pictureUri);
-        shareIntent.setType("image/*");
+
+        // Have sharing the full image depend on a user preference
+        // Most chat apps already preview pages
+        if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("share_upload_image", false)) {
+            Uri pictureUri = getBitmapUri(context, image);
+            shareIntent.putExtra(Intent.EXTRA_STREAM, pictureUri);
+        }
+        shareIntent.setType("image/png");
         shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         context.startActivity(Intent.createChooser(shareIntent, shareIntentTitle));
     }
@@ -96,25 +104,8 @@ public class ShareManager {
      * Get a stupid pun/comment the user should replace with something they want
      * @return A string, probably a pun
      */
-    public static String getStupidPhrase() {
-        // Stolen from the BCB site
-        String[] stupidPhrases =
-                new String[]{"protect this cat at all costs",
-                        "This BCB page is the cat’s pajamas! It left me feline purretty great!",
-                        "*screaming internally* DAISY.......",
-                        "If I had to rate this page of Bittersweet Candy Bowl it would be canine out of ten!",
-                        "You know, if you guys aren’t reading Bittersweet Candy Bowl then it’s claws for concern!",
-                        "Stop purrcrastinating and read this Bittersweet Candy Bowl page! It’s mewtiful!",
-                        "Reading this Bittersweet Candy Bowl page will claws you to to experience true mewphoria!",
-                        "★ ★ LUCY ABUSE MASTERPOST ★ ★",
-                        "I still think BCB’s Mike is highly problematic.",
-                        "protect this cat at all costs",
-                        "Whenever I have a ruff day Bittersweet Candy Bowl is always there to cheer me pup!",
-                        "aesthetic",
-                        "omG AUGUSTUS i’m cry",
-                        "daisy is a precious cinnamon roll too sweet too pure for this world",
-                        "LOOK AT HIM.... MY BEAUTIFUL TRASH BF",
-                };
+    public static String getStupidPhrase(Context context) {
+        String[] stupidPhrases = context.getResources().getStringArray(R.array.stupid_sharing_phrases);
 
         // The documentation says this number is always positive
         // It is not.

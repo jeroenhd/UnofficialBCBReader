@@ -60,7 +60,16 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.action_share:
-                        ShareManager.ShareImageWithText(mContext, API.FormatPageUrl(mContext, chapterNumber, pageNumber, API.getQualitySuffix(mContext)), ShareManager.getStupidPhrase(), mContext.getString(R.string.share), new Response.ErrorListener() {
+                        // The full page URL is required for saving the bitmap and sharing it
+                        String pageUrl = API.FormatPageUrl(mContext, chapterNumber, pageNumber, API.getQualitySuffix(mContext));
+                        // The short one is to add to the share message
+                        String shortPageUrl = API.FormatPageLink(chapterNumber, pageNumber.longValue());
+
+                        ShareManager.ShareImageWithText(mContext,
+                                pageUrl,
+                                ShareManager.getStupidPhrase(mContext) + " " + shortPageUrl,
+                                mContext.getString(R.string.share),
+                                new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 Toast.makeText(mContext, String.format(Locale.getDefault(), mContext.getString(R.string.error_while_sharing), error.getLocalizedMessage()), Toast.LENGTH_LONG).show();

@@ -81,6 +81,21 @@ public class APITest {
         assertEquals("https://blasto.enterprises/comics/9.1/1.png", API.FormatPageUrl(9.1, 1.0, ""));
     }
 
+    /**
+     * Test if FormatPageLink does what it's supposed to do
+     *
+     * @throws Exception Happens if the test fails
+     */
+    @Test
+    public void testFormatPageLink() throws Exception {
+        // Basic
+        assertEquals("http://bcb.cat/c1/p1/", API.FormatPageLink(1.0, 1));
+        // JPEG URL
+        assertEquals("http://bcb.cat/c70/p1/", API.FormatPageLink(70.0, 1));
+        // Decimal in chapter number
+        assertEquals("http://bcb.cat/c9.1/p1/", API.FormatPageLink(9.1, 1));
+    }
+
     @Test
     public void testFormatLqThumbURL() throws Exception {
         // Basic
