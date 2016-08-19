@@ -2,8 +2,8 @@ package nl.jeroenhd.app.bcbreader;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
+import nl.jeroenhd.app.bcbreader.tools.ColorHelper;
 
 /**
  * A list adapter for the RecyclerView of ChapterListActivity
@@ -65,6 +66,11 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         Chapter chapter = mData.get(position);
+
+        // Clear the old thumb
+        holder.ChapterThumbView.setImageDrawable(new ColorDrawable(ColorHelper.getColor(mContext, android.R.color.white)));
+
+        // Download and show the new thumb
         DownloadImageToImageView(API.FormatChapterThumbURL(mContext, chapter.getNumber()), holder);
 
         holder.ChapterTitleView.setText(chapter.getTitle());
@@ -73,14 +79,8 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         holder.FavouriteImageView.setImageDrawable(chapter.isFavourite() ? clonedFavDrawable : clonedFavDrawableBorder);
 
         holder.CurrentChapter = chapter;
-        int color;
+        int color = ColorHelper.getColor(mContext, R.color.colorAccent);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            color = mContext.getColor(R.color.colorAccent);
-        } else {
-            //noinspection deprecation
-            color = mContext.getResources().getColor(R.color.colorAccent);
-        }
         holder.FavouriteImageView.getDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
     }
 
