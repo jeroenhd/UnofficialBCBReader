@@ -11,8 +11,8 @@
         <item>1</item>
     </string-array>
     <string-array name="stupid_sharing_phrases">
-        <item>[BCBAndroid prealpha]I found these cool cats on the Internet</item>
-        <item>[BCBAndroid prealpha]Just look at these cats</item>
-        <item>[BCBAndroid prealpha]This is some fine looking cat comic right here</item>
+        <item>I found these cool cats on the Internet</item>
+        <item>Just look at these cats</item>
+        <item>This is some fine looking cat comic right here</item>
     </string-array>
 </resources>
