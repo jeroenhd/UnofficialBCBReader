@@ -112,8 +112,8 @@ public class FullscreenPageFragment extends Fragment {
 
             int minPage = page - 5;
             int maxPage = page + 5;
-            if (minPage < 0)
-                minPage = 0;
+            if (minPage < 1)
+                minPage = 1;
             if (maxPage > chapter.getPageCount())
                 maxPage = chapter.getPageCount();
 
