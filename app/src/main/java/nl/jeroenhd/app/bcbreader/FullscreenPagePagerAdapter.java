@@ -14,7 +14,7 @@ class FullscreenPagePagerAdapter extends FragmentStatePagerAdapter {
     private final Chapter mChapter;
     private final FullscreenPageFragment.FullscreenPageFragmentCallback mPageCallback;
 
-    public FullscreenPagePagerAdapter(FragmentManager fm, Chapter chapter, FullscreenPageFragment.FullscreenPageFragmentCallback callback) {
+    FullscreenPagePagerAdapter(FragmentManager fm, Chapter chapter, FullscreenPageFragment.FullscreenPageFragmentCallback callback) {
         super(fm);
 
         mChapter = chapter;
