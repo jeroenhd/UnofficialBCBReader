@@ -3,20 +3,28 @@ package nl.jeroenhd.app.bcbreader;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+
 import java.util.Locale;
 
+import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
+import nl.jeroenhd.app.bcbreader.tools.ShareManager;
 
 /**
  * A full screen comic reader activity
@@ -98,7 +106,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     };
     private Chapter currentChapter;
     private ViewPager viewPager;
-    private FullscreenPagePagerAdapter mPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,23 +138,19 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
         Bundle extras = this.getIntent().getExtras();
         int currentPage;
-        if (extras != null)
-        {
-            if (!extras.containsKey(EXTRA_CHAPTER) || !extras.containsKey(EXTRA_PAGE))
-            {
+        if (extras != null) {
+            if (!extras.containsKey(EXTRA_CHAPTER) || !extras.containsKey(EXTRA_PAGE)) {
                 throw new IllegalArgumentException("Missing argument (CHAPTER or PAGE_NUMBER)");
             }
 
             currentChapter = extras.getParcelable(EXTRA_CHAPTER);
-            if (currentChapter == null)
-            {
+            if (currentChapter == null) {
                 Log.e("FullScreenReader", "Activity started without a valid chapter in the extras");
                 throw new IllegalArgumentException("Provide a chapter to display!");
             }
             currentPage = extras.getInt(EXTRA_PAGE);
 
-            if (currentPage >= currentChapter.getPageCount())
-            {
+            if (currentPage >= currentChapter.getPageCount()) {
                 // Page number is too high
                 throw new IllegalArgumentException("The page number is higher than the page count of this chapter!");
             }
@@ -169,7 +172,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         viewPager.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                new GestureDetectorCompat(thisActivity, new GestureDetector.SimpleOnGestureListener(){
+                new GestureDetectorCompat(thisActivity, new GestureDetector.SimpleOnGestureListener() {
                     @Override
                     public boolean onSingleTapUp(MotionEvent e) {
                         toggle();
@@ -180,6 +183,50 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             }
         });
         viewPager.addOnPageChangeListener(this);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.context_menu_chapter, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_share:
+                Double chapterNumber = currentChapter.getNumber();
+                Long page = (long) (viewPager.getCurrentItem() + 1);
+
+                ShareManager.ShareImageWithText(thisActivity,
+                        API.FormatPageUrl(thisActivity, chapterNumber, page, API.getQualitySuffix(thisActivity)),
+                        ShareManager.getStupidPhrase(thisActivity) + " " + API.FormatPageLink(chapterNumber, page),
+                        getString(R.string.share),
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(final VolleyError error) {
+                                thisActivity.runOnUiThread(
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Snackbar.make(mContentView,
+                                                        String.format(
+                                                                thisActivity.getString(R.string.error_while_sharing),
+                                                                error.getLocalizedMessage()
+                                                        ),
+                                                        Snackbar.LENGTH_INDEFINITE)
+                                                        .show();
+                                            }
+                                        }
+                                );
+                            }
+                        });
+
+                break;
+            default:
+                return false;
+        }
+        return true;
     }
 
     @Override
@@ -238,21 +285,18 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     @Override
     public void onClick(View v) {
         if (v.equals(buttonNext))
-            this.onNext(v);
+            this.onNext();
         if (v.equals(buttonPrev))
-            this.onPrev(v);
+            this.onPrev();
     }
 
     /**
      * Handle the request to show the previous page
-     * @param clickedView The button that was clicked to start this action
      */
-    private void onNext(View clickedView)
-    {
+    private void onNext() {
         //TODO: Maybe allow loading the next chapter?
         int currentItem = viewPager.getCurrentItem();
-        if (currentItem < currentChapter.getPageDescriptions().size() - 1)
-        {
+        if (currentItem < currentChapter.getPageDescriptions().size() - 1) {
             viewPager.setCurrentItem(currentItem + 1);
         } else {
             viewPager.setCurrentItem(0);
@@ -261,13 +305,11 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
     /**
      * Handle the request to show the previous page
-     * @param clickedView The button that was clicked to start this action
      */
-    private void onPrev(View clickedView)
-    {
+    private void onPrev() {
         //TODO: Maybe allow loading the previous chapter?
         int currentItem = viewPager.getCurrentItem();
-        if (currentItem >= 1){
+        if (currentItem >= 1) {
             viewPager.setCurrentItem(currentItem - 1);
         } else {
             viewPager.setCurrentItem(currentChapter.getPageCount() - 1);
@@ -276,8 +318,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        if (fromUser)
-        {
+        if (fromUser) {
             viewPager.setCurrentItem(progress);
         }
         setTitle(String.format(Locale.getDefault(), getString(R.string.title_chapter_title_page_number), currentChapter.getTitle(), progress + 1));
