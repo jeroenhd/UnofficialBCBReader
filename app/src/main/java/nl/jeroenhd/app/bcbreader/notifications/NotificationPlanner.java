@@ -21,12 +21,6 @@ public class NotificationPlanner {
         this.context = context;
     }
 
-    public static NotificationPlanner getInstance(Context context) {
-        if (planner == null)
-            planner = new NotificationPlanner(context);
-        return planner;
-    }
-
     public void PlanNotification(UpdateTimes updateTimes) {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
