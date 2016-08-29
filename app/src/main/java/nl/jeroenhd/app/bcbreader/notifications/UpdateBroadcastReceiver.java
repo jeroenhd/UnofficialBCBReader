@@ -75,6 +75,7 @@ public class UpdateBroadcastReceiver extends BroadcastReceiver {
         Chapter chapter = ChapterDatabase.getLastChapter();
 
         extras.putParcelable(ChapterReadingActivity.CHAPTER, chapter);
+        extras.putInt(ChapterReadingActivity.SCROLL_TO, chapter.getPageCount());
 
         PendingIntent pendingIntent;
         intent.putExtras(extras);

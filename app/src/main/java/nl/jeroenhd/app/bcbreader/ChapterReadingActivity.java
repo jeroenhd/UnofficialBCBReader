@@ -41,7 +41,7 @@ import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
 
 public class ChapterReadingActivity extends AppCompatActivity implements Toolbar.OnMenuItemClickListener {
     public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.CHAPTER";
-    private static final String SCROLL_TO = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.SCROLL_TO";
+    public static final String SCROLL_TO = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.SCROLL_TO";
     private final ChapterReadingActivity thisActivity = this;
     private RecyclerView.LayoutManager mLayout;
     private ArrayList<Page> mPages;
@@ -78,7 +78,9 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
             }
         } else {
             mChapter = intent.getParcelableExtra(ChapterReadingActivity.CHAPTER);
-            mScrollToPage = intent.getIntExtra(ChapterReadingActivity.SCROLL_TO, -1);
+
+            // The page index - 1 (the RecyclerView uses 0-based indices)
+            mScrollToPage = intent.getIntExtra(ChapterReadingActivity.SCROLL_TO, -1) - 1;
         }
 
         if (mChapter == null) {
