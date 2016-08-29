@@ -3,6 +3,7 @@ package nl.jeroenhd.app.bcbreader.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.Expose;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -32,10 +33,13 @@ public class Page extends BaseModel implements Parcelable {
     };
     @ForeignKey(saveForeignKeyModel = false)
     ForeignKeyContainer<Chapter> chapterForeignKeyContainer;
+
+    @Expose
     @Column
     private String description;
 
     @PrimaryKey
+    @Expose
     @Column
     private Double page;
 

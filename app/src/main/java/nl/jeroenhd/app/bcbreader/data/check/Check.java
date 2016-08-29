@@ -16,11 +16,11 @@ public class Check {
         this.address = address;
     }
 
-    public UpdateTimes getUpdatetimes() {
+    public UpdateTimes getUpdateTimes() {
         return updatetimes;
     }
 
-    public void setUpdatetimes(UpdateTimes updatetimes) {
+    public void setUpdateTimes(UpdateTimes updatetimes) {
         this.updatetimes = updatetimes;
     }
 }

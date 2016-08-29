@@ -2,13 +2,13 @@ package nl.jeroenhd.app.bcbreader.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 
 import com.android.volley.toolbox.ImageLoader;
 
-import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 
@@ -17,32 +17,40 @@ import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
  */
 public class PageImageView extends FadingNetworkImageView{
     private final ImageLoader imageLoader;
+    private final Context mContext;
+    private int backgroundColorId = android.R.color.white;
 
     public PageImageView(Context context) {
         super(context);
+        mContext = context;
         imageLoader = SuperSingleton.getInstance(context).getImageLoader();
     }
 
     public PageImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mContext = context;
         imageLoader = SuperSingleton.getInstance(context).getImageLoader();
     }
 
     public PageImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        mContext = context;
         imageLoader = SuperSingleton.getInstance(context).getImageLoader();
+    }
+
+    public void setBackgroundColorId(int backgroundColorId) {
+        this.backgroundColorId = backgroundColorId;
     }
 
     public void setPage(double chapter, double page)
     {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            this.setImageDrawable(getResources().getDrawable(R.drawable.dummy_page, getContext().getTheme()));
-        } else {
-            //noinspection deprecation
-            this.setImageDrawable(getResources().getDrawable(R.drawable.dummy_page));
-        }
+        String fullURL = API.FormatPageUrl(mContext, chapter, page, API.getQualitySuffix(getContext()));
 
-        String fullURL = API.FormatPageUrl(chapter, page, API.getQualitySuffix(getContext()));
+        // Fix showing previous (cached) image
+        Drawable currentDrawable = getDrawable();
+        ColorDrawable colorDrawable = new ColorDrawable(ContextCompat.getColor(getContext(), this.backgroundColorId));
+        colorDrawable.setBounds(currentDrawable.getBounds());
+        this.setImageDrawable(colorDrawable);
 
         this.setImageUrl(fullURL, this.imageLoader);
     }
@@ -69,7 +77,7 @@ public class PageImageView extends FadingNetworkImageView{
 
         if (d != null) {
             final int width = MeasureSpec.getSize(widthMeasureSpec);
-            final int height = (int) Math.ceil(width * (float) d.getIntrinsicHeight() / (float) d.getIntrinsicWidth());
+            final int height = (int) Math.ceil(width * (float) d.getIntrinsicHeight() / d.getIntrinsicWidth());
             this.setMeasuredDimension(width, height);
         } else {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);

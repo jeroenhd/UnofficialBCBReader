@@ -26,13 +26,7 @@ import static junit.framework.Assert.assertEquals;
 public class ChapterListDeserializerTest {
 
     @Test
-    public void TestDeserializer() throws Exception {
-        TestBasicChapterList();
-
-        TestChapterFile("src/test/assets/fullChapterList.json");
-    }
-
-    private void TestBasicChapterList() throws FileNotFoundException {
+    public void TestBasicChapterList() throws FileNotFoundException {
         /*** Small chapter list test ***/
         // Test a small sample
         List<Chapter> singleChapterList = decodeString(loadFile("src/test/assets/singleChapterList.json"));
@@ -42,16 +36,55 @@ public class ChapterListDeserializerTest {
         Assert.assertEquals(singleChapterPages.size(), 2);
     }
 
+    @Test
+    public void TestDeserializerFiles() throws Exception {
+        TestChapterFile("src/test/assets/fullChapterList.json");
+    }
+
+    @Test
+    public void TestSingleChapterParse() {
+        String chapter = "{\n" +
+                "\t\"title\": \"Example chapter\",\n" +
+                "\t\"description\": \"This is an example\",\n" +
+                "\t\"pageCount\": 3,\n" +
+                "\t\"totalPages\": 3,\n" +
+                "\t\"yearPublished\": \"Testing system\",\n" +
+                "\t\"pageDescriptions\": [{\n" +
+                "\t\t\"page\": 1,\n" +
+                "\t\t\"description\": \"<p>Test 1</p>\"\n" +
+                "\t}, {\n" +
+                "\t\t\"page\": 2,\n" +
+                "\t\t\"description\": \"<p>Test 2</p>\"\n" +
+                "\t}, {\n" +
+                "\t\t\"page\": 3,\n" +
+                "\t\t\"description\": \"<p>Test 3</p>\"\n" +
+                "\t}]\n" +
+                "}";
+
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder
+                .excludeFieldsWithoutExposeAnnotation()
+                .create();
+        Chapter c = gson.fromJson(chapter, Chapter.class);
+
+        Assert.assertEquals("Example chapter", c.getTitle());
+        Assert.assertEquals("This is an example", c.getDescription());
+        Assert.assertEquals("3", c.getPageCount().toString());
+        Assert.assertEquals("3", c.getTotalPages().toString());
+        Assert.assertEquals("Testing system", c.getYearPublished());
+        Assert.assertEquals(3, c.getPageDescriptions().size());
+    }
+
     private void TestChapterFile(String path) throws FileNotFoundException {
         /*** FULL chapter list test ***/
         // Test a full chapters file
         String largeInput = loadFile(path);
-        List<Chapter> largeChapterList = decodeString(largeInput);
+        List<Chapter> largeChapterList = decodeString(largeInput);/*decodeString(largeInput);*/
         Assert.assertEquals(114, largeChapterList.size());
 
         // Check for each chapter
         for (Chapter c : largeChapterList) {
-            // * Whether or not the pagecount is correct
+            // * Whether or not the page count is correct
             assertEquals((int) c.getPageCount(), c.getPageDescriptions().size());
 
             for (Page p : c.getPageDescriptions()) {
@@ -67,17 +100,21 @@ public class ChapterListDeserializerTest {
      * @param jsonIn The JSON input (MUST be valid!)
      * @return The decoded chapter list
      */
-    private List decodeString(String jsonIn) {
+    private List<Chapter> decodeString(String jsonIn) {
         GsonBuilder builder = new GsonBuilder();
-        List chapterList = new ArrayList<>();
+        List<Chapter> chapterList = new ArrayList<>();
 
         // Have Gson use out ChapterListDeserializer for the chapter list
         builder.registerTypeAdapter(chapterList.getClass(), new ChapterListDeserializer());
 
         // Create the usable Gson object
-        Gson gson = builder.create();
+        Gson gson = builder
+                .excludeFieldsWithoutExposeAnnotation()
+                .create();
 
-        return gson.fromJson(jsonIn, chapterList.getClass());
+        chapterList = gson.fromJson(jsonIn, chapterList.getClass());
+
+        return chapterList;
     }
 
     private String loadFile(String path) throws FileNotFoundException {

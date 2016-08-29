@@ -7,6 +7,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,9 +23,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
-import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
-import com.raizlabs.android.dbflow.runtime.transaction.process.SaveModelTransaction;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
 import java.util.ArrayList;
@@ -35,9 +33,10 @@ import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 import nl.jeroenhd.app.bcbreader.data.check.Check;
+import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
 import nl.jeroenhd.app.bcbreader.notifications.UpdateBroadcastReceiver;
 
-public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener, Toolbar.OnMenuItemClickListener {
+public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener, Toolbar.OnMenuItemClickListener, SwipeRefreshLayout.OnRefreshListener {
     private final Activity thisActivity = this;
 
     private RecyclerView mRecycler;
@@ -47,17 +46,15 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             Snackbar.make(mRecycler, error.getMessage(), Snackbar.LENGTH_LONG).show();
         }
     };
-    private CoordinatorLayout mCoordinatorLayout;
-    private Toolbar toolbar;
     private ProgressBar mLoadingProgressbar;
     private ArrayList<Chapter> mChapterData;
     private ChapterListAdapter mAdapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private final Response.Listener<List<Chapter>> chapterDownloadSuccessListener = new Response.Listener<List<Chapter>>() {
         @Override
         public void onResponse(List<Chapter> response) {
-            //ChapterDatabase.SaveUpdate(response);
-            TransactionManager.getInstance().addTransaction(new SaveModelTransaction<>(ProcessModelInfo.withModels(response)));
+            ChapterDatabase.SaveUpdate(response);
 
             // Houston, we've got data!
             int startingIndex = 0, count = 0;
@@ -93,36 +90,12 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             mLoadingProgressbar.setVisibility(View.GONE);
             mAdapter.notifyItemRangeInserted(startingIndex, count);
 
-            Snackbar.make(mRecycler, "Loaded chapters!", Snackbar.LENGTH_LONG).show();
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
         }
     };
     private SuperSingleton singleton;
-    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Snackbar.make(mRecycler, R.string.update_check_failed, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-        }
-    };
-    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Snackbar.make(mRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-        }
-    };
     private final Response.Listener<String> checkSuccessListener = new Response.Listener<String>() {
         @Override
         public void onResponse(String response) {
@@ -144,19 +117,71 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), chapterDownloadSuccessListener, chapterListDownloadErrorListener);
                 singleton.getVolleyRequestQueue().add(downloadRequest);
             }
+
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Snackbar.make(mRecycler, R.string.update_check_failed, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            error.printStackTrace();
+            Snackbar.make(mRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
+
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
         }
     };
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chapter_list);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         assert toolbar != null;
         toolbar.setOnMenuItemClickListener(this);
 
-        mCoordinatorLayout = (CoordinatorLayout)findViewById(R.id.coordinator);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        assert swipeRefreshLayout != null;
+        swipeRefreshLayout.setOnRefreshListener(this);
+        swipeRefreshLayout.setColorSchemeResources(
+                R.color.mike,
+                R.color.lucy,
+                R.color.david,
+                R.color.daisy,
+                R.color.paulo
+        );
+
+        CoordinatorLayout mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
 
         singleton = SuperSingleton.getInstance(this);
         mLoadingProgressbar = (ProgressBar) findViewById(R.id.emptyListSpinner);
@@ -183,6 +208,11 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private void startChapterListUpdateCheck() {
         StringRequest stringRequest = new StringRequest(API.CheckURI, this.checkSuccessListener, this.checkErrorListener);
         singleton.getVolleyRequestQueue().add(stringRequest);
+
+
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(true);
+        }
     }
 
     private void SetupRecycler() {
@@ -261,18 +291,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 Intent settingsIntent = new Intent(thisActivity, SettingsActivity.class);
                 startActivity(settingsIntent);
                 break;
-            case R.id.menu_reload: {
-                ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), chapterDownloadSuccessListener, chapterListDownloadErrorListener);
-                singleton.getVolleyRequestQueue().add(downloadRequest);
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Snackbar.make(mRecycler, "DEBUG! YOU'RE NOT ALLOWED TO SEE THIS", Snackbar.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            break;
             case R.id.menu_debug: {
                 Intent i = new Intent(UpdateBroadcastReceiver.UPDATE);
                 this.sendBroadcast(i);
@@ -280,5 +298,10 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             break;
         }
         return false;
+    }
+
+    @Override
+    public void onRefresh() {
+        startChapterListUpdateCheck();
     }
 }

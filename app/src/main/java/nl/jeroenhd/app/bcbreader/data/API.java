@@ -3,18 +3,32 @@ package nl.jeroenhd.app.bcbreader.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
  * API URL container
  */
 public class API {
+    /**
+     * The base URL of the main website
+     */
     private static final String BaseURL = "https://www.bittersweetcandybowl.com/";
+    /**
+     * The URL to the chapter database
+     */
     public static final String ChaptersDB = BaseURL + "app/json/db_main-1.2";
+    /**
+     * The URL to check for new chapters/pages
+     */
     public static final String CheckURI = BaseURL + "app/json/check";
+    /**
+     * The URL of the BCB CDN
+     */
     private static final String CDNUrl = "https://blasto.enterprises/";
 
     /**
@@ -52,6 +66,13 @@ public class API {
         return headers;
     }
 
+    /**
+     * Get the quality suffix
+     *
+     * @param context The application context
+     * @return Depending on the user's preferences, either "@m" for mobile, "@2x" for retina or "" for desktop quality files
+     */
+    @NonNull
     public static String getQualitySuffix(Context context) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         if (sharedPreferences == null) {
@@ -75,11 +96,26 @@ public class API {
     }
 
     /**
+     * Find the base URL for all resources
+     *
+     * @param context The context to check preferences with
+     * @return A string containing the base URL (protocol + hostname + '/') of the resource server
+     */
+    private static String getResourceBaseURL(Context context) {
+        if (UseCDN(context)) {
+            return CDNUrl;
+        } else {
+            return BaseURL;
+        }
+    }
+
+    /**
      * Format a URL for a page
      * This method is deprecated but kept because of version control reasons
      * Please use FormatPageUrl(chapter, page, quality) instead
+     *
      * @param chapter The chapter number
-     * @param page The page number
+     * @param page    The page number
      * @return The URL to the page
      */
     @Deprecated
@@ -94,7 +130,9 @@ public class API {
      * @param page    The page number
      * @param quality The quality of the page
      * @return The URL to the page
+     * @deprecated Use FormatPageUrl(Context, Double, double, String) instead
      */
+    @Deprecated
     public static String FormatPageUrl(Double chapter, double page, String quality) {
         String ext = isJpegChapter(chapter, quality) ? ".jpg" : ".png";
 
@@ -116,16 +154,62 @@ public class API {
         return CDNUrl + "comics/" + formatChapterNumber(chapter) + "/" + "" + ((long) page) + quality + ext;
     }
 
+    /**
+     * Format a URL for a page
+     *
+     * @param context The context for the application
+     * @param chapter The chapter number
+     * @param page    The page number
+     * @param quality The quality of the page
+     * @return The URL to the page
+     */
+    public static String FormatPageUrl(Context context, Double chapter, double page, String quality) {
+        String ext = isJpegChapter(chapter, quality) ? ".jpg" : ".png";
+        return getResourceBaseURL(context) + "comics/" + formatChapterNumber(chapter) + "/" + "" + ((long) page) + quality + ext;
+    }
+
+    /**
+     * Format a short (bcb.cat) page URL
+     *
+     * @param chapterNumber The chapter number
+     * @param pageNumber    The page number
+     * @return The short link URL to the page
+     */
+    public static String FormatPageLink(Double chapterNumber, long pageNumber) {
+        return String.format(Locale.US, "http://bcb.cat/c%1$s/p%2$s/", formatChapterNumber(chapterNumber), pageNumber);
+    }
+
+    @Deprecated
     public static String FormatLqThumbURL(double chapter, double page) {
         return CDNUrl + "app/comics/lqthumb/" + formatChapterNumber(chapter) + "-" + (long) page + ".jpg";
     }
 
+    /**
+     * Format the URL to a low quality thumb preview of a page
+     *
+     * @param context The application context
+     * @param chapter The chapter number for the page
+     * @param page    The page number
+     * @return A full URL to the image file containing a low quality page preview
+     */
+    public static String FormatLqThumbURL(Context context, double chapter, double page) {
+        return getResourceBaseURL(context) + "app/comics/lqthumb/" + formatChapterNumber(chapter) + "-" + (long) page + ".jpg";
+    }
+
+    /**
+     * Turn a chapter number into a string
+     *
+     * @param chapter The chapter numer to format
+     * @return The chapter number, either in the format ## or ##.#
+     */
     private static String formatChapterNumber(double chapter) {
         String out;
+
+        // Check for decimals
         if (chapter == (long) chapter) {
-            out = "" + ((long) chapter);
+            out = String.valueOf((long) chapter);
         } else {
-            out = chapter + "";
+            out = String.valueOf(chapter);
         }
 
         return out;
@@ -136,11 +220,14 @@ public class API {
      *
      * @param chapter The chapter number to decode for
      * @return The full URL to the chapter thumb on the CDN server
+     * @deprecated Use FormatChapterThumbURL(Context, Double) instead
      */
+    @Deprecated
     public static String FormatChapterThumbURL(Double chapter) {
         /***
          * CDN returns 404 page instead of empty image for unknown chapters
-         *
+         * This is the behaviour the app is designed for for now. This might change though,
+         * so the code remains here for now.
          */
         final boolean useCDN = true;
         if (useCDN) {
@@ -148,6 +235,32 @@ public class API {
         } else {
             return BaseURL + "app/comics/icon/" + formatChapterNumber(chapter) + ".png";
         }
+    }
+
+    /**
+     * Format a URL for a thumb in the chapter list
+     *
+     * @param chapter The chapter number to decode for
+     * @return The full URL to the chapter thumb on the CDN server
+     */
+    public static String FormatChapterThumbURL(Context context, Double chapter) {
+        //CDN returns 404 page instead of empty image for unknown chapters!!
+        if (UseCDN(context)) {
+            return CDNUrl + "app/comics/icon/" + formatChapterNumber(chapter) + ".png";
+        } else {
+            return BaseURL + "app/comics/icon/" + formatChapterNumber(chapter) + ".png";
+        }
+    }
+
+    /**
+     * Check if we need to use the CDN
+     *
+     * @param context Used to read the settings
+     * @return True if we need to download from the CDN
+     */
+    private static boolean UseCDN(Context context) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return sharedPreferences.getBoolean("reading_use_cdn", true);
     }
 
 }

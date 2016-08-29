@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -26,36 +27,60 @@ import android.view.ViewAnimationUtils;
 import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
 
+import com.raizlabs.android.dbflow.sql.language.Select;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
+import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 import nl.jeroenhd.app.bcbreader.data.Page;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
 
 public class ChapterReadingActivity extends AppCompatActivity implements Toolbar.OnMenuItemClickListener {
     public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.CHAPTER";
+    private static final String SCROLL_TO = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.SCROLL_TO";
     private final ChapterReadingActivity thisActivity = this;
-    private RecyclerView mRecycler;
     private RecyclerView.LayoutManager mLayout;
-    private ChapterReadingAdapter mAdapter;
     private ArrayList<Page> mPages;
+    private int mScrollToPage = -1;
     private Chapter mChapter;
     private CoordinatorLayout mCoordinatorLayout;
     private CallbackNetworkImageView headerBackgroundImage;
-    private Toolbar toolbar;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chapter_reading);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mChapter = this.getIntent().getParcelableExtra(ChapterReadingActivity.CHAPTER);
+
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        if (action != null && action.equals(Intent.ACTION_VIEW)) {
+            Uri data = intent.getData();
+            Log.d("ActivityFromUri", "Data: " + data.toString());
+            List<String> queryParams = data.getPathSegments();
+            Double chapter = Double.parseDouble(queryParams.get(0).substring(1));
+            Integer page = Integer.parseInt(queryParams.get(1).replaceAll("[^0-9]", ""));
+
+            mChapter = new Select().from(Chapter.class).where(Chapter_Table.number.eq(chapter)).querySingle();
+            mScrollToPage = page;
+
+            if (mChapter == null) {
+                //TODO: Download Chapter, Chapter does not exist yet!
+                Log.d("ActivityFromUri", "Downloading new chapters has not been implemented from URLs!");
+            }
+        } else {
+            mChapter = intent.getParcelableExtra(ChapterReadingActivity.CHAPTER);
+            mScrollToPage = intent.getIntExtra(ChapterReadingActivity.SCROLL_TO, -1);
+        }
+
         if (mChapter == null) {
             runOnUiThread(new Runnable() {
                 @Override
@@ -150,7 +175,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
         });
         headerBackgroundImage.setErrorImageResId(R.color.colorPrimary);
         headerBackgroundImage.setImageUrl(
-                API.FormatChapterThumbURL(mChapter.getNumber()),
+                API.FormatChapterThumbURL(this, mChapter.getNumber()),
                 SuperSingleton.getInstance(this).getImageLoader()
         );
     }
@@ -207,13 +232,15 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
     }
 
     private void SetupRecyclerView() {
-        mRecycler = (RecyclerView) findViewById(R.id.pages);
+        RecyclerView mRecycler = (RecyclerView) findViewById(R.id.pages);
 
         mLayout = new LinearLayoutManager(this);
         mRecycler.setLayoutManager(mLayout);
 
-        mAdapter = new ChapterReadingAdapter(this, mPages);
+        ChapterReadingAdapter mAdapter = new ChapterReadingAdapter(this, mPages);
         mRecycler.setAdapter(mAdapter);
+
+        mRecycler.scrollToPosition(mScrollToPage);
     }
 
     @Override

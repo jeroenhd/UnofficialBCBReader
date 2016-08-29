@@ -1,6 +1,8 @@
 package nl.jeroenhd.app.bcbreader.tools;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 
 /**
  * A class to help with coloring
@@ -28,5 +30,20 @@ public class ColorHelper {
             d = 255;
 
         return Color.rgb(d, d, d);
+    }
+
+    /**
+     * Get a color from the correct API
+     *
+     * @param context The context to load the resources with
+     * @param colorId The ID of the color to load
+     * @return The loaded color as an integer
+     */
+    public static int getColor(Context context, int colorId) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return context.getColor(colorId);
+        } else {
+            return context.getResources().getColor(colorId);
+        }
     }
 }

@@ -11,6 +11,6 @@ class App {
     }
 
     public static String VolleyVersion() {
-        return "1.0.19";
+        return "1.0.0";
     }
 }

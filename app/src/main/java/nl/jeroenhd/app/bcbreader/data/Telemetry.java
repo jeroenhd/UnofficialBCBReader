@@ -28,7 +28,6 @@ import nl.jeroenhd.app.bcbreader.R;
 public class Telemetry {
     private static final String TelemetryURL = "https://www.jeroenhd.nl/proj/app/androidTelemetry.php";
     private static Telemetry instance;
-    private final Context mContext;
     private final String Model;
     private final String AndroidVersion;
     private final long InternalSize;
@@ -40,8 +39,6 @@ public class Telemetry {
     private boolean SDCardEmulated;
 
     private Telemetry(Context context) {
-        mContext = context;
-
         Model = Build.MODEL;
         AndroidVersion = Build.VERSION.RELEASE;
 
@@ -54,7 +51,7 @@ public class Telemetry {
         InternalSize = getVolumeSizeByPath(Environment.getDataDirectory());
         InternalFree = getVolumeFreeByPath(Environment.getDataDirectory());
 
-        ActivityManager activityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
         activityManager.getMemoryInfo(memoryInfo);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -65,7 +62,7 @@ public class Telemetry {
 
         // Get the android ID, but HASH IT FIRST!
         // We don't need the unique ID itself, the hash code should be unique enough
-        uniqueID = "V1[" + Integer.toHexString(Settings.Secure.getString(mContext.getContentResolver(), Settings.Secure.ANDROID_ID).hashCode()) + "]";
+        uniqueID = "V1[" + Integer.toHexString(Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID).hashCode()) + "]";
     }
 
     public static Telemetry getInstance(Context context) {
@@ -159,11 +156,11 @@ public class Telemetry {
         return uniqueID;
     }
 
-    public void send() {
-        send(false);
+    public void send(Context context) {
+        send(false, context);
     }
 
-    public void send(final boolean showNotifications) {
+    public void send(final boolean showNotifications, final Context mContext) {
         SuperSingleton superSingleton = SuperSingleton.getInstance(mContext);
         RequestQueue queue = superSingleton.getVolleyRequestQueue();
         Gson gson = new GsonBuilder()
@@ -175,7 +172,7 @@ public class Telemetry {
             @Override
             public void onResponse(String response) {
                 Log.d("SendTelemetry", "Telemetry has been sent, server responded with: " + response);
-                if (showNotifications) {
+                if (showNotifications && mContext != null) {
                     Toast.makeText(mContext, mContext.getString(R.string.thank_you_for_sending_telemetry), Toast.LENGTH_LONG).show();
                 }
             }
@@ -187,7 +184,7 @@ public class Telemetry {
                 Log.e("SendTelemetry", "Failed to send telemetry: " + msg);
                 error.printStackTrace();
 
-                if (showNotifications)
+                if (showNotifications && mContext != null)
                     Toast.makeText(mContext, mContext.getString(R.string.error_sending_telemetry), Toast.LENGTH_LONG).show();
             }
         };

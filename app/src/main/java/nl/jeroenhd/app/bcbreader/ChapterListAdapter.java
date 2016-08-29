@@ -2,23 +2,22 @@ package nl.jeroenhd.app.bcbreader;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.android.volley.toolbox.ImageLoader;
 
 import java.util.ArrayList;
 
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
+import nl.jeroenhd.app.bcbreader.tools.ColorHelper;
+import nl.jeroenhd.app.bcbreader.views.FadingNetworkImageView;
 
 /**
  * A list adapter for the RecyclerView of ChapterListActivity
@@ -53,19 +52,17 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         return new ViewHolder(inflatedView, this.mOnItemClickListener);
     }
 
-    private void DownloadImageToImageView(final String URL, final ViewHolder holder) {
-        ImageLoader imageLoader = singleton.getImageLoader();
-        imageLoader.get(URL, ImageLoader.getImageListener(
-                holder.ChapterThumbView,
-                R.color.colorAccent,
-                R.drawable.chapter_error
-        ));
-    }
-
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         Chapter chapter = mData.get(position);
-        DownloadImageToImageView(API.FormatChapterThumbURL(chapter.getNumber()), holder);
+
+        // Clear the old thumb
+        holder.ChapterThumbView.setImageDrawable(new ColorDrawable(ColorHelper.getColor(mContext, android.R.color.white)));
+        // Download and show the new thumb
+        holder.ChapterThumbView.setImageUrl(
+                API.FormatChapterThumbURL(mContext, chapter.getNumber()),
+                SuperSingleton.getInstance(mContext).getImageLoader()
+        );
 
         holder.ChapterTitleView.setText(chapter.getTitle());
         holder.ChapterDescriptionView.setText(chapter.getDescription());
@@ -73,14 +70,8 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         holder.FavouriteImageView.setImageDrawable(chapter.isFavourite() ? clonedFavDrawable : clonedFavDrawableBorder);
 
         holder.CurrentChapter = chapter;
-        int color;
+        int color = ColorHelper.getColor(mContext, R.color.colorAccent);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            color = mContext.getColor(R.color.colorAccent);
-        } else {
-            //noinspection deprecation
-            color = mContext.getResources().getColor(R.color.colorAccent);
-        }
         holder.FavouriteImageView.getDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
     }
 
@@ -116,7 +107,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public final ImageView ChapterThumbView;
+        public final FadingNetworkImageView ChapterThumbView;
         public final TextView ChapterTitleView;
         public final TextView ChapterDescriptionView;
         public final AppCompatImageView FavouriteImageView;
@@ -129,7 +120,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
             itemView.setOnClickListener(this);
             this.ClickHandler = onClick;
 
-            this.ChapterThumbView = (ImageView) itemView.findViewById(R.id.thumb);
+            this.ChapterThumbView = (FadingNetworkImageView) itemView.findViewById(R.id.thumb);
             this.ChapterTitleView = (TextView) itemView.findViewById(R.id.title);
             this.ChapterDescriptionView = (TextView) itemView.findViewById(R.id.description);
             this.FavouriteImageView = (AppCompatImageView) itemView.findViewById(R.id.favourite);

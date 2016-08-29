@@ -20,7 +20,7 @@ import java.io.File;
 public class SuperSingleton {
     private static SuperSingleton instance;
 
-    private final Context mContext;
+    //private final Context mContext;
 
     // Volley data
     private RequestQueue volleyRequestQueue;
@@ -31,8 +31,8 @@ public class SuperSingleton {
     private ImageLoader imageLoader;
 
     private SuperSingleton(Context context) {
-        mContext = context;
-        InitVolley();
+        //mContext = context;
+        InitVolley(context);
     }
 
     public static SuperSingleton getInstance(Context context) {
@@ -58,7 +58,7 @@ public class SuperSingleton {
         return volleyRequestQueue;
     }
 
-    private void InitVolley() {
+    private void InitVolley(Context mContext) {
         gsonBuilder = new GsonBuilder();
         // 1MB general cache
         volleyCache = new DiskBasedCache(new File(mContext.getCacheDir(), "volley"), 1024 * 1024 * 1024);
