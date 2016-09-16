@@ -99,37 +99,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     };
     private SuperSingleton singleton;
     /**
-     * Called when the check API file has been downloaded successfully
-     */
-    private final Response.Listener<String> checkSuccessListener = new Response.Listener<String>() {
-        @Override
-        public void onResponse(String response) {
-            Gson gson = SuperSingleton.getInstance(thisActivity).getGsonBuilder().create();
-            Check check = gson.fromJson(response, Check.class);
-
-            double latestChapterNumber = check.getAddress().getLatestChapter();
-            double latestPageNumber = check.getAddress().getLatestPage();
-            Chapter latestChapterInBuffer = mChapterData.size() > 0 ? mChapterData.get(mChapterData.size() - 1) : null;
-
-            // latestChapter > bufferChapter || ( latestChapter == bufferChapter && latestPage > bufferChapter.latestPage )
-            if (latestChapterInBuffer == null ||
-                    latestChapterNumber > latestChapterInBuffer.getNumber() || (
-                    latestChapterInBuffer.getNumber().equals(latestChapterNumber) &&
-                            latestChapterInBuffer.getPageCount() < latestPageNumber
-            )
-                    ) {
-                // List needs an update
-                ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), chapterDownloadSuccessListener, chapterListDownloadErrorListener);
-                singleton.getVolleyRequestQueue().add(downloadRequest);
-            }
-
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
-    /**
      * Called when downloading the check fails
      */
     private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
@@ -164,6 +133,36 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                         }
                     })
                     .show();
+
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+    /**
+     * Called when the check API file has been downloaded successfully
+     */
+    private final Response.Listener<String> checkSuccessListener = new Response.Listener<String>() {
+        @Override
+        public void onResponse(String response) {
+            Gson gson = SuperSingleton.getInstance(thisActivity).getGsonBuilder().create();
+            Check check = gson.fromJson(response, Check.class);
+
+            double latestChapterNumber = check.getAddress().getLatestChapter();
+            double latestPageNumber = check.getAddress().getLatestPage();
+            Chapter latestChapterInBuffer = mChapterData.size() > 0 ? mChapterData.get(mChapterData.size() - 1) : null;
+
+            if (latestChapterInBuffer == null ||
+                    latestChapterNumber > latestChapterInBuffer.getNumber() || (
+                    latestChapterInBuffer.getNumber().equals(latestChapterNumber) &&
+                            latestChapterInBuffer.getPageCount() < latestPageNumber
+            )
+                    ) {
+                // List needs an update
+                ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), chapterDownloadSuccessListener, chapterListDownloadErrorListener);
+                singleton.getVolleyRequestQueue().add(downloadRequest);
+            }
 
 
             if (swipeRefreshLayout != null) {

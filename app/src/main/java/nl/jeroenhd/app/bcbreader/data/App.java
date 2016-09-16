@@ -10,7 +10,7 @@ class App {
         return BuildConfig.VERSION_NAME;
     }
 
-    public static String VolleyVersion() {
+    static String VolleyVersion() {
         return "1.0.0";
     }
 }
