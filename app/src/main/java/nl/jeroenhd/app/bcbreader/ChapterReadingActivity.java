@@ -70,7 +70,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
             Integer page = Integer.parseInt(queryParams.get(1).replaceAll("[^0-9]", ""));
 
             mChapter = new Select().from(Chapter.class).where(Chapter_Table.number.eq(chapter)).querySingle();
-            mScrollToPage = page;
+            mScrollToPage = page - 1;
 
             if (mChapter == null) {
                 //TODO: Download Chapter, Chapter does not exist yet!
