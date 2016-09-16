@@ -50,6 +50,9 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private ChapterListAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    /**
+     * The response listener for a successful download of the chapter list
+     */
     private final Response.Listener<List<Chapter>> chapterDownloadSuccessListener = new Response.Listener<List<Chapter>>() {
         @Override
         public void onResponse(List<Chapter> response) {
@@ -95,6 +98,9 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         }
     };
     private SuperSingleton singleton;
+    /**
+     * Called when the check API file has been downloaded successfully
+     */
     private final Response.Listener<String> checkSuccessListener = new Response.Listener<String>() {
         @Override
         public void onResponse(String response) {
@@ -123,6 +129,9 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             }
         }
     };
+    /**
+     * Called when downloading the check fails
+     */
     private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
@@ -140,6 +149,9 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             }
         }
     };
+    /**
+     * Called when downloading the chapter list fails
+     */
     private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
@@ -192,6 +204,9 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         SetupRecycler();
     }
 
+    /**
+     * Load and set up the data for the list view
+     */
     private void SetupData() {
         mChapterData = new ArrayList<>();
 
@@ -204,16 +219,21 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         startChapterListUpdateCheck();
     }
 
+    /**
+     * Start updating the chapter list
+     */
     private void startChapterListUpdateCheck() {
         StringRequest stringRequest = new StringRequest(API.CheckURI, this.checkSuccessListener, this.checkErrorListener);
         singleton.getVolleyRequestQueue().add(stringRequest);
-
 
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setRefreshing(true);
         }
     }
 
+    /**
+     * Prepare the RecyclerView for showing chapters
+     */
     private void SetupRecycler() {
         mRecycler = (RecyclerView) findViewById(R.id.chapterList);
 
@@ -234,8 +254,14 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         return true;
     }
 
+    /**
+     * Called when a chapter is selected in the list
+     *
+     * @param view    The view the user has interacted with
+     * @param chapter The chapter the user has selected
+     */
     @Override
-    public void onChapterSelect(final View v, final Chapter c) {
+    public void onChapterSelect(final View view, final Chapter chapter) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -244,7 +270,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                     // Nice animations (lollipop+)
 
-                    View thumbView = v.findViewById(R.id.thumb);
+                    View thumbView = view.findViewById(R.id.thumb);
 
                     Pair<View, String> thumbPair = Pair.create(thumbView, thumbView.getTransitionName());
 
@@ -255,30 +281,35 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                     // Add own extras
                     Bundle bundle = options.toBundle();
                     bundle.setClassLoader(Chapter.class.getClassLoader());
-                    iNewActivity.putExtra(ChapterReadingActivity.CHAPTER, c);
+                    iNewActivity.putExtra(ChapterReadingActivity.CHAPTER, chapter);
 
                     thisActivity.startActivity(iNewActivity, bundle);
                 } else {
                     // Ugly animations
                     //TODO: Try to improve these animations!
 
-                    iNewActivity.putExtra(ChapterReadingActivity.CHAPTER, c);
+                    iNewActivity.putExtra(ChapterReadingActivity.CHAPTER, chapter);
                     startActivity(iNewActivity);
                 }
             }
         });
     }
 
+    /**
+     * Called when a chapter has been added to the user's favourites
+     * @param view The view the user has interacted with
+     * @param chapter The chapter the user has selected
+     */
     @Override
-    public void onChapterFavourite(AppCompatImageView v, Chapter c) {
+    public void onChapterFavourite(AppCompatImageView view, Chapter chapter) {
         // Switch between favourite/not favourite
-        c.setFavourite(!c.isFavourite());
+        chapter.setFavourite(!chapter.isFavourite());
 
         // Save the fav state
-        c.save();
+        chapter.save();
 
         // Update the list
-        int index = mChapterData.indexOf(c);
+        int index = mChapterData.indexOf(chapter);
         mAdapter.notifyItemChanged(index);
     }
 
@@ -294,6 +325,9 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         return false;
     }
 
+    /**
+     * Called when the chapter list should be refreshed
+     */
     @Override
     public void onRefresh() {
         startChapterListUpdateCheck();
