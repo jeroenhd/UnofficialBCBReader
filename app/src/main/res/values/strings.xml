@@ -64,6 +64,9 @@
     <string name="title_chapter_title_page_number">%1$s: page %2$d</string>
     <string name="pref_title_share_upload_image">Share image files</string>
     <string name="pref_summary_share_upload_image">Also add image files when sharing a page using another app</string>
-    <string name="go_to_latest_update">The comic just updated! Do you want to see the next page?</string>
+    <string name="go_to_latest_update">The comic just updated! Do you want to see the latest page?</string>
     <string name="go">Go</string>
+    <string name="sort_chapters">Sorting method</string>
+    <string name="ascending">Ascending</string>
+    <string name="descending">Descending</string>
 </resources>
