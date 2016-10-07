@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +66,7 @@ public class ChapterListRequest extends Request<List<Chapter>> {
             String json = new String(
                     response.data,
                     Charset.forName("Windows-1252"));
+            json = new String(json.getBytes("UTF-8"), "UTF-8");
 
             // Decode the JSON
             //noinspection unchecked
@@ -78,9 +80,9 @@ public class ChapterListRequest extends Request<List<Chapter>> {
             return Response.success(
                     chapterList,
                     HttpHeaderParser.parseCacheHeaders(response));
-        /*} catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             // Something went wrong with the encoding
-            return Response.error(new ParseError(e));*/
+            return Response.error(new ParseError(e));
         } catch (JsonSyntaxException e) {
             // Bad JSON!
             return Response.error(new ParseError(e));
