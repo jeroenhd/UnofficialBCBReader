@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.android.volley.Response;
@@ -60,6 +61,14 @@ public class NotificationPlanner {
     }
 
     private static void PlanNotification(Context context, UpdateTimes updateTimes, boolean debug) {
+        // Check if the user has enable notifications, if not, stop
+        // By default notifications should be disabled
+        if (PreferenceManager
+                .getDefaultSharedPreferences(context)
+                .getBoolean("notifications_enabled", false)) {
+            return;
+        }
+
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
         if (debug) {

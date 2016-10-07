@@ -5,7 +5,9 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
@@ -81,11 +83,28 @@ public class UpdateBroadcastReceiver extends BroadcastReceiver {
         intent.putExtras(extras);
         pendingIntent = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-        Notification notification = new NotificationCompat.Builder(mContext)
+        long[] vibrationPattern = new long[]{100};
+
+        String ringtonePath = PreferenceManager.getDefaultSharedPreferences(mContext).getString("notifications_ringtone", "DEFAULT_SOUND");
+        Uri ringtone;
+        if (ringtonePath.equals("")) {
+            //silence
+            ringtone = null;
+        } else {
+            ringtone = Uri.parse(ringtonePath);
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext)
                 .setContentTitle(mContext.getString(R.string.notification_title))
                 .setContentText(mContext.getString(R.string.notification_description))
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.ic_custom_notification_black)
+                .setVibrate(vibrationPattern);
+
+        if (ringtone != null)
+            builder.setSound(ringtone);
+
+        Notification notification = builder
                 .build();
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(mContext);
         notificationManagerCompat.notify(NewChapterNotificationId, notification);
