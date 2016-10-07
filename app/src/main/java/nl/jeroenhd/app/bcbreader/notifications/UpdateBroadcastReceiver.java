@@ -95,7 +95,13 @@ public class UpdateBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         mContext = context;
 
-        if (!intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED) && !intent.getAction().equals(UPDATE)) {
+        String action = intent.getAction();
+
+        if (action == null) {
+            Log.e("UpdateOnReceive", "Somehow a null intent was received");
+        }
+
+        if (!action.equals(Intent.ACTION_BOOT_COMPLETED) && !action.equals(UPDATE)) {
             Log.e("UpdateOnReceive", "Invalid action was passed to the UpdateBroadcastReceiver (why did it trigger???)");
             return;
         }
