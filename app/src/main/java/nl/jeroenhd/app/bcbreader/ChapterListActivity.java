@@ -11,8 +11,10 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,6 +29,7 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import nl.jeroenhd.app.bcbreader.data.API;
@@ -38,7 +41,7 @@ import nl.jeroenhd.app.bcbreader.data.check.UpdateTimes;
 import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
 import nl.jeroenhd.app.bcbreader.notifications.NotificationPlanner;
 
-public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener, Toolbar.OnMenuItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener, Toolbar.OnMenuItemClickListener, SwipeRefreshLayout.OnRefreshListener, PopupMenu.OnMenuItemClickListener {
     private final Activity thisActivity = this;
 
     private RecyclerView mRecycler;
@@ -53,6 +56,17 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private ChapterListAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
 
+    private SuperSingleton singleton;
+
+    /**
+     * The latest update times data.
+     * Is initialised to null!
+     */
+    private UpdateTimes latestUpdateTimes = null;
+
+    /**
+     * The response listener for a successful download of the chapter list
+     */
     private final Response.Listener<List<Chapter>> chapterDownloadSuccessListener = new Response.Listener<List<Chapter>>() {
         @Override
         public void onResponse(List<Chapter> response) {
@@ -95,9 +109,70 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             if (swipeRefreshLayout != null) {
                 swipeRefreshLayout.setRefreshing(false);
             }
+
+            final Date lastUpdate = latestUpdateTimes.lastUpdate(new Date());
+
+            long diff;
+            if (lastUpdate != null) {
+                diff = new Date().getTime() - lastUpdate.getTime();
+            } else {
+                Log.e("JustUpdatedPopup", "Unvalid parameters! lastUpdate is null!");
+                diff = -1;
+            }
+
+            // If the last update was less than 3 hours ago...
+            if ((diff > 0 && diff <= 1000 * 60 * 60 * 3)) {
+                Snackbar.make(swipeRefreshLayout, R.string.go_to_latest_update, Snackbar.LENGTH_INDEFINITE)
+                        .setAction(R.string.go, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Chapter latestChapter = ChapterDatabase.getLastChapter();
+
+                                View chapterView = mRecycler.getChildAt(mRecycler.getChildCount() - 1);
+                                onChapterSelect(chapterView, latestChapter, latestChapter.getPageCount());
+                            }
+
+                        })
+                        .show();
+            }
         }
     };
-    private SuperSingleton singleton;
+    /**
+     * Called when the check API file has been downloaded successfully
+     */
+    private final Response.Listener<String> checkSuccessListener = new Response.Listener<String>() {
+        @Override
+        public void onResponse(String response) {
+            Gson gson = SuperSingleton.getInstance(thisActivity).getGsonBuilder().create();
+            Check check = gson.fromJson(response, Check.class);
+
+            // Store the latest update times
+            latestUpdateTimes = check.getUpdateTimes();
+
+            double latestChapterNumber = check.getAddress().getLatestChapter();
+            double latestPageNumber = check.getAddress().getLatestPage();
+            Chapter latestChapterInBuffer = mChapterData.size() > 0 ? mChapterData.get(mChapterData.size() - 1) : null;
+
+            if (latestChapterInBuffer == null ||
+                    latestChapterNumber > latestChapterInBuffer.getNumber() || (
+                    latestChapterInBuffer.getNumber().equals(latestChapterNumber) &&
+                            latestChapterInBuffer.getPageCount() < latestPageNumber
+            )
+                    ) {
+                // List needs an update
+                ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), chapterDownloadSuccessListener, chapterListDownloadErrorListener);
+                singleton.getVolleyRequestQueue().add(downloadRequest);
+            }
+
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+    /**
+     * Called when downloading the check fails
+     */
     private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
@@ -115,6 +190,9 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             }
         }
     };
+    /**
+     * Called when downloading the chapter list fails
+     */
     private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
@@ -127,34 +205,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                         }
                     })
                     .show();
-
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
-    private final Response.Listener<String> checkSuccessListener = new Response.Listener<String>() {
-        @Override
-        public void onResponse(String response) {
-            Gson gson = SuperSingleton.getInstance(thisActivity).getGsonBuilder().create();
-            Check check = gson.fromJson(response, Check.class);
-
-            double latestChapterNumber = check.getAddress().getLatestChapter();
-            double latestPageNumber = check.getAddress().getLatestPage();
-            Chapter latestChapterInBuffer = mChapterData.size() > 0 ? mChapterData.get(mChapterData.size() - 1) : null;
-
-            // latestChapter > bufferChapter || ( latestChapter == bufferChapter && latestPage > bufferChapter.latestPage )
-            if (latestChapterInBuffer == null ||
-                    latestChapterNumber > latestChapterInBuffer.getNumber() || (
-                    latestChapterInBuffer.getNumber().equals(latestChapterNumber) &&
-                            latestChapterInBuffer.getPageCount() < latestPageNumber
-            )
-                    ) {
-                // List needs an update
-                ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), chapterDownloadSuccessListener, chapterListDownloadErrorListener);
-                singleton.getVolleyRequestQueue().add(downloadRequest);
-            }
 
 
             if (swipeRefreshLayout != null) {
@@ -195,6 +245,9 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         SetupRecycler();
     }
 
+    /**
+     * Load and set up the data for the list view
+     */
     private void SetupData() {
         mChapterData = new ArrayList<>();
 
@@ -207,16 +260,21 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         startChapterListUpdateCheck();
     }
 
+    /**
+     * Start updating the chapter list
+     */
     private void startChapterListUpdateCheck() {
         StringRequest stringRequest = new StringRequest(API.CheckURI, this.checkSuccessListener, this.checkErrorListener);
         singleton.getVolleyRequestQueue().add(stringRequest);
-
 
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setRefreshing(true);
         }
     }
 
+    /**
+     * Prepare the RecyclerView for showing chapters
+     */
     private void SetupRecycler() {
         mRecycler = (RecyclerView) findViewById(R.id.chapterList);
 
@@ -237,8 +295,15 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         return true;
     }
 
+    /**
+     * Called when a chapter is selected in the list
+     *
+     * @param view    The view the user has interacted with
+     * @param chapter The chapter the user has selected
+     * @param page The page to scroll to (use 1 to start from the beginning)
+     */
     @Override
-    public void onChapterSelect(final View v, final Chapter c) {
+    public void onChapterSelect(final View view, final Chapter chapter, final int page) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -247,7 +312,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                     // Nice animations (lollipop+)
 
-                    View thumbView = v.findViewById(R.id.thumb);
+                    View thumbView = view.findViewById(R.id.thumb);
 
                     Pair<View, String> thumbPair = Pair.create(thumbView, thumbView.getTransitionName());
 
@@ -258,30 +323,36 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                     // Add own extras
                     Bundle bundle = options.toBundle();
                     bundle.setClassLoader(Chapter.class.getClassLoader());
-                    iNewActivity.putExtra(ChapterReadingActivity.CHAPTER, c);
+                    iNewActivity.putExtra(ChapterReadingActivity.CHAPTER, chapter);
+                    iNewActivity.putExtra(ChapterReadingActivity.SCROLL_TO, page);
 
                     thisActivity.startActivity(iNewActivity, bundle);
                 } else {
                     // Ugly animations
                     //TODO: Try to improve these animations!
 
-                    iNewActivity.putExtra(ChapterReadingActivity.CHAPTER, c);
+                    iNewActivity.putExtra(ChapterReadingActivity.CHAPTER, chapter);
                     startActivity(iNewActivity);
                 }
             }
         });
     }
 
+    /**
+     * Called when a chapter has been added to the user's favourites
+     * @param view The view the user has interacted with
+     * @param chapter The chapter the user has selected
+     */
     @Override
-    public void onChapterFavourite(AppCompatImageView v, Chapter c) {
+    public void onChapterFavourite(AppCompatImageView view, Chapter chapter) {
         // Switch between favourite/not favourite
-        c.setFavourite(!c.isFavourite());
+        chapter.setFavourite(!chapter.isFavourite());
 
         // Save the fav state
-        c.save();
+        chapter.save();
 
         // Update the list
-        int index = mChapterData.indexOf(c);
+        int index = mChapterData.indexOf(chapter);
         mAdapter.notifyItemChanged(index);
     }
 
@@ -303,10 +374,24 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 NotificationPlanner.StartNotificationsDebug(this);
             }
             break;
+            case R.id.menu_sort:
+                PopupMenu popupMenu = new PopupMenu(thisActivity, findViewById(R.id.menu_sort));
+                popupMenu.inflate(R.menu.popup_menu_sort);
+                popupMenu.setOnMenuItemClickListener(this);
+                popupMenu.show();
+                break;
+            case R.id.popup_menu_ascending:
+            case R.id.popup_menu_descending:
+                // TODO
+                Snackbar.make(this.swipeRefreshLayout, "Sort action, replace me with some functionality!", Snackbar.LENGTH_LONG).show();
+                break;
         }
         return false;
     }
 
+    /**
+     * Called when the chapter list should be refreshed
+     */
     @Override
     public void onRefresh() {
         startChapterListUpdateCheck();
