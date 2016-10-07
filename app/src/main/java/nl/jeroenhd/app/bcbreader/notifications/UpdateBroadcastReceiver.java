@@ -97,8 +97,11 @@ public class UpdateBroadcastReceiver extends BroadcastReceiver {
 
         String action = intent.getAction();
 
+        Log.d("UpdateOnReceive", "Received an intent! Processing...");
+
         if (action == null) {
             Log.e("UpdateOnReceive", "Somehow a null intent was received");
+            return;
         }
 
         if (!action.equals(Intent.ACTION_BOOT_COMPLETED) && !action.equals(UPDATE)) {

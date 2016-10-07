@@ -73,10 +73,11 @@ public class NotificationPlanner {
         }
 
         Intent i = new Intent(context, UpdateBroadcastReceiver.class);
+        i.setAction(UpdateBroadcastReceiver.UPDATE);
         PendingIntent pi = PendingIntent.getBroadcast(context, UpdateBroadcastReceiver.NewChapterNotificationId, i, 0);
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pi);
+        alarmManager.setInexactRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pi);
     }
 
     public static void StartNotificationsDebug(Context context) {
