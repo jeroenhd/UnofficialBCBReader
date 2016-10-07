@@ -26,4 +26,13 @@
         android:persistent="false"
         android:summary="@string/pref_summary_share_upload_image"
         android:title="@string/pref_title_share_upload_image" />
+
+    <!-- This cal also be toggled from the toolbar in the chapter list -->
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="chapter_sort_descending"
+        android:summary="@string/pref_summary_sort_descending"
+        android:summaryOff="@string/pref_summary_off_sort_descending"
+        android:summaryOn="@string/pref_summary_on_sort_descending"
+        android:title="@string/pref_title_sort_descending" />
 </PreferenceScreen>
