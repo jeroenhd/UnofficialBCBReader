@@ -70,21 +70,28 @@ public class UpdateBroadcastReceiver extends BroadcastReceiver {
         }
     };
 
+    /**
+     * Show a notification to the user.
+     * This will use the settings set by the user to determine whether or not the notification should have any sound or vibration.
+     */
     private void DisplayNotification() {
         Intent intent = new Intent(mContext, ChapterReadingActivity.class);
         Bundle extras = new Bundle();
 
+        // These values are used by ChapterReadingActivity to determine what page is being opened
         Chapter chapter = ChapterDatabase.getLastChapter();
-
         extras.putParcelable(ChapterReadingActivity.CHAPTER, chapter);
         extras.putInt(ChapterReadingActivity.SCROLL_TO, chapter.getPageCount());
 
+        // PendingIntent instead of a regular Intent, because the Intent will happen in the future
         PendingIntent pendingIntent;
         intent.putExtras(extras);
         pendingIntent = PendingIntent.getActivity(mContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
+        // I don't know how to obtain the default vibration pattern, so this will need to do
         long[] vibrationPattern = new long[]{100};
 
+        // Get the ringtone from the preferences
         String ringtonePath = PreferenceManager.getDefaultSharedPreferences(mContext).getString("notifications_ringtone", "DEFAULT_SOUND");
         Uri ringtone;
         if (ringtonePath.equals("")) {
@@ -94,6 +101,7 @@ public class UpdateBroadcastReceiver extends BroadcastReceiver {
             ringtone = Uri.parse(ringtonePath);
         }
 
+        // Build a notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext)
                 .setContentTitle(mContext.getString(R.string.notification_title))
                 .setContentText(mContext.getString(R.string.notification_description))
@@ -101,11 +109,12 @@ public class UpdateBroadcastReceiver extends BroadcastReceiver {
                 .setSmallIcon(R.drawable.ic_custom_notification_black)
                 .setVibrate(vibrationPattern);
 
+        // Don't set a sound if the user has disabled the ringtone
         if (ringtone != null)
             builder.setSound(ringtone);
 
-        Notification notification = builder
-                .build();
+        // Finally, show the notification
+        Notification notification = builder.build();
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(mContext);
         notificationManagerCompat.notify(NewChapterNotificationId, notification);
     }
@@ -114,21 +123,33 @@ public class UpdateBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         mContext = context;
 
+        // Find out why we're receiving a broadcast
         String action = intent.getAction();
 
         Log.d("UpdateOnReceive", "Received an intent! Processing...");
 
+        // This can happen some times according to stack overflow
+        // Probably some app sending out random Intents
+        // If the action is null, just return
         if (action == null) {
             Log.e("UpdateOnReceive", "Somehow a null intent was received");
             return;
         }
 
+        // If the action is not an action we should handle, log an error and return
         if (!action.equals(Intent.ACTION_BOOT_COMPLETED) && !action.equals(UPDATE)) {
             Log.e("UpdateOnReceive", "Invalid action was passed to the UpdateBroadcastReceiver (why did it trigger???)");
             return;
         }
 
-        SuperSingleton.getInstance(mContext).getVolleyRequestQueue().add(new JsonRequest<Check>(JsonRequest.Method.GET, API.CheckURI, null, this.checkListener, this.checkError) {
+        // Add a new request to the Volley queue
+        // We need to check for an update before we notify the user so we don't show a notification
+        // if there's nothing to notify about
+        // (who knows, maybe the buffer dried up, it happens)
+        SuperSingleton
+                .getInstance(mContext)
+                .getVolleyRequestQueue()
+                .add(new JsonRequest<Check>(JsonRequest.Method.GET, API.CheckURI, null, this.checkListener, this.checkError) {
             @Override
             protected Response<Check> parseNetworkResponse(NetworkResponse response) {
                 String json = new String(response.data);
