@@ -78,9 +78,6 @@ public class ChapterListRequest extends Request<List<Chapter>> {
             return Response.success(
                     chapterList,
                     HttpHeaderParser.parseCacheHeaders(response));
-        /*} catch (UnsupportedEncodingException e) {
-            // Something went wrong with the encoding
-            return Response.error(new ParseError(e));*/
         } catch (JsonSyntaxException e) {
             // Bad JSON!
             return Response.error(new ParseError(e));
