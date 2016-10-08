@@ -77,7 +77,7 @@ public class NotificationPlanner {
         } else {
             //There's a time difference between EST/UTC!
 
-            calendar.set(Calendar.HOUR, Integer.parseInt(updateTimes.getUpdateHour()));
+            calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(updateTimes.getUpdateHour()));
             calendar.set(Calendar.MINUTE, 0);
         }
 
