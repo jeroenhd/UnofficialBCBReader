@@ -80,7 +80,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
             mChapter = intent.getParcelableExtra(ChapterReadingActivity.CHAPTER);
 
             // The page index - 1 (the RecyclerView uses 0-based indices)
-            mScrollToPage = intent.getIntExtra(ChapterReadingActivity.SCROLL_TO, -1) - 1;
+            mScrollToPage = intent.getIntExtra(ChapterReadingActivity.SCROLL_TO, 1) - 1;
         }
 
         if (mChapter == null) {
@@ -242,7 +242,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
         ChapterReadingAdapter mAdapter = new ChapterReadingAdapter(this, mPages);
         mRecycler.setAdapter(mAdapter);
 
-        mRecycler.smoothScrollToPosition(mScrollToPage - 1);
+        mRecycler.smoothScrollToPosition(mScrollToPage);
     }
 
     @Override
