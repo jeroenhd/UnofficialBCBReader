@@ -107,6 +107,7 @@ public class UpdateBroadcastReceiver extends BroadcastReceiver {
                 .setContentText(mContext.getString(R.string.notification_description))
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.ic_custom_notification_black)
+                .setAutoCancel(true)
                 .setVibrate(vibrationPattern);
 
         // Don't set a sound if the user has disabled the ringtone
