@@ -3,6 +3,7 @@ package nl.jeroenhd.app.bcbreader;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -57,13 +58,53 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private SuperSingleton singleton;
+    /**
+     * Called when downloading the check fails
+     */
+    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Snackbar.make(mRecycler, R.string.update_check_failed, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
 
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+    /**
+     * Called when downloading the chapter list fails
+     */
+    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            error.printStackTrace();
+            Snackbar.make(mRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
+
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
     /**
      * The latest update times data.
      * Is initialised to null!
      */
     private UpdateTimes latestUpdateTimes = null;
-
     /**
      * The response listener for a successful download of the chapter list
      */
@@ -170,48 +211,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             }
         }
     };
-    /**
-     * Called when downloading the check fails
-     */
-    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Snackbar.make(mRecycler, R.string.update_check_failed, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
-    /**
-     * Called when downloading the chapter list fails
-     */
-    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            error.printStackTrace();
-            Snackbar.make(mRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
+    private LinearLayoutManager mLayoutManager;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -278,8 +278,11 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private void SetupRecycler() {
         mRecycler = (RecyclerView) findViewById(R.id.chapterList);
 
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+        mLayoutManager = new LinearLayoutManager(this);
         mRecycler.setLayoutManager(mLayoutManager);
+
+        boolean isSortDescending = getSortDescending();
+        setSortDescending(isSortDescending);
 
         mAdapter = new ChapterListAdapter(this, mChapterData, this);
         mRecycler.setAdapter(mAdapter);
@@ -382,11 +385,43 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 break;
             case R.id.popup_menu_ascending:
             case R.id.popup_menu_descending:
-                // TODO
-                Snackbar.make(this.swipeRefreshLayout, "Sort action, replace me with some functionality!", Snackbar.LENGTH_LONG).show();
+                setSortDescending(id == R.id.popup_menu_descending);
                 break;
         }
         return false;
+    }
+
+    /**
+     * Get the sort order for the chapter list
+     *
+     * @return true if descending, false if ascending
+     */
+    private boolean getSortDescending() {
+        return PreferenceManager
+                .getDefaultSharedPreferences(this)
+                .getBoolean("chapter_sort_descending", false);
+    }
+
+    /**
+     * Set the sort order for the chapter list
+     *
+     * @param descending True to sort descending, false to sort ascending
+     */
+    private void setSortDescending(boolean descending) {
+        PreferenceManager
+                .getDefaultSharedPreferences(thisActivity)
+                .edit()
+                .putBoolean("chapter_sort_descending", descending)
+                .apply();
+
+        mLayoutManager.setReverseLayout(descending);
+        mLayoutManager.setStackFromEnd(descending);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setSortDescending(getSortDescending());
     }
 
     /**
