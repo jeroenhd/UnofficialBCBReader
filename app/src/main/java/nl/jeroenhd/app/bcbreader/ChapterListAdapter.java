@@ -101,9 +101,16 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
     }
 
     public interface OnChapterClickListener {
-        void onChapterSelect(View v, Chapter c);
+        /**
+         * Called when a chapter is selected in the list
+         *
+         * @param view    The view the user has interacted with
+         * @param chapter The chapter the user has selected
+         * @param page    The page to scroll to (use 1 to start from the beginning)
+         */
+        void onChapterSelect(View view, Chapter chapter, int page);
 
-        void onChapterFavourite(AppCompatImageView v, Chapter c);
+        void onChapterFavourite(AppCompatImageView view, Chapter chapter);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -134,7 +141,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
 
         @Override
         public void onClick(View v) {
-            this.ClickHandler.onChapterSelect(v, this.CurrentChapter);
+            this.ClickHandler.onChapterSelect(v, this.CurrentChapter, 1);
         }
     }
 }

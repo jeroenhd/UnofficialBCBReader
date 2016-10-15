@@ -41,7 +41,7 @@ import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
 
 public class ChapterReadingActivity extends AppCompatActivity implements Toolbar.OnMenuItemClickListener {
     public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.CHAPTER";
-    private static final String SCROLL_TO = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.SCROLL_TO";
+    public static final String SCROLL_TO = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.SCROLL_TO";
     private final ChapterReadingActivity thisActivity = this;
     private RecyclerView.LayoutManager mLayout;
     private ArrayList<Page> mPages;
@@ -240,7 +240,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
         ChapterReadingAdapter mAdapter = new ChapterReadingAdapter(this, mPages);
         mRecycler.setAdapter(mAdapter);
 
-        mRecycler.scrollToPosition(mScrollToPage);
+        mRecycler.smoothScrollToPosition(mScrollToPage - 1);
     }
 
     @Override

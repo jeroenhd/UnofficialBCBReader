@@ -64,4 +64,13 @@
     <string name="title_chapter_title_page_number">%1$s: page %2$d</string>
     <string name="pref_title_share_upload_image">Share image files</string>
     <string name="pref_summary_share_upload_image">Also add image files when sharing a page using another app</string>
+    <string name="go_to_latest_update">The comic just updated! Do you want to see the latest page?</string>
+    <string name="go">Go</string>
+    <string name="sort_chapters">Sorting method</string>
+    <string name="ascending">Sort chapters old to new</string>
+    <string name="descending">Sort chapters new to old</string>
+    <string name="pref_title_sort_descending">Sort chapters new to old</string>
+    <string name="pref_summary_sort_descending">Useful after reading through the archive so you can see the latest pages quicker!</string>
+    <string name="pref_summary_on_sort_descending">The latest chapters appear in the top of the list.</string>
+    <string name="pref_summary_off_sort_descending">The oldest chapters appear in the top of the list.</string>
 </resources>
