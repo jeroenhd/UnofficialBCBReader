@@ -76,7 +76,7 @@ public class API {
     public static String getQualitySuffix(Context context) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         if (sharedPreferences == null) {
-            Log.d("getQualitySuffix", "Failed to obtain shared preferences, returning default");
+            Log.d(App.TAG, "getQualitySuffix: Failed to obtain shared preferences, returning default");
             return "@m";
         } else {
             String p = sharedPreferences.getString("reading_quality", "-1");

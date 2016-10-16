@@ -5,7 +5,9 @@ import nl.jeroenhd.app.bcbreader.BuildConfig;
 /**
  * Keep app data together
  */
-class App {
+public class App {
+    public static final String TAG = "BCBReader";
+
     public static String Version() {
         return BuildConfig.VERSION_NAME;
     }
