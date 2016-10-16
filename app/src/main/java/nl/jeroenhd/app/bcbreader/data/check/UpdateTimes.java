@@ -7,6 +7,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import nl.jeroenhd.app.bcbreader.data.App;
+
 /**
  * Class for the JSON API check
  * Contains when the comic updates
@@ -117,7 +119,7 @@ public class UpdateTimes {
             }
         }
 
-        Log.e("BCBReader", "lastUpdate: invalid parameters! Walked back more than 7 days without finding an update day!");
+        Log.e(App.TAG, "lastUpdate: invalid parameters! Walked back more than 7 days without finding an update day!");
         return null;
     }
 }

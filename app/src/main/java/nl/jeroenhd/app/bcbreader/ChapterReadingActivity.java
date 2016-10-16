@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nl.jeroenhd.app.bcbreader.data.API;
+import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 import nl.jeroenhd.app.bcbreader.data.Page;
@@ -64,7 +65,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
         String action = intent.getAction();
         if (action != null && action.equals(Intent.ACTION_VIEW)) {
             Uri data = intent.getData();
-            Log.d("ActivityFromUri", "Data: " + data.toString());
+            Log.d(App.TAG, "ActivityFromUri: Data: " + data.toString());
             List<String> queryParams = data.getPathSegments();
             Double chapter = Double.parseDouble(queryParams.get(0).substring(1));
             Integer page = Integer.parseInt(queryParams.get(1).replaceAll("[^0-9]", ""));
@@ -74,7 +75,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
 
             if (mChapter == null) {
                 //TODO: Download Chapter, Chapter does not exist yet!
-                Log.d("ActivityFromUri", "Downloading new chapters has not been implemented from URLs!");
+                Log.d(App.TAG, "ActivityFromUri: Downloading new chapters has not been implemented from URLs!");
             }
         } else {
             mChapter = intent.getParcelableExtra(ChapterReadingActivity.CHAPTER);
@@ -139,7 +140,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
             public void onLoadSuccess(Bitmap bm) {
                 if (bm == null)
                 {
-                    Log.e("SetupHeader","Failed to load image (bg=null)!");
+                    Log.e(App.TAG, "SetupHeader: Failed to load image (bg=null)!");
                     return;
                 }
                 Palette.PaletteAsyncListener paletteAsyncListener = new Palette.PaletteAsyncListener() {
@@ -170,7 +171,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
             @Override
             public void onLoadError() {
                 // Default colors are alright
-                Log.e("SetupHeader","Error while loading!!!");
+                Log.e(App.TAG, "SetupHeader: Error while loading!!!");
             }
         });
         headerBackgroundImage.setErrorImageResId(R.color.colorPrimary);
@@ -183,7 +184,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
     private void SetupData(Chapter chapter) {
         mPages = new ArrayList<>();
         mPages.addAll(chapter.getPageDescriptions());
-        Log.d("SetupData", "Loaded " + chapter.getDescription().length() + " pages");
+        Log.d(App.TAG, "SetupData: Loaded " + chapter.getDescription().length() + " pages");
     }
 
     private void SetupAnimation() {
@@ -192,7 +193,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
             getWindow().setSharedElementEnterTransition(transition);
         } else {
             // Not supported!
-            Log.d("Animation", "View animation is not supported by this platform!");
+            Log.d(App.TAG, "Animation: View animation is not supported by this platform!");
         }
     }
 
@@ -209,7 +210,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
             anim.start();
         } else {
             // Not supported
-            Log.d("animateRevealShow", "Not supported by platform");
+            Log.d(App.TAG, "animateRevealShow: Not supported by platform");
         }
     }
 
@@ -225,7 +226,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
                     window.setStatusBarColor(palette.getMutedColor(defaultColor));
                 } else {
                     //TODO: additional theming for <LOLLIPOP
-                    Log.d("UpdateTheme", "<Lollipop, not implemented yet");
+                    Log.d(App.TAG, "UpdateTheme: <Lollipop, not implemented yet");
                 }
             }
         });
