@@ -7,6 +7,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -38,6 +39,7 @@ import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 import nl.jeroenhd.app.bcbreader.data.Page;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
+import nl.jeroenhd.app.bcbreader.tools.ColorHelper;
 import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
 
 public class ChapterReadingActivity extends AppCompatActivity implements Toolbar.OnMenuItemClickListener {
@@ -49,12 +51,15 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
     private int mScrollToPage = -1;
     private Chapter mChapter;
     private CoordinatorLayout mCoordinatorLayout;
+    private CollapsingToolbarLayout mCollapsingToolbarLayout;
     private CallbackNetworkImageView headerBackgroundImage;
+    private Toolbar toolbar;
+    private FloatingActionButton fab;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chapter_reading);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         if (getSupportActionBar() != null)
@@ -93,7 +98,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
             this.setTitle(mChapter.getTitle());
         }
 
-        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
 
         assert fab != null;
 
@@ -123,6 +128,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
 
         headerBackgroundImage = (CallbackNetworkImageView) findViewById(R.id.backgroundImage);
         mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
+        mCollapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbarLayout);
 
         SetupAnimation();
 
@@ -146,26 +152,46 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
                 Palette.PaletteAsyncListener paletteAsyncListener = new Palette.PaletteAsyncListener() {
                     @Override
                     public void onGenerated(Palette palette) {
-                        int darkBgColor = palette.getVibrantColor(0xff00ff);
-                        View textSkim = findViewById(R.id.toolbar_text_skim);
+                        int accentColor = palette.getVibrantColor(0);
+                        int statusColor = palette.getDarkMutedColor(0);
+                        int toolbarColor = palette.getMutedColor(0);
 
-                        assert textSkim != null;
-
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                            textSkim.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{0, darkBgColor}));
-                        } else {
-                            //noinspection deprecation
-                            textSkim.setBackgroundDrawable(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{0, darkBgColor}));
-                        }
-                        /*int backgroundColor = palette.getLightVibrantColor(0xffffffff);
+                        int backgroundColor = palette.getLightVibrantColor(0xffffffff);
                         int titleColor = ColorHelper.foregroundColor(backgroundColor);
                         toolbar.setTitleTextColor(titleColor);
-                        toolbar.setSubtitleTextColor(titleColor);*/
+                        toolbar.setSubtitleTextColor(titleColor);
+
+
+                        // Set toolbar color (if available)
+                        if (toolbarColor != 0) {
+                            mCollapsingToolbarLayout.setContentScrimColor(toolbarColor);
+                            //toolbar.setBackgroundColor(toolbarColor);
+                        }
+
+                        // Set status bar color (if available & possible)
+                        if (statusColor != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            // This will not work in <= Kitkat
+                            getWindow().setStatusBarColor(statusColor);
+                        }
+
+                        if (accentColor != 0)
+                            fab.setBackgroundColor(accentColor);
+
+
+                        View textSkim = findViewById(R.id.toolbar_text_skim);
+                        assert textSkim != null;
+                        GradientDrawable gradientDrawable = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{0, toolbarColor});
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                            textSkim.setBackground(gradientDrawable);
+                        } else {
+                            //noinspection deprecation
+                            textSkim.setBackgroundDrawable(gradientDrawable);
+                        }
                     }
                 };
 
                 //TODO: Make this code work
-                //Palette.from(bm).generate(paletteAsyncListener);
+                Palette.from(bm).generate(paletteAsyncListener);
             }
 
             @Override
