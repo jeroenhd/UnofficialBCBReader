@@ -44,10 +44,10 @@ public class API {
 
         // Well this is fun
         if (quality.equals("@m")) {
-            return chapter == 35
-                    || chapter == 50
-                    || (chapter > 60 && chapter < 89)
-                    || chapter > 90;
+            // Some of these chapters (like 94.1) are in PNG format even though they're mobile
+            // Others can be categorized by range
+            return chapter != 94.1 && (chapter == 35 || chapter == 50 || (chapter > 60 && chapter < 89) || chapter > 90);
+
         }
 
         // 70-88 is JPG for some reason
