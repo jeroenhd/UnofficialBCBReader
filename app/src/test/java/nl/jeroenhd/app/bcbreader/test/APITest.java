@@ -74,7 +74,7 @@ public class APITest {
         // Decimal in chapter number
         assertEquals("https://blasto.enterprises/comics/9.1/1@m.png", API.FormatPageUrl(9.1, 1.0, "@m"));
         // Special mobile PNG chapter
-        assertEquals("https://blasto.enterprises/comics/94.1/1@m.png", API.FormatPageUrl(94.0, 1, "@m"));
+        assertEquals("https://blasto.enterprises/comics/94.1/1@m.png", API.FormatPageUrl(94.1, 1, "@m"));
 
         /// RETINA
         // Basic
