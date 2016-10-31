@@ -15,6 +15,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
 import nl.jeroenhd.app.bcbreader.data.API;
+import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 import nl.jeroenhd.app.bcbreader.views.PageImageView;
@@ -47,7 +48,7 @@ public class FullscreenPageFragment extends Fragment {
             chapter = getArguments().getParcelable(FullscreenReaderActivity.EXTRA_CHAPTER);
             page = getArguments().getInt(FullscreenReaderActivity.EXTRA_PAGE);
         } else {
-            Log.e("FullScreenPage", "Pass me some arguments!!!");
+            Log.e(App.TAG, "FullScreenPage: Pass me some arguments!!!");
             throw new IllegalArgumentException("FullscreenPageFragment requires arguments!");
         }
     }
@@ -105,7 +106,7 @@ public class FullscreenPageFragment extends Fragment {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     //Empty
-                    Log.e("FSPF_Preloader", "Exception occurred while preloading: ");
+                    Log.e(App.TAG, "FSPF_Preloader: Exception occurred while preloading: ");
                     error.printStackTrace();
                 }
             };

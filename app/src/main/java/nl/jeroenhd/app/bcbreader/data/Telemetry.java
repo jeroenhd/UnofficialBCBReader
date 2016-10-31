@@ -171,7 +171,7 @@ public class Telemetry {
         Response.Listener<String> onSuccess = new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Log.d("SendTelemetry", "Telemetry has been sent, server responded with: " + response);
+                Log.d(App.TAG, "SendTelemetry: Telemetry has been sent, server responded with: " + response);
                 if (showNotifications && mContext != null) {
                     Toast.makeText(mContext, mContext.getString(R.string.thank_you_for_sending_telemetry), Toast.LENGTH_LONG).show();
                 }
@@ -181,7 +181,7 @@ public class Telemetry {
             @Override
             public void onErrorResponse(VolleyError error) {
                 String msg = error.getMessage();
-                Log.e("SendTelemetry", "Failed to send telemetry: " + msg);
+                Log.e(App.TAG, "SendTelemetry: Failed to send telemetry: " + msg);
                 error.printStackTrace();
 
                 if (showNotifications && mContext != null)

@@ -9,6 +9,7 @@ import java.util.Map;
 import nl.jeroenhd.app.bcbreader.data.API;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 /**
@@ -45,6 +46,15 @@ public class APITest {
         }
     }
 
+    @Test
+    public void testIsJpegChapterForMobilePngs() {
+        double jpgMobileChapters[] = {94.1};
+
+        for (double chapter : jpgMobileChapters) {
+            assertFalse(API.isJpegChapter(chapter, "@m"));
+        }
+    }
+
     @SuppressWarnings("deprecation")
     @Test
     public void testFormatPageUrl_deprecated() throws Exception {
@@ -63,8 +73,10 @@ public class APITest {
         assertEquals("https://blasto.enterprises/comics/70/1@m.jpg", API.FormatPageUrl(70.0, 1.0, "@m"));
         // Decimal in chapter number
         assertEquals("https://blasto.enterprises/comics/9.1/1@m.png", API.FormatPageUrl(9.1, 1.0, "@m"));
+        // Special mobile PNG chapter
+        assertEquals("https://blasto.enterprises/comics/94.1/1@m.png", API.FormatPageUrl(94.1, 1, "@m"));
 
-        /// DESKTOP
+        /// RETINA
         // Basic
         assertEquals("https://blasto.enterprises/comics/1/1@2x.png", API.FormatPageUrl(1.0, 1.0, "@2x"));
         // JPEG URL
@@ -72,7 +84,7 @@ public class APITest {
         // Decimal in chapter number
         assertEquals("https://blasto.enterprises/comics/9.1/1@2x.png", API.FormatPageUrl(9.1, 1.0, "@2x"));
 
-        /// RETINA
+        /// DESKTOP
         // Basic
         assertEquals("https://blasto.enterprises/comics/1/1.png", API.FormatPageUrl(1.0, 1.0, ""));
         // JPEG URL
