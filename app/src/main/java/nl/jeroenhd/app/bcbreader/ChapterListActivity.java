@@ -60,6 +60,48 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
 
     private SuperSingleton singleton;
     /**
+     * Called when downloading the check fails
+     */
+    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Snackbar.make(mRecycler, R.string.update_check_failed, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+    /**
+     * Called when downloading the chapter list fails
+     */
+    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            error.printStackTrace();
+            Snackbar.make(mRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
+
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+    /**
      * The latest update times data.
      * Is initialised to null!
      */
@@ -120,8 +162,9 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 diff = -1;
             }
 
+            int hours = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(thisActivity).getString("recent_page_notifier_max_time", "1"));
             // If the last update was less than 3 hours ago...
-            if ((diff > 0 && diff <= 1000 * 60 * 60 * 3)) {
+            if ((diff > 0 && diff <= 1000 * 60 * 60 * hours)) {
                 Snackbar.make(swipeRefreshLayout, R.string.go_to_latest_update, Snackbar.LENGTH_INDEFINITE)
                         .setAction(R.string.go, new View.OnClickListener() {
                             @Override
@@ -163,48 +206,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), chapterDownloadSuccessListener, chapterListDownloadErrorListener);
                 singleton.getVolleyRequestQueue().add(downloadRequest);
             }
-
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
-    /**
-     * Called when downloading the check fails
-     */
-    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Snackbar.make(mRecycler, R.string.update_check_failed, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
-    /**
-     * Called when downloading the chapter list fails
-     */
-    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            error.printStackTrace();
-            Snackbar.make(mRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
 
 
             if (swipeRefreshLayout != null) {
