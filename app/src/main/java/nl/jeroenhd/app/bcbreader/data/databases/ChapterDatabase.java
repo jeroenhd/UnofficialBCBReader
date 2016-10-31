@@ -11,6 +11,7 @@ import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 import java.util.List;
 
+import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 
@@ -35,14 +36,14 @@ public class ChapterDatabase {
                 .error(new Transaction.Error() {
                     @Override
                     public void onError(Transaction transaction, Throwable error) {
-                        Log.e("SaveChapters", "Error during transaction " + transaction.name());
+                        Log.e(App.TAG, "SaveChapters: Error during transaction " + transaction.name());
                         error.printStackTrace();
                     }
                 }).success(new Transaction.Success() {
             @Override
             public void onSuccess(Transaction transaction) {
                 // Yay
-                Log.d("SaveChapters", "Saved chapters!");
+                Log.d(App.TAG, "SaveChapters: Saved chapters!");
             }
         })
                 .build().execute();

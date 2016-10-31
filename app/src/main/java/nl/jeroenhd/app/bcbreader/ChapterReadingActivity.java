@@ -7,6 +7,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -26,17 +27,25 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import nl.jeroenhd.app.bcbreader.data.API;
+import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
+import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
 import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 import nl.jeroenhd.app.bcbreader.data.Page;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
+import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
+import nl.jeroenhd.app.bcbreader.tools.ColorHelper;
 import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
 
 public class ChapterReadingActivity extends AppCompatActivity implements Toolbar.OnMenuItemClickListener {
@@ -48,55 +57,63 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
     private int mScrollToPage = -1;
     private Chapter mChapter;
     private CoordinatorLayout mCoordinatorLayout;
+    private CollapsingToolbarLayout mCollapsingToolbarLayout;
     private CallbackNetworkImageView headerBackgroundImage;
+    private Toolbar toolbar;
+    private FloatingActionButton fab;
+    private RelativeLayout mLoadingOverlay;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chapter_reading);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
         Intent intent = getIntent();
         String action = intent.getAction();
+        Double chapterNumber;
+        boolean downloadBeforeShowing = false;
         if (action != null && action.equals(Intent.ACTION_VIEW)) {
             Uri data = intent.getData();
-            Log.d("ActivityFromUri", "Data: " + data.toString());
+            Log.d(App.TAG, "ActivityFromUri: Data: " + data.toString());
             List<String> queryParams = data.getPathSegments();
-            Double chapter = Double.parseDouble(queryParams.get(0).substring(1));
+            chapterNumber = Double.parseDouble(queryParams.get(0).substring(1));
             Integer page = Integer.parseInt(queryParams.get(1).replaceAll("[^0-9]", ""));
 
-            mChapter = new Select().from(Chapter.class).where(Chapter_Table.number.eq(chapter)).querySingle();
-            mScrollToPage = page - 1;
+            mChapter = new Select().from(Chapter.class).where(Chapter_Table.number.eq(chapterNumber)).querySingle();
+            mScrollToPage = page;
 
-            if (mChapter == null) {
-                //TODO: Download Chapter, Chapter does not exist yet!
-                Log.d("ActivityFromUri", "Downloading new chapters has not been implemented from URLs!");
+            if (mChapter == null || page > mChapter.getPageCount()) {
+                Log.d(App.TAG, "ActivityFromUri: Chapter " + chapterNumber + ", page + " + page + " is not in the database (yet)!");
+                downloadBeforeShowing = true;
             }
         } else {
             mChapter = intent.getParcelableExtra(ChapterReadingActivity.CHAPTER);
+            chapterNumber = mChapter.getNumber();
             mScrollToPage = intent.getIntExtra(ChapterReadingActivity.SCROLL_TO, -1);
         }
 
-        if (mChapter == null) {
+        mLoadingOverlay = (RelativeLayout) findViewById(R.id.loadingOverlay);
+        assert mLoadingOverlay != null;
+        mLoadingOverlay.setVisibility(downloadBeforeShowing ? View.VISIBLE : View.GONE);
+
+        if (mChapter == null && !downloadBeforeShowing) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     Snackbar.make(mCoordinatorLayout, "Did not receive chapter from extras???", Snackbar.LENGTH_LONG).show();
                 }
             });
-        } else {
-            this.setTitle(mChapter.getTitle());
         }
 
-        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
 
         assert fab != null;
 
-        fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white);
+        fab.setImageResource(mChapter != null && mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,55 +139,95 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
 
         headerBackgroundImage = (CallbackNetworkImageView) findViewById(R.id.backgroundImage);
         mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
+        mCollapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsingToolbarLayout);
 
         SetupAnimation();
 
-        SetupHeader();
-
-        SetupData(mChapter);
-        SetupRecyclerView();
-
         toolbar.setOnMenuItemClickListener(this);
+
+        if (!downloadBeforeShowing) {
+            SetupHeader();
+            SetupData(mChapter);
+            SetupRecyclerView();
+        } else {
+            DelayedSetupData(chapterNumber);
+        }
+
+    }
+
+    @Override
+    public void setTitle(int titleId) {
+        super.setTitle(titleId);
+        if (toolbar != null)
+            toolbar.setTitle(titleId);
+    }
+
+    @Override
+    public void setTitle(CharSequence title) {
+        super.setTitle(title);
+        if (toolbar != null)
+            toolbar.setTitle(title);
     }
 
     private void SetupHeader() {
+        this.setTitle(mChapter.getTitle());
         headerBackgroundImage.setCallback(new CallbackNetworkImageView.ImageEventListener() {
             @Override
             public void onLoadSuccess(Bitmap bm) {
                 if (bm == null)
                 {
-                    Log.e("SetupHeader","Failed to load image (bg=null)!");
+                    Log.e(App.TAG, "SetupHeader: Failed to load image (bg=null)!");
                     return;
                 }
                 Palette.PaletteAsyncListener paletteAsyncListener = new Palette.PaletteAsyncListener() {
                     @Override
                     public void onGenerated(Palette palette) {
-                        int darkBgColor = palette.getVibrantColor(0xff00ff);
-                        View textSkim = findViewById(R.id.toolbar_text_skim);
+                        int accentColor = palette.getVibrantColor(0);
+                        int statusColor = palette.getDarkMutedColor(0);
+                        int toolbarColor = palette.getMutedColor(0);
 
-                        assert textSkim != null;
-
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                            textSkim.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{0, darkBgColor}));
-                        } else {
-                            //noinspection deprecation
-                            textSkim.setBackgroundDrawable(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{0, darkBgColor}));
-                        }
-                        /*int backgroundColor = palette.getLightVibrantColor(0xffffffff);
+                        int backgroundColor = palette.getLightVibrantColor(0xffffffff);
                         int titleColor = ColorHelper.foregroundColor(backgroundColor);
                         toolbar.setTitleTextColor(titleColor);
-                        toolbar.setSubtitleTextColor(titleColor);*/
+                        toolbar.setSubtitleTextColor(titleColor);
+
+
+                        // Set toolbar color (if available)
+                        if (toolbarColor != 0) {
+                            mCollapsingToolbarLayout.setContentScrimColor(toolbarColor);
+                            //toolbar.setBackgroundColor(toolbarColor);
+                        }
+
+                        // Set status bar color (if available & possible)
+                        if (statusColor != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            // This will not work in <= Kitkat
+                            getWindow().setStatusBarColor(statusColor);
+                        }
+
+                        if (accentColor != 0)
+                            fab.setBackgroundColor(accentColor);
+
+
+                        View textSkim = findViewById(R.id.toolbar_text_skim);
+                        assert textSkim != null;
+                        GradientDrawable gradientDrawable = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{0, toolbarColor});
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                            textSkim.setBackground(gradientDrawable);
+                        } else {
+                            //noinspection deprecation
+                            textSkim.setBackgroundDrawable(gradientDrawable);
+                        }
                     }
                 };
 
                 //TODO: Make this code work
-                //Palette.from(bm).generate(paletteAsyncListener);
+                Palette.from(bm).generate(paletteAsyncListener);
             }
 
             @Override
             public void onLoadError() {
                 // Default colors are alright
-                Log.e("SetupHeader","Error while loading!!!");
+                Log.e(App.TAG, "SetupHeader: Error while loading!!!");
             }
         });
         headerBackgroundImage.setErrorImageResId(R.color.colorPrimary);
@@ -180,19 +237,80 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
         );
     }
 
+    /**
+     * Prepare for viewing the pages
+     *
+     * @param chapter The chapter to load
+     */
     private void SetupData(Chapter chapter) {
         mPages = new ArrayList<>();
         mPages.addAll(chapter.getPageDescriptions());
-        Log.d("SetupData", "Loaded " + chapter.getDescription().length() + " pages");
+        Log.d(App.TAG, "SetupData: Loaded " + chapter.getPageDescriptions().size() + " pages");
     }
 
+    /**
+     * Download the new chapter list and THEN prepare and load the pages
+     *
+     * @param chapterNumber The chapter to load
+     */
+    private void DelayedSetupData(final Double chapterNumber) {
+        // Indicate we're loading (should be extended)
+        this.setTitle(getString(R.string.loading));
+        final ProgressBar progressBar = (ProgressBar) mLoadingOverlay.findViewById(R.id.loadingProgressBar);
+        progressBar.setIndeterminate(true);
+
+        // Start downloading the chapter list
+        ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB,
+                API.RequestHeaders(), new Response.Listener<List<Chapter>>() {
+            @Override
+            public void onResponse(List<Chapter> response) {
+                // Save for future reuse
+                ChapterDatabase.SaveUpdate(response);
+
+                // Find the requested chapter
+                for (Chapter c : response) {
+                    if (c.getNumber().equals(chapterNumber)) {
+                        mChapter = c;
+                        mLoadingOverlay.setVisibility(View.GONE);
+                        SetupHeader();
+                        SetupData(c);
+                        SetupRecyclerView();
+                        return;
+                    }
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(App.TAG, "ChapterReadingActivity: DelayedSetupData: error ocurred downloading chapter list");
+                error.printStackTrace();
+                // Stop the progress bar
+                progressBar.setIndeterminate(false);
+
+                // Allow the user to retry in case of an error
+                Snackbar.make(mCoordinatorLayout, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
+                        .setAction(R.string.retry, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                DelayedSetupData(chapterNumber);
+                            }
+                        })
+                        .show();
+            }
+        });
+        SuperSingleton.getInstance(thisActivity).getVolleyRequestQueue().add(downloadRequest);
+    }
+
+    /**
+     * Start the neat little transition animation
+     */
     private void SetupAnimation() {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Transition transition = TransitionInflater.from(this).inflateTransition(R.transition.changebounds_with_arcmotion);
             getWindow().setSharedElementEnterTransition(transition);
         } else {
             // Not supported!
-            Log.d("Animation", "View animation is not supported by this platform!");
+            Log.d(App.TAG, "Animation: View animation is not supported by this platform!");
         }
     }
 
@@ -209,7 +327,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
             anim.start();
         } else {
             // Not supported
-            Log.d("animateRevealShow", "Not supported by platform");
+            Log.d(App.TAG, "animateRevealShow: Not supported by platform");
         }
     }
 
@@ -225,7 +343,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
                     window.setStatusBarColor(palette.getMutedColor(defaultColor));
                 } else {
                     //TODO: additional theming for <LOLLIPOP
-                    Log.d("UpdateTheme", "<Lollipop, not implemented yet");
+                    Log.d(App.TAG, "UpdateTheme: <Lollipop, not implemented yet");
                 }
             }
         });

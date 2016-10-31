@@ -23,6 +23,7 @@ import com.android.volley.VolleyError;
 import java.util.Locale;
 
 import nl.jeroenhd.app.bcbreader.data.API;
+import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.tools.ShareManager;
 
@@ -50,20 +51,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private static final int UI_ANIMATION_DELAY = 300;
     private final FullscreenReaderActivity thisActivity = this;
     private final Handler mHideHandler = new Handler();
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
     private Button buttonPrev;
     private Button buttonNext;
     private SeekBar seekBar;
@@ -102,6 +89,20 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         @Override
         public void run() {
             hide();
+        }
+    };
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
         }
     };
     private Chapter currentChapter;
@@ -145,7 +146,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
             currentChapter = extras.getParcelable(EXTRA_CHAPTER);
             if (currentChapter == null) {
-                Log.e("FullScreenReader", "Activity started without a valid chapter in the extras");
+                Log.e(App.TAG, "FullScreenReader: Activity started without a valid chapter in the extras");
                 throw new IllegalArgumentException("Provide a chapter to display!");
             }
             currentPage = extras.getInt(EXTRA_PAGE);
@@ -156,7 +157,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             }
         } else {
             // No extra's?
-            Log.e("FullScreenReader", "Activity started without any extras");
+            Log.e(App.TAG, "FullScreenReader: Activity started without any extras");
             throw new IllegalArgumentException("Provide a chapter to display!");
         }
 
