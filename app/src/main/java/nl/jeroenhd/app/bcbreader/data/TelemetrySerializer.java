@@ -24,6 +24,7 @@ class TelemetrySerializer implements JsonSerializer<Telemetry> {
         result.add("SDCardSize", new JsonPrimitive(src.getSDCardSize()));
         result.add("SDCardEmulated", new JsonPrimitive(src.isSDCardEmulated()));
         result.add("UniqueID", new JsonPrimitive(src.getUniqueID()));
+        result.add("AppVersion", new JsonPrimitive(src.getAppVersion()));
 
         return result;
     }

@@ -37,6 +37,7 @@ public class Telemetry {
     private long SDCardSize;
     private long SDCardFree;
     private boolean SDCardEmulated;
+    private String version;
 
     private Telemetry(Context context) {
         Model = Build.MODEL;
@@ -63,6 +64,7 @@ public class Telemetry {
         // Get the android ID, but HASH IT FIRST!
         // We don't need the unique ID itself, the hash code should be unique enough
         uniqueID = "V1[" + Integer.toHexString(Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID).hashCode()) + "]";
+        version = App.Version();
     }
 
     public static Telemetry getInstance(Context context) {
@@ -154,6 +156,10 @@ public class Telemetry {
 
     public String getUniqueID() {
         return uniqueID;
+    }
+
+    public String getAppVersion() {
+        return version;
     }
 
     public void send(Context context) {

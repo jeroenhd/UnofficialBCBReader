@@ -40,6 +40,11 @@
         android:key="telemetry_sdcard_emulated"
         android:title="@string/pref_title_telemetry_sdcard_emulated" />
     <Preference
+        android:defaultValue="Invalid"
+        android:dependency="telemetry_enabled"
+        android:key="app_version"
+        android:title="@string/app_version" />
+    <Preference
         android:dependency="telemetry_enabled"
         android:key="telemetry_send_manually"
         android:title="@string/pref_title_telemetry_send_manually" />

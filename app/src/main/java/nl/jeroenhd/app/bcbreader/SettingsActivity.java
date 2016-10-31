@@ -26,6 +26,7 @@ import android.webkit.WebView;
 
 import java.util.List;
 
+import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Telemetry;
 
 /**
@@ -234,6 +235,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             Preference volleyLicense = findPreference("pref_license_volley");
             Preference gsonLicense = findPreference("pref_license_gson");
             Preference dbflowLicense = findPreference("pref_license_dbflow");
+            Preference versionName = findPreference("app_version");
 
             volleyLicense.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -256,6 +258,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     return false;
                 }
             });
+
+            assert versionName != null;
+            versionName.setSummary(App.Version());
         }
 
         @Override
@@ -297,7 +302,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             addPreferencesFromResource(R.xml.pref_telemetry);
             setHasOptionsMenu(true);
 
-            Preference model, ram, androidVersion, storage, sdcard, sdcardEmulated, uniqueID;
+            Preference model, ram, androidVersion, storage, sdcard, sdcardEmulated, uniqueID, appVersion;
             Preference sendNow;
 
             model = findPreference("telemetry_model");
@@ -307,6 +312,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             sdcard = findPreference("telemetry_sdcard");
             sdcardEmulated = findPreference("telemetry_sdcard_emulated");
             uniqueID = findPreference("telemetry_id");
+            appVersion = findPreference("app_version");
 
             final Telemetry telemetry = Telemetry.getInstance(getActivity());
             model.setSummary(telemetry.getModel());
@@ -316,6 +322,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             sdcard.setSummary(telemetry.getSDCardFreeMB() + "MB free out of " + telemetry.getSDCardSizeMB() + "MB total");
             sdcardEmulated.setSummary(telemetry.isSDCardEmulated() ? "Yes" : "No");
             uniqueID.setSummary(telemetry.getUniqueID());
+            appVersion.setSummary(App.Version());
 
             sendNow = findPreference("telemetry_send_manually");
             sendNow.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
