@@ -193,16 +193,16 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
 
 
                         // Set toolbar color (if available)
-                        if (toolbarColor != 0) {
+                        if (toolbarColor != 0 && statusColor != 0) {
                             mCollapsingToolbarLayout.setContentScrimColor(toolbarColor);
-                            //toolbar.setBackgroundColor(toolbarColor);
+
+                            // Set status bar color (if available & possible)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                // This will not work in <= Kitkat
+                                getWindow().setStatusBarColor(statusColor);
+                            }
                         }
 
-                        // Set status bar color (if available & possible)
-                        if (statusColor != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            // This will not work in <= Kitkat
-                            getWindow().setStatusBarColor(statusColor);
-                        }
 
                         if (accentColor != 0)
                             fab.setBackgroundColor(accentColor);

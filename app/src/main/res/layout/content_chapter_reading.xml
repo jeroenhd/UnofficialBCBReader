@@ -28,5 +28,5 @@
         android:layout_height="match_parent"
         tools:context="nl.jeroenhd.app.bcbreader.ChapterReadingActivity"
         tools:listitem="@layout/list_item_page"
-        tools:showIn="@layout/activity_chapter_reading"></android.support.v7.widget.RecyclerView>
+        tools:showIn="@layout/activity_chapter_reading" />
 </FrameLayout>
