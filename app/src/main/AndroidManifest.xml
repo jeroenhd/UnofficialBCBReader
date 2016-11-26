@@ -2,8 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="nl.jeroenhd.app.bcbreader">
 
+    <!-- This permission is required to download anything -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- This permission is used to enable notifications when the device starts -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- This permission is used in order to use the WakefulBroadcastReceiver in UpdateEventReceiver.java -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name=".BCBReaderApplication"
