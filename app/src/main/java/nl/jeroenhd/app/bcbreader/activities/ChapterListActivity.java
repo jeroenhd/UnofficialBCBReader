@@ -1,4 +1,4 @@
-package nl.jeroenhd.app.bcbreader;
+package nl.jeroenhd.app.bcbreader.activities;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -33,6 +33,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import nl.jeroenhd.app.bcbreader.R;
+import nl.jeroenhd.app.bcbreader.adapters.ChapterListAdapter;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;

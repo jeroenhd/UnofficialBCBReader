@@ -15,6 +15,7 @@ import com.google.gson.Gson;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import nl.jeroenhd.app.bcbreader.broadcastreceivers.UpdateBroadcastReceiver;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 import nl.jeroenhd.app.bcbreader.data.check.Check;

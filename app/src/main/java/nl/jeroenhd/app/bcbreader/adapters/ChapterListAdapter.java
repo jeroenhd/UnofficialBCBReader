@@ -1,4 +1,4 @@
-package nl.jeroenhd.app.bcbreader;
+package nl.jeroenhd.app.bcbreader.adapters;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;

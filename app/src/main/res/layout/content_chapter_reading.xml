@@ -26,7 +26,7 @@
         android:id="@+id/pages"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="nl.jeroenhd.app.bcbreader.ChapterReadingActivity"
+        tools:context="nl.jeroenhd.app.bcbreader.activities.ChapterReadingActivity"
         tools:listitem="@layout/list_item_page"
         tools:showIn="@layout/activity_chapter_reading" />
 </FrameLayout>

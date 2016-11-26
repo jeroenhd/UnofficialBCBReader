@@ -1,20 +1,21 @@
-package nl.jeroenhd.app.bcbreader;
+package nl.jeroenhd.app.bcbreader.adapters;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import nl.jeroenhd.app.bcbreader.data.Chapter;
+import nl.jeroenhd.app.bcbreader.fragments.FullscreenPageFragment;
 
 /**
  * A pager adapter for the full screen comic reader
  * TODO: Implement
  */
-class FullscreenPagePagerAdapter extends FragmentStatePagerAdapter {
+public class FullscreenPagePagerAdapter extends FragmentStatePagerAdapter {
     private final Chapter mChapter;
     private final FullscreenPageFragment.FullscreenPageFragmentCallback mPageCallback;
 
-    FullscreenPagePagerAdapter(FragmentManager fm, Chapter chapter, FullscreenPageFragment.FullscreenPageFragmentCallback callback) {
+    public FullscreenPagePagerAdapter(FragmentManager fm, Chapter chapter, FullscreenPageFragment.FullscreenPageFragmentCallback callback) {
         super(fm);
 
         mChapter = chapter;

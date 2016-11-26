@@ -1,4 +1,4 @@
-package nl.jeroenhd.app.bcbreader;
+package nl.jeroenhd.app.bcbreader.activities;
 
 import android.animation.Animator;
 import android.content.Intent;
@@ -37,6 +37,8 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.jeroenhd.app.bcbreader.R;
+import nl.jeroenhd.app.bcbreader.adapters.ChapterReadingAdapter;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
@@ -49,8 +51,8 @@ import nl.jeroenhd.app.bcbreader.tools.ColorHelper;
 import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
 
 public class ChapterReadingActivity extends AppCompatActivity implements Toolbar.OnMenuItemClickListener {
-    public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.CHAPTER";
-    public static final String SCROLL_TO = "nl.jeroenhd.app.bcbreader.ChapterReadingActivity.SCROLL_TO";
+    public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.activities.ChapterReadingActivity.CHAPTER";
+    public static final String SCROLL_TO = "nl.jeroenhd.app.bcbreader.activities.ChapterReadingActivity.SCROLL_TO";
     private final ChapterReadingActivity thisActivity = this;
     private RecyclerView.LayoutManager mLayout;
     private ArrayList<Page> mPages;

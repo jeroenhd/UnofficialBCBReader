@@ -1,4 +1,4 @@
-package nl.jeroenhd.app.bcbreader;
+package nl.jeroenhd.app.bcbreader.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +18,7 @@ import com.android.volley.VolleyError;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Page;
 import nl.jeroenhd.app.bcbreader.tools.ShareManager;

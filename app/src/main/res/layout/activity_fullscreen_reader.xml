@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/black"
     android:theme="@style/FullscreenTheme"
-    tools:context="nl.jeroenhd.app.bcbreader.FullscreenReaderActivity">
+    tools:context="nl.jeroenhd.app.bcbreader.activities.FullscreenReaderActivity">
 
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"

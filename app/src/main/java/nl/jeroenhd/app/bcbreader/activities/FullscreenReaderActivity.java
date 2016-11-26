@@ -1,4 +1,4 @@
-package nl.jeroenhd.app.bcbreader;
+package nl.jeroenhd.app.bcbreader.activities;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -22,9 +22,12 @@ import com.android.volley.VolleyError;
 
 import java.util.Locale;
 
+import nl.jeroenhd.app.bcbreader.R;
+import nl.jeroenhd.app.bcbreader.adapters.FullscreenPagePagerAdapter;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
+import nl.jeroenhd.app.bcbreader.fragments.FullscreenPageFragment;
 import nl.jeroenhd.app.bcbreader.tools.ShareManager;
 
 /**
@@ -32,8 +35,8 @@ import nl.jeroenhd.app.bcbreader.tools.ShareManager;
  * TODO: It might be possible to just use the page sum of all chapters as a total amount of elements in the ViewPager
  */
 public class FullscreenReaderActivity extends AppCompatActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener, FullscreenPageFragment.FullscreenPageFragmentCallback, ViewPager.OnPageChangeListener {
-    public static final String EXTRA_CHAPTER = "nl.jeroenhd.app.bcbreader.ChapterListActivity.EXTRA_CHAPTER";
-    public static final String EXTRA_PAGE = "nl.jeroenhd.app.bcbreader.ChapterListActivity.EXTRA_PAGE";
+    public static final String EXTRA_CHAPTER = "nl.jeroenhd.app.bcbreader.activities.ChapterListActivity.EXTRA_CHAPTER";
+    public static final String EXTRA_PAGE = "nl.jeroenhd.app.bcbreader.activities.ChapterListActivity.EXTRA_PAGE";
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.

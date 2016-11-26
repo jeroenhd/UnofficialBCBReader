@@ -1,4 +1,4 @@
-package nl.jeroenhd.app.bcbreader;
+package nl.jeroenhd.app.bcbreader.activities;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

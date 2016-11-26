@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ChapterListActivity"
+            android:name=".activities.ChapterListActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -24,13 +24,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ChapterReadingActivity"
+            android:name=".activities.ChapterReadingActivity"
             android:label="@string/title_activity_chapter_reading"
-            android:parentActivityName=".ChapterListActivity"
+            android:parentActivityName=".activities.ChapterListActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="nl.jeroenhd.app.bcbreader.ChapterListActivity" />
+                android:value="nl.jeroenhd.app.bcbreader.activities.ChapterListActivity" />
 
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -67,15 +67,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings" />
         <activity
-            android:name=".FullscreenReaderActivity"
+            android:name=".activities.FullscreenReaderActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_fullscreen_reader"
             android:theme="@style/FullscreenTheme"/>
 
-        <receiver android:name=".notifications.UpdateBroadcastReceiver">
+        <receiver android:name=".broadcastreceivers.UpdateBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="nl.jeroenhd.app.bcbreader.notification.UPDATE" />

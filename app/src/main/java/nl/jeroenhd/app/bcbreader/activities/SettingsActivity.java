@@ -1,4 +1,4 @@
-package nl.jeroenhd.app.bcbreader;
+package nl.jeroenhd.app.bcbreader.activities;
 
 
 import android.annotation.TargetApi;
@@ -26,6 +26,7 @@ import android.webkit.WebView;
 
 import java.util.List;
 
+import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Telemetry;
 

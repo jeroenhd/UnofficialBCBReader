@@ -1,4 +1,4 @@
-package nl.jeroenhd.app.bcbreader.notifications;
+package nl.jeroenhd.app.bcbreader.broadcastreceivers;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -19,8 +19,8 @@ import com.android.volley.toolbox.JsonRequest;
 
 import java.util.List;
 
-import nl.jeroenhd.app.bcbreader.ChapterReadingActivity;
 import nl.jeroenhd.app.bcbreader.R;
+import nl.jeroenhd.app.bcbreader.activities.ChapterReadingActivity;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;

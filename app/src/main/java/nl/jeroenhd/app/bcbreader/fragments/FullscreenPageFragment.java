@@ -1,4 +1,4 @@
-package nl.jeroenhd.app.bcbreader;
+package nl.jeroenhd.app.bcbreader.fragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
+import nl.jeroenhd.app.bcbreader.R;
+import nl.jeroenhd.app.bcbreader.activities.FullscreenReaderActivity;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
