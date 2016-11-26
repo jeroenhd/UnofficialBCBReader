@@ -75,10 +75,16 @@
             android:label="@string/title_activity_fullscreen_reader"
             android:theme="@style/FullscreenTheme"/>
 
+        <service
+            android:name=".notifications.NotificationService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver android:name=".broadcastreceivers.UpdateEventReceiver" />
         <receiver android:name=".broadcastreceivers.StartServiceReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="nl.jeroenhd.app.bcbreader.notification.UPDATE" />
+                <action android:name="android.intent.action.TIME_SET" />
             </intent-filter>
         </receiver>
     </application>

@@ -17,7 +17,7 @@ import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
-import nl.jeroenhd.app.bcbreader.tools.ColorHelper;
+import nl.jeroenhd.app.bcbreader.tools.CompatHelper;
 import nl.jeroenhd.app.bcbreader.views.FadingNetworkImageView;
 
 /**
@@ -58,7 +58,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         Chapter chapter = mData.get(position);
 
         // Clear the old thumb
-        holder.ChapterThumbView.setImageDrawable(new ColorDrawable(ColorHelper.getColor(mContext, android.R.color.white)));
+        holder.ChapterThumbView.setImageDrawable(new ColorDrawable(CompatHelper.getColor(mContext, android.R.color.white)));
         // Download and show the new thumb
         holder.ChapterThumbView.setImageUrl(
                 API.FormatChapterThumbURL(mContext, chapter.getNumber()),
@@ -71,7 +71,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         holder.FavouriteImageView.setImageDrawable(chapter.isFavourite() ? clonedFavDrawable : clonedFavDrawableBorder);
 
         holder.CurrentChapter = chapter;
-        int color = ColorHelper.getColor(mContext, R.color.colorAccent);
+        int color = CompatHelper.getColor(mContext, R.color.colorAccent);
 
         holder.FavouriteImageView.getDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
     }
@@ -114,15 +114,15 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         void onChapterFavourite(AppCompatImageView view, Chapter chapter);
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        public final FadingNetworkImageView ChapterThumbView;
-        public final TextView ChapterTitleView;
-        public final TextView ChapterDescriptionView;
-        public final AppCompatImageView FavouriteImageView;
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        final FadingNetworkImageView ChapterThumbView;
+        final TextView ChapterTitleView;
+        final TextView ChapterDescriptionView;
+        final AppCompatImageView FavouriteImageView;
         private final OnChapterClickListener ClickHandler;
-        public Chapter CurrentChapter;
+        Chapter CurrentChapter;
 
-        public ViewHolder(View itemView, OnChapterClickListener onClick) {
+        ViewHolder(View itemView, OnChapterClickListener onClick) {
             super(itemView);
 
             itemView.setOnClickListener(this);

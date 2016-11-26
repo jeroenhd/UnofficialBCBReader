@@ -3,7 +3,6 @@ package nl.jeroenhd.app.bcbreader.adapters;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -21,6 +20,7 @@ import java.util.Locale;
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Page;
+import nl.jeroenhd.app.bcbreader.tools.CompatHelper;
 import nl.jeroenhd.app.bcbreader.tools.ShareManager;
 import nl.jeroenhd.app.bcbreader.views.PageImageView;
 
@@ -53,7 +53,7 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
         final Double pageNumber = page.getPage();
         holder.networkImageView.setPage(chapterNumber, pageNumber);
 
-        holder.commentaryView.setText(Html.fromHtml(page.getDescription()));
+        holder.commentaryView.setText(CompatHelper.fromHtml(page.getDescription()));
         holder.commentaryView.setMovementMethod(LinkMovementMethod.getInstance());
 
         holder.toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
@@ -89,12 +89,12 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
         return mData == null ? 0 : mData.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public final PageImageView networkImageView;
-        public final TextView commentaryView;
+    class ViewHolder extends RecyclerView.ViewHolder {
         public final Toolbar toolbar;
+        final PageImageView networkImageView;
+        final TextView commentaryView;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
 
             networkImageView = (PageImageView) itemView.findViewById(R.id.page);

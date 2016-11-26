@@ -40,7 +40,6 @@ public class NotificationService extends IntentService {
      * The (very creative) ID for the notification
      */
     public static final int NewChapterNotificationId = 0xB00B;
-
     /**
      * The start action for this service
      */
@@ -49,7 +48,6 @@ public class NotificationService extends IntentService {
      * The stop action for this service
      */
     public static final String ACTION_STOP = "nl.jeroenhd.app.bcbreader.notifications.STOP";
-
     /**
      * A stupid hack to make the context of the service available for its Volley listeners.
      * This will probably break at some point in the future
@@ -98,6 +96,10 @@ public class NotificationService extends IntentService {
             errorCount++;
         }
     };
+
+    public NotificationService() {
+        super("BCBComicUpdateNotificationService");
+    }
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
