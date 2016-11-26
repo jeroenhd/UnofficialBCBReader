@@ -1,4 +1,4 @@
-package nl.jeroenhd.app.bcbreader.broadcastreceivers;
+package nl.jeroenhd.app.bcbreader.broadcast_receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

@@ -5,7 +5,7 @@ import android.app.Application;
 import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
-import nl.jeroenhd.app.bcbreader.broadcastreceivers.UpdateEventReceiver;
+import nl.jeroenhd.app.bcbreader.broadcast_receivers.UpdateEventReceiver;
 
 /**
  * Custom application object for DBFlow

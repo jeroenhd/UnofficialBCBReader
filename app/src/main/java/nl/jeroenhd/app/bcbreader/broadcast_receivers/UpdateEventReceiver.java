@@ -1,4 +1,4 @@
-package nl.jeroenhd.app.bcbreader.broadcastreceivers;
+package nl.jeroenhd.app.bcbreader.broadcast_receivers;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -20,8 +20,8 @@ import nl.jeroenhd.app.bcbreader.notifications.NotificationService;
  */
 
 public class UpdateEventReceiver extends WakefulBroadcastReceiver {
-    private static final String ACTION_START_NOTIFICATION_SERVICE = "nl.jeroenhd.app.bcbreader.broadcastreceivers.START_NOTIFICATION_SERVICE";
-    private static final String ACTION_DISMISS_NOTIFICATION = "nl.jeroenhd.app.bcbreader.broadcastreceivers.DISMISS_NOTIFICATION";
+    private static final String ACTION_START_NOTIFICATION_SERVICE = "nl.jeroenhd.app.bcbreader.broadcast_receivers.START_NOTIFICATION_SERVICE";
+    private static final String ACTION_DISMISS_NOTIFICATION = "nl.jeroenhd.app.bcbreader.broadcast_receivers.DISMISS_NOTIFICATION";
 
     /**
      * Set the alarm (call this at the start of the app)
