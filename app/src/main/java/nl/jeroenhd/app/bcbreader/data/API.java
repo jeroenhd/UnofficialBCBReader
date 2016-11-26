@@ -15,6 +15,21 @@ import java.util.Map;
  */
 public class API {
     /**
+     * The default update hour for the app
+     */
+    public static final int DEFAULT_UPDATE_HOUR = 13;
+    /**
+     * The default latest chapter number for the app
+     * This will change very quickly though...
+     */
+    public static final float DEFAULT_LATEST_CHAPTER = 95;
+    /**
+     * The default latest page number for the app
+     * This will change very quickly though...
+     */
+    public static final int DEFAULT_LATEST_PAGE = 14;
+    public static final String DEFAULT_UPDATE_DAYS = "1,3,5";
+    /**
      * The base URL of the main website
      */
     private static final String BaseURL = "https://www.bittersweetcandybowl.com/";

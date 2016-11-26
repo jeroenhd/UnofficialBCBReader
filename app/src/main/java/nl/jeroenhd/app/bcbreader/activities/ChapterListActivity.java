@@ -29,21 +29,21 @@ import com.google.gson.Gson;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.adapters.ChapterListAdapter;
+import nl.jeroenhd.app.bcbreader.broadcastreceivers.UpdateEventReceiver;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 import nl.jeroenhd.app.bcbreader.data.check.Check;
+import nl.jeroenhd.app.bcbreader.data.check.DataPreferences;
 import nl.jeroenhd.app.bcbreader.data.check.UpdateTimes;
 import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
-import nl.jeroenhd.app.bcbreader.notifications.NotificationPlanner;
 
 public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener, Toolbar.OnMenuItemClickListener, SwipeRefreshLayout.OnRefreshListener, PopupMenu.OnMenuItemClickListener {
     private final Activity thisActivity = this;
@@ -61,48 +61,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private SuperSingleton singleton;
-    /**
-     * Called when downloading the check fails
-     */
-    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Snackbar.make(mRecycler, R.string.update_check_failed, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
-    /**
-     * Called when downloading the chapter list fails
-     */
-    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            error.printStackTrace();
-            Snackbar.make(mRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
     /**
      * The latest update times data.
      * Is initialised to null!
@@ -190,6 +148,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         public void onResponse(String response) {
             Gson gson = SuperSingleton.getInstance(thisActivity).getGsonBuilder().create();
             Check check = gson.fromJson(response, Check.class);
+            DataPreferences.SaveCheck(thisActivity, check);
 
             // Store the latest update times
             latestUpdateTimes = check.getUpdateTimes();
@@ -208,6 +167,48 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), chapterDownloadSuccessListener, chapterListDownloadErrorListener);
                 singleton.getVolleyRequestQueue().add(downloadRequest);
             }
+
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+    /**
+     * Called when downloading the check fails
+     */
+    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Snackbar.make(mRecycler, R.string.update_check_failed, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+    /**
+     * Called when downloading the chapter list fails
+     */
+    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            error.printStackTrace();
+            Snackbar.make(mRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
 
 
             if (swipeRefreshLayout != null) {
@@ -372,15 +373,9 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 startActivity(settingsIntent);
                 break;
             case R.id.menu_debug: {
-                //Intent i = new Intent(UpdateBroadcastReceiver.UPDATE);
-                //this.sendBroadcast(i);
-                Calendar calendar = Calendar.getInstance();
-                int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                UpdateTimes times = new UpdateTimes("n/a", "n/a", "1,2,3,4,5,6,7", "" + hour);
-
-                NotificationPlanner.StartNotificationsDebug(this);
+                UpdateEventReceiver.setupAlarm(this);
+                break;
             }
-            break;
             case R.id.menu_sort:
                 PopupMenu popupMenu = new PopupMenu(thisActivity, findViewById(R.id.menu_sort));
                 popupMenu.inflate(R.menu.popup_menu_sort);

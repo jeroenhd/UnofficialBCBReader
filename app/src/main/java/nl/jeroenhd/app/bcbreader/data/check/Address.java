@@ -6,10 +6,10 @@ package nl.jeroenhd.app.bcbreader.data.check;
  */
 public class Address {
     private Double latestChapter;
-    private Double latestPage;
+    private int latestPage;
     private String latestGalleryHash;
 
-    public Address(Double latestChapter, Double latestPage, String latestGalleryHash) {
+    public Address(Double latestChapter, int latestPage, String latestGalleryHash) {
         this.latestChapter = latestChapter;
         this.latestPage = latestPage;
         this.latestGalleryHash = latestGalleryHash;
@@ -23,11 +23,11 @@ public class Address {
         this.latestChapter = latestChapter;
     }
 
-    public Double getLatestPage() {
+    public int getLatestPage() {
         return latestPage;
     }
 
-    public void setLatestPage(Double latestPage) {
+    public void setLatestPage(int latestPage) {
         this.latestPage = latestPage;
     }
 

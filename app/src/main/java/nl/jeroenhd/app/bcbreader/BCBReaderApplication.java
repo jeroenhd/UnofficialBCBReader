@@ -5,7 +5,7 @@ import android.app.Application;
 import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
-import nl.jeroenhd.app.bcbreader.notifications.NotificationPlanner;
+import nl.jeroenhd.app.bcbreader.broadcastreceivers.UpdateEventReceiver;
 
 /**
  * Custom application object for DBFlow
@@ -27,6 +27,6 @@ public class BCBReaderApplication extends Application {
                 new FlowConfig.Builder(this).build()
         );
 
-        NotificationPlanner.StartNotifications(getApplicationContext());
+        UpdateEventReceiver.setupAlarm(this);
     }
 }
