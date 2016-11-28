@@ -26,8 +26,8 @@ public class StartServiceReceiver extends BroadcastReceiver {
         }
 
         // If the action is not an action we should handle, log an error and return
-        if (!action.equals(Intent.ACTION_BOOT_COMPLETED)) {
-            Log.e("UpdateOnReceive", "Invalid action was passed to the StartServiceReceiver (why did it trigger???)");
+        if (!action.equals(Intent.ACTION_BOOT_COMPLETED) && !action.equals(Intent.ACTION_TIME_CHANGED)) {
+            Log.e("UpdateOnReceive", "Invalid action \"" + action + "\"was passed to the StartServiceReceiver (why did it trigger???)");
             return;
         }
 
