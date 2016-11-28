@@ -54,7 +54,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
     public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.activities.ChapterReadingActivity.CHAPTER";
     public static final String SCROLL_TO = "nl.jeroenhd.app.bcbreader.activities.ChapterReadingActivity.SCROLL_TO";
     private final ChapterReadingActivity thisActivity = this;
-    private RecyclerView.LayoutManager mLayout;
+    private LinearLayoutManager mLayout;
     private ArrayList<Page> mPages;
     private int mScrollToPage = -1;
     private Chapter mChapter;
@@ -354,13 +354,10 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
     private void SetupRecyclerView() {
         RecyclerView mRecycler = (RecyclerView) findViewById(R.id.pages);
 
-        mLayout = new LinearLayoutManager(this);
-        mRecycler.setLayoutManager(mLayout);
-
-        ChapterReadingAdapter mAdapter = new ChapterReadingAdapter(this, mPages);
+        final ChapterReadingAdapter mAdapter = new ChapterReadingAdapter(this, mPages);
         mRecycler.setAdapter(mAdapter);
 
-        mRecycler.smoothScrollToPosition(mScrollToPage - 1);
+        mLayout.scrollToPositionWithOffset(mScrollToPage - 1, 0);
     }
 
     @Override
@@ -389,7 +386,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
                 fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_CHAPTER, mChapter);
 
                 //Get the central page and pass it to the reader
-                LinearLayoutManager linearLayoutManager = (LinearLayoutManager)mLayout;
+                LinearLayoutManager linearLayoutManager = mLayout;
                 int page = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
 
                 // If no page was found (the screen doesn't show a complete page),
