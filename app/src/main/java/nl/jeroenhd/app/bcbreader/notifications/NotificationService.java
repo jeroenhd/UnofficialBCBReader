@@ -162,7 +162,9 @@ public class NotificationService extends IntentService {
                             @Override
                             protected Response<Check> parseNetworkResponse(NetworkResponse response) {
                                 String json = new String(response.data);
-                                return Response.success(SuperSingleton.getInstance(leakingContext).getGsonBuilder().create().fromJson(json, Check.class), null);
+                                Check check = SuperSingleton.getInstance(leakingContext).getGsonBuilder().create().fromJson(json, Check.class);
+                                DataPreferences.SaveCheck(leakingContext, check);
+                                return Response.success(check, null);
                             }
                         });
             }
