@@ -18,7 +18,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonRequest;
 
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.activities.ChapterReadingActivity;
@@ -181,6 +183,25 @@ public class NotificationService extends IntentService {
         Intent intent = new Intent(this, ChapterReadingActivity.class);
         Bundle extras = new Bundle();
 
+        int[] updateDays = DataPreferences.getUpdateDays(this);
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        int today = calendar.get(Calendar.DAY_OF_WEEK);
+        boolean showNotification = false;
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int day : updateDays) {
+            if (today == day)
+                showNotification = true;
+
+            stringBuilder.append(day);
+            stringBuilder.append(",");
+        }
+
+        if (!showNotification) {
+            String updateDaysStr = stringBuilder.toString();
+            Log.d(App.TAG, "Not showing the notification: today (" + today + ") is not in the update days (" + updateDaysStr + ")");
+            return;
+        }
+
         // These values are used by ChapterReadingActivity to determine what page is being opened
         Chapter chapter = ChapterDatabase.getLastChapter();
         extras.putParcelable(ChapterReadingActivity.CHAPTER, chapter);
@@ -192,7 +213,7 @@ public class NotificationService extends IntentService {
         pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // I don't know how to obtain the default vibration pattern, so this will need to do
-        long[] vibrationPattern = new long[]{100};
+        long[] vibrationPattern = new long[]{100, 100, 100};
 
         // Get the ringtone from the preferences
         String ringtonePath = PreferenceManager.getDefaultSharedPreferences(this).getString("notifications_ringtone", "DEFAULT_SOUND");

@@ -3,8 +3,13 @@ package nl.jeroenhd.app.bcbreader.data.check;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
+
+import com.raizlabs.android.dbflow.sql.language.Select;
 
 import nl.jeroenhd.app.bcbreader.data.API;
+import nl.jeroenhd.app.bcbreader.data.Chapter;
+import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 
 /**
  * A caching class which stores the latest updates in the preferences
@@ -80,7 +85,7 @@ public class DataPreferences {
      * @param context The context for the preferences
      * @return The latest chapter number
      */
-    public static double getLatestChapter(Context context) {
+    public static double getLatestChapterNumber(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getFloat(PREF_LATEST_CHAPTER, API.DEFAULT_LATEST_CHAPTER);
     }
 
@@ -92,5 +97,17 @@ public class DataPreferences {
      */
     public static int getLatestPage(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getInt(PREF_LATEST_PAGE, API.DEFAULT_LATEST_PAGE);
+    }
+
+    /**
+     * Get the latest chapter object based on the info in the cache
+     *
+     * @param context The context for the preferences
+     * @return The Chapter object for the latest chapter
+     */
+    @Nullable
+    public static Chapter getLatestChapter(Context context) {
+        double chapterNumber = getLatestChapterNumber(context);
+        return new Select().from(Chapter.class).where(Chapter_Table.number.eq(chapterNumber)).querySingle();
     }
 }

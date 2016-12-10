@@ -6,11 +6,14 @@ import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 import nl.jeroenhd.app.bcbreader.broadcast_receivers.UpdateEventReceiver;
+import nl.jeroenhd.app.bcbreader.tools.Shortcuts;
 
 /**
  * Custom application object for DBFlow
  */
 public class BCBReaderApplication extends Application {
+    public static final String ACTION_SHORTCUT = "nl.jeroenhd.app.bcbreader.ACTION_SHORTCUT";
+
     /**
      * Called when the application is starting, before any activity, service,
      * or receiver objects (excluding content providers) have been created.
@@ -28,5 +31,6 @@ public class BCBReaderApplication extends Application {
         );
 
         UpdateEventReceiver.setupAlarm(this);
+        Shortcuts.Update(this);
     }
 }

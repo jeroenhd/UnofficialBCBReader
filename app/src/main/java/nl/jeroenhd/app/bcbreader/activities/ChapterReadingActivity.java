@@ -37,6 +37,7 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import java.util.ArrayList;
 import java.util.List;
 
+import nl.jeroenhd.app.bcbreader.BCBReaderApplication;
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.adapters.ChapterReadingAdapter;
 import nl.jeroenhd.app.bcbreader.data.API;
@@ -46,6 +47,7 @@ import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
 import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 import nl.jeroenhd.app.bcbreader.data.Page;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
+import nl.jeroenhd.app.bcbreader.data.check.DataPreferences;
 import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
 import nl.jeroenhd.app.bcbreader.tools.ColorHelper;
 import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
@@ -53,6 +55,7 @@ import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
 public class ChapterReadingActivity extends AppCompatActivity implements Toolbar.OnMenuItemClickListener {
     public static final String CHAPTER = "nl.jeroenhd.app.bcbreader.activities.ChapterReadingActivity.CHAPTER";
     public static final String SCROLL_TO = "nl.jeroenhd.app.bcbreader.activities.ChapterReadingActivity.SCROLL_TO";
+    public static final String JUST_SHOW_LATEST = "nl.jeroenhd.app.bcbreader.activities.ChapterReadingActivity.JUST_SHOW_LATEST";
     private final ChapterReadingActivity thisActivity = this;
     private LinearLayoutManager mLayout;
     private ArrayList<Page> mPages;
@@ -78,6 +81,8 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
         String action = intent.getAction();
         Double chapterNumber;
         boolean downloadBeforeShowing = false;
+
+        // Check if the application was started by visiting a URL
         if (action != null && action.equals(Intent.ACTION_VIEW)) {
             Uri data = intent.getData();
             Log.d(App.TAG, "ActivityFromUri: Data: " + data.toString());
@@ -92,7 +97,14 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
                 Log.d(App.TAG, "ActivityFromUri: Chapter " + chapterNumber + ", page + " + page + " is not in the database (yet)!");
                 downloadBeforeShowing = true;
             }
+        } else if (action != null && action.equals(BCBReaderApplication.ACTION_SHORTCUT)) {
+            // This extra will be set if we don't really care and just want the latest page
+            // This is useful for app shortcuts
+            mChapter = DataPreferences.getLatestChapter(this);
+            chapterNumber = DataPreferences.getLatestChapterNumber(this);
+            mScrollToPage = DataPreferences.getLatestPage(this);
         } else {
+            // Load the chapter requested
             mChapter = intent.getParcelableExtra(ChapterReadingActivity.CHAPTER);
             chapterNumber = mChapter.getNumber();
             mScrollToPage = intent.getIntExtra(ChapterReadingActivity.SCROLL_TO, -1);
@@ -123,19 +135,19 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
                 mChapter.setFavourite(!mChapter.isFavourite());
                 mChapter.save();
 
-                    String msg;
-                    if (mChapter.isFavourite()) {
-                        msg = getString(R.string.added_to_favourites);
-                    } else {
-                        msg = getString(R.string.removed_from_favourites);
-                    }
-
-                    fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white);
-                    fab.invalidate();
-                    Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
-                            .setAction(getString(R.string.undo), this).show();
+                String msg;
+                if (mChapter.isFavourite()) {
+                    msg = getString(R.string.added_to_favourites);
+                } else {
+                    msg = getString(R.string.removed_from_favourites);
                 }
-            });
+
+                fab.setImageResource(mChapter.isFavourite() ? R.drawable.ic_favorite_white_48dp : R.drawable.ic_favorite_border_white);
+                fab.invalidate();
+                Snackbar.make(view, msg, Snackbar.LENGTH_LONG)
+                        .setAction(getString(R.string.undo), this).show();
+            }
+        });
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -176,8 +188,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
         headerBackgroundImage.setCallback(new CallbackNetworkImageView.ImageEventListener() {
             @Override
             public void onLoadSuccess(Bitmap bm) {
-                if (bm == null)
-                {
+                if (bm == null) {
                     Log.e(App.TAG, "SetupHeader: Failed to load image (bg=null)!");
                     return;
                 }
@@ -353,9 +364,11 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
 
     private void SetupRecyclerView() {
         RecyclerView mRecycler = (RecyclerView) findViewById(R.id.pages);
+        mLayout = new LinearLayoutManager(this);
 
         final ChapterReadingAdapter mAdapter = new ChapterReadingAdapter(this, mPages);
         mRecycler.setAdapter(mAdapter);
+        mRecycler.setLayoutManager(mLayout);
 
         mLayout.scrollToPositionWithOffset(mScrollToPage - 1, 0);
     }
@@ -373,8 +386,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         int id = item.getItemId();
-        switch(id)
-        {
+        switch (id) {
             case R.id.action_settings:
                 Intent settingsIntent = new Intent(thisActivity, SettingsActivity.class);
                 startActivity(settingsIntent);
@@ -391,8 +403,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
 
                 // If no page was found (the screen doesn't show a complete page),
                 // just get the first one
-                if (page < 1)
-                {
+                if (page < 1) {
                     page = linearLayoutManager.findFirstVisibleItemPosition();
                 }
                 fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_PAGE, page);

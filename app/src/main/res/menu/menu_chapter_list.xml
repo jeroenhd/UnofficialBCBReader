@@ -8,7 +8,7 @@
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/go_to_latest_page"
-        android:icon="@drawable/ic_latest_page_24dp"
+        android:icon="@drawable/ic_latest_page_24dp_white"
         android:title="@string/latest_update"
         app:showAsAction="ifRoom" />
     <item
