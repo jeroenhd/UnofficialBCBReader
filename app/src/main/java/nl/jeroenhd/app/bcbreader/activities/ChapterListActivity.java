@@ -62,6 +62,48 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
 
     private SuperSingleton singleton;
     /**
+     * Called when downloading the check fails
+     */
+    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Snackbar.make(mRecycler, R.string.update_check_failed, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+    /**
+     * Called when downloading the chapter list fails
+     */
+    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            error.printStackTrace();
+            Snackbar.make(mRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
+
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+    /**
      * The latest update times data.
      * Is initialised to null!
      */
@@ -129,10 +171,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                         .setAction(R.string.go, new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                Chapter latestChapter = ChapterDatabase.getLastChapter();
-
-                                View chapterView = mRecycler.getChildAt(mRecycler.getChildCount() - 1);
-                                onChapterSelect(chapterView, latestChapter, latestChapter.getPageCount());
+                                openLatestPage();
                             }
 
                         })
@@ -174,49 +213,17 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             }
         }
     };
-    /**
-     * Called when downloading the check fails
-     */
-    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Snackbar.make(mRecycler, R.string.update_check_failed, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
-    /**
-     * Called when downloading the chapter list fails
-     */
-    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            error.printStackTrace();
-            Snackbar.make(mRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
     private LinearLayoutManager mLayoutManager;
+
+    /**
+     * Open the latest page
+     */
+    private void openLatestPage() {
+        Chapter latestChapter = ChapterDatabase.getLastChapter();
+
+        View chapterView = mRecycler.getChildAt(mRecycler.getChildCount() - 1);
+        onChapterSelect(chapterView, latestChapter, DataPreferences.getLatestPage(this));
+    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -376,6 +383,9 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 UpdateEventReceiver.setupAlarm(this);
                 break;
             }
+            case R.id.go_to_latest_page:
+                openLatestPage();
+                break;
             case R.id.menu_sort:
                 PopupMenu popupMenu = new PopupMenu(thisActivity, findViewById(R.id.menu_sort));
                 popupMenu.inflate(R.menu.popup_menu_sort);
