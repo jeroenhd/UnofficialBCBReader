@@ -233,7 +233,6 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
                     }
                 };
 
-                //TODO: Make this code work
                 Palette.from(bm).generate(paletteAsyncListener);
             }
 
