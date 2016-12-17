@@ -83,4 +83,5 @@ public class PageImageView extends FadingNetworkImageView{
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }
     }
+
 }

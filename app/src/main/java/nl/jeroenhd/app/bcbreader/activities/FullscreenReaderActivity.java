@@ -1,6 +1,8 @@
 package nl.jeroenhd.app.bcbreader.activities;
 
 import android.annotation.SuppressLint;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
@@ -8,6 +10,7 @@ import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
@@ -28,6 +31,7 @@ import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.fragments.FullscreenPageFragment;
+import nl.jeroenhd.app.bcbreader.tools.ColorHelper;
 import nl.jeroenhd.app.bcbreader.tools.ShareManager;
 
 /**
@@ -54,20 +58,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private static final int UI_ANIMATION_DELAY = 300;
     private final FullscreenReaderActivity thisActivity = this;
     private final Handler mHideHandler = new Handler();
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
     private Button buttonPrev;
     private Button buttonNext;
     private SeekBar seekBar;
@@ -106,6 +96,20 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         @Override
         public void run() {
             hide();
+        }
+    };
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
         }
     };
     private Chapter currentChapter;
@@ -341,6 +345,31 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     @Override
     public void onTap(View view) {
         toggle();
+    }
+
+    @Override
+    public void onUpdatePalette(Palette palette) {
+        int accentColor = palette.getVibrantColor(0);
+        int statusColor = palette.getDarkMutedColor(0);
+        int toolbarColor = palette.getMutedColor(0);
+
+        int backgroundColor = palette.getLightVibrantColor(0xffffffff);
+        int titleColor = ColorHelper.foregroundColor(backgroundColor);
+
+        ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
+        supportActionBar.setBackgroundDrawable(new ColorDrawable(toolbarColor));
+
+
+        // Set toolbar color (if available)
+        if (toolbarColor != 0 && statusColor != 0) {
+
+            // Set status bar color (if available & possible)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                // This will not work in <= Kitkat
+                getWindow().setStatusBarColor(statusColor);
+            }
+        }
     }
 
     @Override

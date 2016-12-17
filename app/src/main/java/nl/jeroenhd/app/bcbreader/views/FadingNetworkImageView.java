@@ -42,6 +42,10 @@ public class FadingNetworkImageView extends CallbackNetworkImageView {
             from = new ColorDrawable(colour);
 
         fadeInBitmap(from, bm);
+
+        if (this.callback != null) {
+            callback.onLoadSuccess(bm);
+        }
     }
 
     private void fadeInBitmap(Drawable from, Bitmap bm)

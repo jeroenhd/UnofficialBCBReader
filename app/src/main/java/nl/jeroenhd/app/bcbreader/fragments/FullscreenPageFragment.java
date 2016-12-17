@@ -2,10 +2,12 @@ package nl.jeroenhd.app.bcbreader.fragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.graphics.Palette;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +22,7 @@ import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
+import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
 import nl.jeroenhd.app.bcbreader.views.PageImageView;
 
 /**
@@ -82,6 +85,28 @@ public class FullscreenPageFragment extends Fragment {
                 callback.onTap(v);
             }
         });
+        imageView.setOnImageEventListener(new CallbackNetworkImageView.ImageEventListener() {
+            @Override
+            public void onLoadSuccess(Bitmap bitmap) {
+                Palette.PaletteAsyncListener paletteAsyncListener = new Palette.PaletteAsyncListener() {
+                    @Override
+                    public void onGenerated(Palette palette) {
+                        if (callback != null) {
+                            callback.onUpdatePalette(palette);
+                        } else {
+                            Log.e(App.TAG, "Loaded " + chapter.getNumber() + "/" + page + " was loaded but no callback was registered!");
+                        }
+                    }
+                };
+
+                Palette.from(bitmap).generate(paletteAsyncListener);
+            }
+
+            @Override
+            public void onLoadError() {
+                Log.e(App.TAG, "Error while setting bitmap to page view! Check the log for details.");
+            }
+        });
 
         PreloadNext();
 
@@ -134,7 +159,22 @@ public class FullscreenPageFragment extends Fragment {
         }
     }
 
+    /**
+     * A callback from the FullScreenPageFragment to the hosting Activity
+     */
     public interface FullscreenPageFragmentCallback {
+        /**
+         * Called when the user taps on the contents of the page
+         *
+         * @param view The view being tapped
+         */
         void onTap(View view);
+
+        /**
+         * Called when a Palette has been generated based on the page
+         *
+         * @param palette The generated palette
+         */
+        void onUpdatePalette(Palette palette);
     }
 }

@@ -185,7 +185,7 @@ public class ChapterReadingActivity extends AppCompatActivity implements Toolbar
 
     private void SetupHeader() {
         this.setTitle(mChapter.getTitle());
-        headerBackgroundImage.setCallback(new CallbackNetworkImageView.ImageEventListener() {
+        headerBackgroundImage.setOnImageEventListener(new CallbackNetworkImageView.ImageEventListener() {
             @Override
             public void onLoadSuccess(Bitmap bm) {
                 if (bm == null) {
