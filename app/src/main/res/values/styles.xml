@@ -24,16 +24,17 @@
 
     <dimen name="list_item_font_height">16sp</dimen>
 
+    <!-- Fixes font size bug. Source: https://stackoverflow.com/questions/29072345/toolbar-title-textsize-decreases-on-orientation-change -->
+    <style name="ToolbarText" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">17sp</item>
+    </style>
+
     <style name="FullscreenTheme" parent="AppTheme">
-        <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="android:windowBackground">@null</item>
+        <!--<item name="windowBackground">@null</item>-->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
         <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>
         <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
         <item name="android:textColorSecondary">@android:color/white</item>
-    </style>
-
-    <style name="FullscreenActionBarStyle" parent="Widget.AppCompat.ActionBar">
-        <item name="android:background">@color/black_overlay</item>
     </style>
 </resources>
