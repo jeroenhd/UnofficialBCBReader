@@ -6,8 +6,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
@@ -61,48 +59,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private SuperSingleton singleton;
-    /**
-     * Called when downloading the check fails
-     */
-    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Snackbar.make(mRecycler, R.string.update_check_failed, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
-    /**
-     * Called when downloading the chapter list fails
-     */
-    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            error.printStackTrace();
-            Snackbar.make(mRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
     /**
      * The latest update times data.
      * Is initialised to null!
@@ -206,6 +162,48 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), chapterDownloadSuccessListener, chapterListDownloadErrorListener);
                 singleton.getVolleyRequestQueue().add(downloadRequest);
             }
+
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+    /**
+     * Called when downloading the check fails
+     */
+    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Snackbar.make(mRecycler, R.string.update_check_failed, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+    /**
+     * Called when downloading the chapter list fails
+     */
+    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            error.printStackTrace();
+            Snackbar.make(mRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
 
 
             if (swipeRefreshLayout != null) {
@@ -322,35 +320,48 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Intent iNewActivity = new Intent(thisActivity, ChapterReadingActivity.class);
+                Intent fullScreenIntent = new Intent(thisActivity, FullscreenReaderActivity.class);
 
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    // Nice animations (lollipop+)
+                //TODO: Make a nice transition here
+                fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_CHAPTER, chapter);
+                fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_PAGE, page);
 
-                    View thumbView = view.findViewById(R.id.thumb);
-
-                    Pair<View, String> thumbPair = Pair.create(thumbView, thumbView.getTransitionName());
-
-                    ActivityOptionsCompat options;
-                    //noinspection unchecked
-                    options = ActivityOptionsCompat.makeSceneTransitionAnimation(thisActivity/*, fabPair*/, thumbPair);
-
-                    // Add own extras
-                    Bundle bundle = options.toBundle();
-                    bundle.setClassLoader(Chapter.class.getClassLoader());
-                    iNewActivity.putExtra(ChapterReadingActivity.CHAPTER, chapter);
-                    iNewActivity.putExtra(ChapterReadingActivity.SCROLL_TO, page);
-
-                    thisActivity.startActivity(iNewActivity, bundle);
-                } else {
-                    // Ugly animations
-                    //TODO: Try to improve these animations!
-
-                    iNewActivity.putExtra(ChapterReadingActivity.CHAPTER, chapter);
-                    startActivity(iNewActivity);
-                }
+                startActivity(fullScreenIntent);
             }
         });
+
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                Intent iNewActivity = new Intent(thisActivity, ChapterReadingActivity.class);
+//
+//                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+//                    // Nice animations (lollipop+)
+//
+//                    View thumbView = view.findViewById(R.id.thumb);
+//
+//                    Pair<View, String> thumbPair = Pair.create(thumbView, thumbView.getTransitionName());
+//
+//                    ActivityOptionsCompat options;
+//                    //noinspection unchecked
+//                    options = ActivityOptionsCompat.makeSceneTransitionAnimation(thisActivity/*, fabPair*/, thumbPair);
+//
+//                    // Add own extras
+//                    Bundle bundle = options.toBundle();
+//                    bundle.setClassLoader(Chapter.class.getClassLoader());
+//                    iNewActivity.putExtra(ChapterReadingActivity.CHAPTER, chapter);
+//                    iNewActivity.putExtra(ChapterReadingActivity.SCROLL_TO, page);
+//
+//                    thisActivity.startActivity(iNewActivity, bundle);
+//                } else {
+//                    // Ugly animations
+//                    //TODO: Try to improve these animations!
+//
+//                    iNewActivity.putExtra(ChapterReadingActivity.CHAPTER, chapter);
+//                    startActivity(iNewActivity);
+//                }
+//            }
+//        });
     }
 
     /**
