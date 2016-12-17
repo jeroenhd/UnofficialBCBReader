@@ -1,19 +1,23 @@
 package nl.jeroenhd.app.bcbreader.activities;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.SeekBar;
 
@@ -75,16 +79,16 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
     };
+    private Toolbar toolbar;
     private View mControlsView;
     private final Runnable mShowPart2Runnable = new Runnable() {
         @Override
         public void run() {
             // Delayed display of UI elements
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.show();
-            }
-            mControlsView.setVisibility(View.VISIBLE);
+            mControlsView.animate()
+                    .translationY(/*-mControlsView.getHeight()*/0)
+                    .setDuration(UI_ANIMATION_DELAY)
+                    .start();
         }
     };
     private boolean mVisible;
@@ -122,6 +126,12 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         //mContentView = findViewById(R.id.fullscreen_content);
         mContentView = findViewById(R.id.pager);
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) toolbar.getLayoutParams();
+        params.topMargin += getStatusBarHeight();
+        toolbar.setLayoutParams(params);
+        toolbar.setVisibility(View.VISIBLE);
+
         buttonNext = (Button) findViewById(R.id.button_right);
         buttonPrev = (Button) findViewById(R.id.button_left);
         seekBar = (SeekBar) findViewById(R.id.seekbar);
@@ -131,6 +141,9 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         assert buttonNext != null;
         assert seekBar != null;
         assert viewPager != null;
+        assert toolbar != null;
+
+        this.setSupportActionBar(toolbar);
 
         buttonNext.setOnTouchListener(mDelayHideTouchListener);
         buttonPrev.setOnTouchListener(mDelayHideTouchListener);
@@ -255,9 +268,12 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         // Hide UI first
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            actionBar.hide();
+            hideActionBar(actionBar);
         }
-        mControlsView.setVisibility(View.GONE);
+        mControlsView.animate()
+                .translationY(mControlsView.getHeight())
+                .setDuration(UI_ANIMATION_DELAY)
+                .start();
         mVisible = false;
 
         // Schedule a runnable to remove the status and navigation bar after a delay
@@ -272,9 +288,81 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         mVisible = true;
 
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            showActionBar(actionBar);
+        }
+
         // Schedule a runnable to display UI elements after a delay
         mHideHandler.removeCallbacks(mHidePart2Runnable);
-        mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
+        //mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
+        mControlsView.animate()
+                .translationY(/*-mControlsView.getHeight()*/0)
+                .setDuration(UI_ANIMATION_DELAY)
+                .start();
+    }
+
+    /**
+     * Animate hiding the action bar
+     * Based on:
+     * https://stackoverflow.com/questions/33667552/android-supportactionbar-not-animating-on-show-hide
+     *
+     * @param actionBar The ActionBar to hide
+     */
+    private void hideActionBar(@NonNull final ActionBar actionBar) {
+        if (!actionBar.isShowing())
+            return;
+
+        // If the toolbar was not found or the API level is too low to animate the change,
+        // don't animate the hiding and just do it
+        if (toolbar != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            toolbar.animate()
+                    .translationY(-(toolbar.getHeight() + getStatusBarHeight()))
+                    .withEndAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            actionBar.hide();
+                        }
+                    })
+                    .start();
+        } else {
+            actionBar.hide();
+        }
+    }
+
+    /**
+     * Animate showing the action bar
+     * Based on:
+     * https://stackoverflow.com/questions/33667552/android-supportactionbar-not-animating-on-show-hide
+     *
+     * @param actionBar The ActionBar to hide
+     */
+    private void showActionBar(@NonNull final ActionBar actionBar) {
+        if (!actionBar.isShowing()) {
+            actionBar.show();
+
+            if (toolbar != null) {
+                toolbar.animate()
+                        .translationY(0)
+                        .setDuration(UI_ANIMATION_DELAY)
+                        .start();
+            }
+        }
+    }
+
+    /**
+     * Get the height of the status bar
+     * Taken from: https://stackoverflow.com/questions/3407256/height-of-status-bar-in-android
+     *
+     * @return The height of the status bar, in pixels
+     */
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 
     /**

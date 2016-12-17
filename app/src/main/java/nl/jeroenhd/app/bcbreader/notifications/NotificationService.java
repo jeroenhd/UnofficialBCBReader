@@ -5,9 +5,11 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.WakefulBroadcastReceiver;
@@ -16,6 +18,7 @@ import android.util.Log;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.JsonRequest;
 
 import java.util.Calendar;
@@ -73,7 +76,7 @@ public class NotificationService extends IntentService {
                     ChapterDatabase.SaveUpdate(response);
 
                     errorCount = 0;
-                    DisplayNotification();
+                    PrepareNotification();
                 }
             }, new Response.ErrorListener() {
                 @Override
@@ -176,13 +179,9 @@ public class NotificationService extends IntentService {
     }
 
     /**
-     * Show a notification to the user.
-     * This will use the settings set by the user to determine whether or not the notification should have any sound or vibration.
+     * Prepare to show a notification to the user.
      */
-    private void DisplayNotification() {
-        Intent intent = new Intent(this, ChapterReadingActivity.class);
-        Bundle extras = new Bundle();
-
+    private void PrepareNotification() {
         int[] updateDays = DataPreferences.getUpdateDays(this);
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         int today = calendar.get(Calendar.DAY_OF_WEEK);
@@ -201,6 +200,35 @@ public class NotificationService extends IntentService {
             Log.d(App.TAG, "Not showing the notification: today (" + today + ") is not in the update days (" + updateDaysStr + ")");
             return;
         }
+
+
+        double chapterNumber = DataPreferences.getLatestChapterNumber(this);
+        int page = DataPreferences.getLatestPage(this);
+
+        SuperSingleton.getInstance(this)
+                .getImageLoader()
+                .get(API.FormatPageUrl(this, chapterNumber, page, API.getQualitySuffix(this)), new ImageLoader.ImageListener() {
+                    @Override
+                    public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                        DisplayNotification(response.getBitmap());
+                    }
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        DisplayNotification(null);
+                    }
+                });
+    }
+
+    /**
+     * Display a notification to the user
+     * This will use the settings set by the user to determine whether or not the notification should have any sound or vibration.
+     *
+     * @param pageBitmap The bitmap for the latest page. Optional but recommended
+     */
+    private void DisplayNotification(@Nullable Bitmap pageBitmap) {
+        Intent intent = new Intent(this, ChapterReadingActivity.class);
+        Bundle extras = new Bundle();
 
         // These values are used by ChapterReadingActivity to determine what page is being opened
         Chapter chapter = ChapterDatabase.getLastChapter();
@@ -233,6 +261,12 @@ public class NotificationService extends IntentService {
                 .setSmallIcon(R.drawable.ic_custom_notification_black)
                 .setAutoCancel(true)
                 .setVibrate(vibrationPattern);
+
+        if (null != pageBitmap) {
+            NotificationCompat.BigPictureStyle notificationStyle = new NotificationCompat.BigPictureStyle();
+            notificationStyle.bigPicture(pageBitmap);
+            builder = builder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(pageBitmap));
+        }
 
         // Don't set a sound if the user has disabled the ringtone
         if (ringtone != null)
