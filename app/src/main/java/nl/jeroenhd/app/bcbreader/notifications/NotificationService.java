@@ -183,12 +183,16 @@ public class NotificationService extends IntentService {
      */
     private void PrepareNotification() {
         int[] updateDays = DataPreferences.getUpdateDays(this);
+        int updateHour = DataPreferences.getUpdateHour(this);
+
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         int today = calendar.get(Calendar.DAY_OF_WEEK);
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+
         boolean showNotification = false;
         StringBuilder stringBuilder = new StringBuilder();
         for (int day : updateDays) {
-            if (today == day)
+            if (today == day && hour >= updateHour)
                 showNotification = true;
 
             stringBuilder.append(day);
