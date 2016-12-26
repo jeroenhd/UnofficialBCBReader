@@ -35,7 +35,15 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="nl.jeroenhd.app.bcbreader.activities.ChapterListActivity" />
-
+        </activity>
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:label="@string/title_activity_settings" />
+        <activity
+            android:name=".activities.FullscreenReaderActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_fullscreen_reader"
+            android:theme="@style/FullscreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="nl.jeroenhd.app.bcbreader.ACTION_SHORTCUT" />
@@ -71,14 +79,6 @@
                 <data />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activities.SettingsActivity"
-            android:label="@string/title_activity_settings" />
-        <activity
-            android:name=".activities.FullscreenReaderActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_fullscreen_reader"
-            android:theme="@style/FullscreenTheme"/>
 
         <service
             android:name=".notifications.NotificationService"

@@ -1,6 +1,8 @@
 package nl.jeroenhd.app.bcbreader.activities;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,7 +25,9 @@ import android.widget.SeekBar;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.raizlabs.android.dbflow.sql.language.Select;
 
+import java.util.List;
 import java.util.Locale;
 
 import nl.jeroenhd.app.bcbreader.R;
@@ -31,6 +35,7 @@ import nl.jeroenhd.app.bcbreader.adapters.FullscreenPagePagerAdapter;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
+import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 import nl.jeroenhd.app.bcbreader.fragments.FullscreenPageFragment;
 import nl.jeroenhd.app.bcbreader.tools.ShareManager;
 
@@ -155,7 +160,27 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
         Bundle extras = this.getIntent().getExtras();
         int currentPage;
-        if (extras != null) {
+
+        Intent intent = getIntent();
+        String action = intent.getAction();
+
+        // Check if the application was started by visiting a URL
+        if (action != null && action.equals(Intent.ACTION_VIEW)) {
+            Uri data = intent.getData();
+            Log.d(App.TAG, "ActivityFromUri: Data: " + data.toString());
+            List<String> queryParams = data.getPathSegments();
+            double chapterNumber = Double.parseDouble(queryParams.get(0).substring(1));
+            Integer page = Integer.parseInt(queryParams.get(1).replaceAll("[^0-9]", ""));
+
+            currentChapter = new Select().from(Chapter.class).where(Chapter_Table.number.eq(chapterNumber)).querySingle();
+
+            currentPage = page;
+
+            if (currentChapter == null || page > currentChapter.getPageCount()) {
+                Log.d(App.TAG, "ActivityFromUri: Chapter " + chapterNumber + ", page + " + page + " is not in the database (yet)!");
+                //TODO: Figure out if something needs to be done here
+            }
+        } else if (extras != null) {
             if (!extras.containsKey(EXTRA_CHAPTER) || !extras.containsKey(EXTRA_PAGE)) {
                 throw new IllegalArgumentException("Missing argument (CHAPTER or PAGE_NUMBER)");
             }
@@ -179,12 +204,13 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
         // 0-based, so pageCount - 1
         seekBar.setMax(currentChapter.getPageCount() - 1);
-        seekBar.setProgress(currentPage);
+        // Minus one because p1 = data[0]
+        seekBar.setProgress(currentPage - 1);
 
         // prev + last + next
         viewPager.setOffscreenPageLimit(5);
         viewPager.setAdapter(new FullscreenPagePagerAdapter(getSupportFragmentManager(), this.currentChapter, this));
-        viewPager.setCurrentItem(currentPage);
+        viewPager.setCurrentItem(currentPage - 1);
 
         viewPager.setOnTouchListener(new View.OnTouchListener() {
             @Override
