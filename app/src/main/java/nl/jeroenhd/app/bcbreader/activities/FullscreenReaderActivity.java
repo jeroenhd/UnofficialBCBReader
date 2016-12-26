@@ -63,6 +63,20 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private static final int UI_ANIMATION_DELAY = 300;
     private final FullscreenReaderActivity thisActivity = this;
     private final Handler mHideHandler = new Handler();
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
+        }
+    };
     private Button buttonPrev;
     private Button buttonNext;
     private SeekBar seekBar;
@@ -103,22 +117,9 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             hide();
         }
     };
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
     private Chapter currentChapter;
     private ViewPager viewPager;
+    private boolean firstToolbarShow = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,9 +133,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         mContentView = findViewById(R.id.pager);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) toolbar.getLayoutParams();
-        params.topMargin += getStatusBarHeight();
-        toolbar.setLayoutParams(params);
         toolbar.setVisibility(View.VISIBLE);
 
         buttonNext = (Button) findViewById(R.id.button_right);
@@ -279,7 +277,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         // Trigger the initial hide() shortly after the activity has been
         // created, to briefly hint to the user that UI controls
         // are available.
-        delayedHide(100);
+        //delayedHide(100);
     }
 
     private void toggle() {
@@ -366,6 +364,15 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private void showActionBar(@NonNull final ActionBar actionBar) {
         if (!actionBar.isShowing()) {
             actionBar.show();
+
+            if (firstToolbarShow) {
+                // Workaround for toolbar hiding behind status bar
+                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) toolbar.getLayoutParams();
+                params.topMargin += getStatusBarHeight();
+                toolbar.setLayoutParams(params);
+
+                firstToolbarShow = false;
+            }
 
             if (toolbar != null) {
                 toolbar.animate()
