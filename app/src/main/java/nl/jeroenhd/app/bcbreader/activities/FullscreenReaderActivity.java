@@ -2,10 +2,12 @@ package nl.jeroenhd.app.bcbreader.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GestureDetectorCompat;
@@ -21,6 +23,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -65,20 +68,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private static final int UI_ANIMATION_DELAY = 300;
     private final FullscreenReaderActivity thisActivity = this;
     private final Handler mHideHandler = new Handler();
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
     private Button buttonPrev;
     private Button buttonNext;
     private SeekBar seekBar;
@@ -119,6 +108,20 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             hide();
         }
     };
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
+        }
+    };
     private Chapter currentChapter;
     private ViewPager viewPager;
     private boolean firstToolbarShow = true;
@@ -145,8 +148,12 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         viewPager = (ViewPager) mContentView;
 
         commentaryView = (TextView) findViewById(R.id.commentary);
-        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) commentaryView.getLayoutParams();
-        params.bottomMargin += commentaryView.getHeight();
+        ScrollView commentaryScroller = (ScrollView) findViewById(R.id.commentary_scroller);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean showCommentary = preferences.getBoolean("show_commentary", true);
+        commentaryScroller.setVisibility(
+                showCommentary ? View.VISIBLE : View.GONE
+        );
 
         assert buttonPrev != null;
         assert buttonNext != null;
