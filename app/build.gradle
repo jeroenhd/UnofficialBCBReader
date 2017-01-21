@@ -22,11 +22,11 @@ def getBranchName = { ->
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.0"
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
         applicationId "nl.jeroenhd.app.bcbreader"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 25
         versionCode 1
         versionName "Kindergarten " + getBranchName() + "@" + getVersionName()

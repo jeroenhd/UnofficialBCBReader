@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -37,6 +38,7 @@ import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 import nl.jeroenhd.app.bcbreader.fragments.FullscreenPageFragment;
+import nl.jeroenhd.app.bcbreader.tools.CompatHelper;
 import nl.jeroenhd.app.bcbreader.tools.ShareManager;
 
 /**
@@ -63,20 +65,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private static final int UI_ANIMATION_DELAY = 300;
     private final FullscreenReaderActivity thisActivity = this;
     private final Handler mHideHandler = new Handler();
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
     private Button buttonPrev;
     private Button buttonNext;
     private SeekBar seekBar;
@@ -117,9 +105,25 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             hide();
         }
     };
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
+        }
+    };
     private Chapter currentChapter;
     private ViewPager viewPager;
     private boolean firstToolbarShow = true;
+
+    private TextView commentaryView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,6 +143,10 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         buttonPrev = (Button) findViewById(R.id.button_left);
         seekBar = (SeekBar) findViewById(R.id.seekbar);
         viewPager = (ViewPager) mContentView;
+
+        commentaryView = (TextView) findViewById(R.id.commentary);
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) commentaryView.getLayoutParams();
+        params.bottomMargin += commentaryView.getHeight();
 
         assert buttonPrev != null;
         assert buttonNext != null;
@@ -224,6 +232,8 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             }
         });
         viewPager.addOnPageChangeListener(this);
+
+        commentaryView.setText(CompatHelper.fromHtmlTrimmed(currentChapter.getPageDescriptions().get(viewPager.getCurrentItem()).getDescription()));
     }
 
     @Override
@@ -288,6 +298,9 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         }
     }
 
+    /**
+     * Go full screen, hide the controls
+     */
     private void hide() {
         // Hide UI first
         ActionBar actionBar = getSupportActionBar();
@@ -303,9 +316,12 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         // Schedule a runnable to remove the status and navigation bar after a delay
         mHideHandler.removeCallbacks(mShowPart2Runnable);
         mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
+
     }
 
-    @SuppressLint("InlinedApi")
+    /**
+     * Show the controls after coming back from full screen
+     */
     private void show() {
         // Show the system bar
         mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -434,11 +450,13 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private void onPrev() {
         //TODO: Maybe allow loading the previous chapter?
         int currentItem = viewPager.getCurrentItem();
+        int pageIndex;
         if (currentItem >= 1) {
-            viewPager.setCurrentItem(currentItem - 1);
+            pageIndex = currentItem - 1;
         } else {
-            viewPager.setCurrentItem(currentChapter.getPageCount() - 1);
+            pageIndex = currentChapter.getPageCount() - 1;
         }
+        viewPager.setCurrentItem(pageIndex);
     }
 
     @Override
@@ -472,6 +490,17 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     @Override
     public void onPageSelected(int position) {
         seekBar.setProgress(position);
+
+        commentaryView.setText(CompatHelper.fromHtmlTrimmed(currentChapter.getPageDescriptions().get(position).getDescription()));
+
+        // Ensure the description is hidden
+        if (!mVisible) {
+            // Update the layout specs
+            commentaryView.measure(0, 0);
+            mControlsView.measure(0, 0);
+            // Hide
+            hide();
+        }
     }
 
     @Override
