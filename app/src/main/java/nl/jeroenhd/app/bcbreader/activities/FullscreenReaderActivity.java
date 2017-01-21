@@ -65,6 +65,20 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private static final int UI_ANIMATION_DELAY = 300;
     private final FullscreenReaderActivity thisActivity = this;
     private final Handler mHideHandler = new Handler();
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
+        }
+    };
     private Button buttonPrev;
     private Button buttonNext;
     private SeekBar seekBar;
@@ -103,20 +117,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         @Override
         public void run() {
             hide();
-        }
-    };
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
         }
     };
     private Chapter currentChapter;
@@ -233,7 +233,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         });
         viewPager.addOnPageChangeListener(this);
 
-        commentaryView.setText(CompatHelper.fromHtmlTrimmed(currentChapter.getPageDescriptions().get(viewPager.getCurrentItem()).getDescription()));
+        updateCommentary(viewPager.getCurrentItem());
     }
 
     @Override
@@ -491,16 +491,16 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     public void onPageSelected(int position) {
         seekBar.setProgress(position);
 
-        commentaryView.setText(CompatHelper.fromHtmlTrimmed(currentChapter.getPageDescriptions().get(position).getDescription()));
+        updateCommentary(position);
+    }
 
-        // Ensure the description is hidden
-        if (!mVisible) {
-            // Update the layout specs
-            commentaryView.measure(0, 0);
-            mControlsView.measure(0, 0);
-            // Hide
-            hide();
-        }
+    /**
+     * Update the commentary TextView to reflect the change in page
+     *
+     * @param pageIndex The index of the page in the current chapter (0-based!)
+     */
+    private void updateCommentary(int pageIndex) {
+        commentaryView.setText(CompatHelper.fromHtml(currentChapter.getPageDescriptions().get(pageIndex).getDescription()));
     }
 
     @Override

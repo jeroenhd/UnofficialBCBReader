@@ -13,4 +13,5 @@
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="elevation_toolbar">8dp</dimen>
     <dimen name="commentary_bottom_margin">-16dp</dimen>
+    <dimen name="commentary_height">128dp</dimen>
 </resources>
