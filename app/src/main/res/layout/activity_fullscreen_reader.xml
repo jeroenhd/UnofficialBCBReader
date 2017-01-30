@@ -24,7 +24,9 @@
         android:minHeight="?attr/actionBarSize"
         android:transitionName="title"
         android:visibility="visible"
+        app:navigationIcon="?homeAsUpIndicator"
         app:popupTheme="@style/AppTheme.PopupOverlay"
+        app:title="@string/dummy_chapter_title"
         app:titleTextAppearance="@style/ToolbarText"
         app:titleTextColor="@android:color/white" />
 

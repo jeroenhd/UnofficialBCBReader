@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewPager;
@@ -141,6 +142,13 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setVisibility(View.VISIBLE);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //NavUtils.navigateUpFromSameTask(FullscreenReaderActivity.this);
+                thisActivity.onBackPressed();
+            }
+        });
 
         buttonNext = (Button) findViewById(R.id.button_right);
         buttonPrev = (Button) findViewById(R.id.button_left);
@@ -160,6 +168,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         assert seekBar != null;
         assert viewPager != null;
         assert toolbar != null;
+        assert commentaryView != null;
 
         this.setSupportActionBar(toolbar);
 
@@ -314,9 +323,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private void hide() {
         // Hide UI first
         ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            hideActionBar(actionBar);
-        }
+        hideActionBar(actionBar);
         mControlsView.animate()
                 .translationY(mControlsView.getHeight())
                 .setDuration(UI_ANIMATION_DELAY)
@@ -334,7 +341,9 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
      */
     private void show() {
         // Show the system bar
-        mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        mContentView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         mVisible = true;
 
@@ -359,8 +368,8 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
      *
      * @param actionBar The ActionBar to hide
      */
-    private void hideActionBar(@NonNull final ActionBar actionBar) {
-        if (!actionBar.isShowing())
+    private void hideActionBar(@Nullable final ActionBar actionBar) {
+        if (actionBar == null)
             return;
 
         // If the toolbar was not found or the API level is too low to animate the change,
@@ -474,7 +483,9 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         if (fromUser) {
             viewPager.setCurrentItem(progress);
         }
-        setTitle(String.format(Locale.getDefault(), getString(R.string.title_chapter_title_page_number), currentChapter.getTitle(), progress + 1));
+        String title = String.format(Locale.getDefault(), getString(R.string.title_chapter_title_page_number), currentChapter.getTitle(), progress + 1);
+        toolbar.setTitle(title);
+        this.setTitle(title);
     }
 
     @Override

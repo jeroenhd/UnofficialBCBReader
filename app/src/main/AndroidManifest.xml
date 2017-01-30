@@ -44,6 +44,9 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_fullscreen_reader"
             android:theme="@style/FullscreenTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="nl.jeroenhd.app.bcbreader.activities.ChapterListActivity" />
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="nl.jeroenhd.app.bcbreader.ACTION_SHORTCUT" />
