@@ -27,6 +27,7 @@ import java.util.TimeZone;
 
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.activities.ChapterReadingActivity;
+import nl.jeroenhd.app.bcbreader.activities.FullscreenReaderActivity;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
@@ -236,8 +237,8 @@ public class NotificationService extends IntentService {
 
         // These values are used by ChapterReadingActivity to determine what page is being opened
         Chapter chapter = ChapterDatabase.getLastChapter();
-        extras.putParcelable(ChapterReadingActivity.CHAPTER, chapter);
-        extras.putInt(ChapterReadingActivity.SCROLL_TO, chapter.getPageCount());
+        extras.putParcelable(FullscreenReaderActivity.EXTRA_CHAPTER, chapter);
+        extras.putInt(FullscreenReaderActivity.EXTRA_PAGE, chapter.getPageCount());
 
         // PendingIntent instead of a regular Intent, because the Intent will happen in the future
         PendingIntent pendingIntent;
