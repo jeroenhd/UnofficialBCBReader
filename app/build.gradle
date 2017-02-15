@@ -28,8 +28,8 @@ android {
         applicationId "nl.jeroenhd.app.bcbreader"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 1
-        versionName "Kindergarten " + getBranchName() + "@" + getVersionName()
+        versionCode 2
+        versionName "Elementary " + getBranchName() + "@" + getVersionName()
     }
     buildTypes {
         release {
