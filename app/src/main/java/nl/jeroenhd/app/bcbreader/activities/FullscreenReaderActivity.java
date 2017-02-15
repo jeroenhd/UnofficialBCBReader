@@ -1,16 +1,22 @@
 package nl.jeroenhd.app.bcbreader.activities;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
@@ -19,11 +25,15 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.raizlabs.android.dbflow.sql.language.Select;
 
+import java.util.List;
 import java.util.Locale;
 
 import nl.jeroenhd.app.bcbreader.R;
@@ -31,7 +41,9 @@ import nl.jeroenhd.app.bcbreader.adapters.FullscreenPagePagerAdapter;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
+import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 import nl.jeroenhd.app.bcbreader.fragments.FullscreenPageFragment;
+import nl.jeroenhd.app.bcbreader.tools.CompatHelper;
 import nl.jeroenhd.app.bcbreader.tools.ShareManager;
 
 /**
@@ -58,6 +70,20 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private static final int UI_ANIMATION_DELAY = 300;
     private final FullscreenReaderActivity thisActivity = this;
     private final Handler mHideHandler = new Handler();
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
+        }
+    };
     private Button buttonPrev;
     private Button buttonNext;
     private SeekBar seekBar;
@@ -98,22 +124,11 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             hide();
         }
     };
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
     private Chapter currentChapter;
     private ViewPager viewPager;
+    private boolean firstToolbarShow = true;
+
+    private TextView commentaryView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,21 +142,37 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         mContentView = findViewById(R.id.pager);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) toolbar.getLayoutParams();
-        params.topMargin += getStatusBarHeight();
-        toolbar.setLayoutParams(params);
         toolbar.setVisibility(View.VISIBLE);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //NavUtils.navigateUpFromSameTask(FullscreenReaderActivity.this);
+                thisActivity.onBackPressed();
+            }
+        });
 
         buttonNext = (Button) findViewById(R.id.button_right);
         buttonPrev = (Button) findViewById(R.id.button_left);
         seekBar = (SeekBar) findViewById(R.id.seekbar);
         viewPager = (ViewPager) mContentView;
 
+        commentaryView = (TextView) findViewById(R.id.commentary);
+        // Make links in commentary work
+        commentaryView.setMovementMethod(LinkMovementMethod.getInstance());
+
+        ScrollView commentaryScroller = (ScrollView) findViewById(R.id.commentary_scroller);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean showCommentary = preferences.getBoolean("show_commentary", true);
+        commentaryScroller.setVisibility(
+                showCommentary ? View.VISIBLE : View.GONE
+        );
+
         assert buttonPrev != null;
         assert buttonNext != null;
         assert seekBar != null;
         assert viewPager != null;
         assert toolbar != null;
+        assert commentaryView != null;
 
         this.setSupportActionBar(toolbar);
 
@@ -155,7 +186,27 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
         Bundle extras = this.getIntent().getExtras();
         int currentPage;
-        if (extras != null) {
+
+        Intent intent = getIntent();
+        String action = intent.getAction();
+
+        // Check if the application was started by visiting a URL
+        if (action != null && action.equals(Intent.ACTION_VIEW)) {
+            Uri data = intent.getData();
+            Log.d(App.TAG, "ActivityFromUri: Data: " + data.toString());
+            List<String> queryParams = data.getPathSegments();
+            double chapterNumber = Double.parseDouble(queryParams.get(0).substring(1));
+            Integer page = Integer.parseInt(queryParams.get(1).replaceAll("[^0-9]", ""));
+
+            currentChapter = new Select().from(Chapter.class).where(Chapter_Table.number.eq(chapterNumber)).querySingle();
+
+            currentPage = page;
+
+            if (currentChapter == null || page > currentChapter.getPageCount()) {
+                Log.d(App.TAG, "ActivityFromUri: Chapter " + chapterNumber + ", page + " + page + " is not in the database (yet)!");
+                //TODO: Figure out if something needs to be done here
+            }
+        } else if (extras != null) {
             if (!extras.containsKey(EXTRA_CHAPTER) || !extras.containsKey(EXTRA_PAGE)) {
                 throw new IllegalArgumentException("Missing argument (CHAPTER or PAGE_NUMBER)");
             }
@@ -167,7 +218,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             }
             currentPage = extras.getInt(EXTRA_PAGE);
 
-            if (currentPage >= currentChapter.getPageCount()) {
+            if (currentPage > currentChapter.getPageCount()) {
                 // Page number is too high
                 throw new IllegalArgumentException("The page number is higher than the page count of this chapter!");
             }
@@ -179,12 +230,13 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
         // 0-based, so pageCount - 1
         seekBar.setMax(currentChapter.getPageCount() - 1);
-        seekBar.setProgress(currentPage);
+        // Minus one because p1 = data[0]
+        seekBar.setProgress(currentPage - 1);
 
         // prev + last + next
         viewPager.setOffscreenPageLimit(5);
         viewPager.setAdapter(new FullscreenPagePagerAdapter(getSupportFragmentManager(), this.currentChapter, this));
-        viewPager.setCurrentItem(currentPage);
+        viewPager.setCurrentItem(currentPage - 1);
 
         viewPager.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -200,6 +252,8 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             }
         });
         viewPager.addOnPageChangeListener(this);
+
+        updateCommentary(viewPager.getCurrentItem());
     }
 
     @Override
@@ -253,9 +307,12 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         // Trigger the initial hide() shortly after the activity has been
         // created, to briefly hint to the user that UI controls
         // are available.
-        delayedHide(100);
+        delayedHide(500);
     }
 
+    /**
+     * Toggle visibility of the pagination controls and the toolbar
+     */
     private void toggle() {
         if (mVisible) {
             hide();
@@ -264,12 +321,13 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         }
     }
 
+    /**
+     * Go full screen, hide the controls
+     */
     private void hide() {
         // Hide UI first
         ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            hideActionBar(actionBar);
-        }
+        hideActionBar(actionBar);
         mControlsView.animate()
                 .translationY(mControlsView.getHeight())
                 .setDuration(UI_ANIMATION_DELAY)
@@ -279,12 +337,17 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         // Schedule a runnable to remove the status and navigation bar after a delay
         mHideHandler.removeCallbacks(mShowPart2Runnable);
         mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
+
     }
 
-    @SuppressLint("InlinedApi")
+    /**
+     * Show the controls after coming back from full screen
+     */
     private void show() {
         // Show the system bar
-        mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        mContentView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         mVisible = true;
 
@@ -309,8 +372,8 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
      *
      * @param actionBar The ActionBar to hide
      */
-    private void hideActionBar(@NonNull final ActionBar actionBar) {
-        if (!actionBar.isShowing())
+    private void hideActionBar(@Nullable final ActionBar actionBar) {
+        if (actionBar == null)
             return;
 
         // If the toolbar was not found or the API level is too low to animate the change,
@@ -340,6 +403,15 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private void showActionBar(@NonNull final ActionBar actionBar) {
         if (!actionBar.isShowing()) {
             actionBar.show();
+
+            if (firstToolbarShow) {
+                // Workaround for toolbar hiding behind status bar
+                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) toolbar.getLayoutParams();
+                params.topMargin += getStatusBarHeight();
+                toolbar.setLayoutParams(params);
+
+                firstToolbarShow = false;
+            }
 
             if (toolbar != null) {
                 toolbar.animate()
@@ -401,11 +473,13 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private void onPrev() {
         //TODO: Maybe allow loading the previous chapter?
         int currentItem = viewPager.getCurrentItem();
+        int pageIndex;
         if (currentItem >= 1) {
-            viewPager.setCurrentItem(currentItem - 1);
+            pageIndex = currentItem - 1;
         } else {
-            viewPager.setCurrentItem(currentChapter.getPageCount() - 1);
+            pageIndex = currentChapter.getPageCount() - 1;
         }
+        viewPager.setCurrentItem(pageIndex);
     }
 
     @Override
@@ -413,7 +487,9 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         if (fromUser) {
             viewPager.setCurrentItem(progress);
         }
-        setTitle(String.format(Locale.getDefault(), getString(R.string.title_chapter_title_page_number), currentChapter.getTitle(), progress + 1));
+        String title = String.format(Locale.getDefault(), getString(R.string.title_chapter_title_page_number), currentChapter.getTitle(), progress + 1);
+        toolbar.setTitle(title);
+        this.setTitle(title);
     }
 
     @Override
@@ -439,6 +515,17 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     @Override
     public void onPageSelected(int position) {
         seekBar.setProgress(position);
+
+        updateCommentary(position);
+    }
+
+    /**
+     * Update the commentary TextView to reflect the change in page
+     *
+     * @param pageIndex The index of the page in the current chapter (0-based!)
+     */
+    private void updateCommentary(int pageIndex) {
+        commentaryView.setText(CompatHelper.fromHtml(currentChapter.getPageDescriptions().get(pageIndex).getDescription()));
     }
 
     @Override

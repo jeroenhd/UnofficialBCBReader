@@ -25,6 +25,15 @@ public class CompatHelper {
         }
     }
 
+    public static Spanned fromHtmlTrimmed(String htmlCode) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return Html.fromHtml(htmlCode, Html.FROM_HTML_MODE_COMPACT);
+        } else {
+            //noinspection deprecation
+            return Html.fromHtml(htmlCode);
+        }
+    }
+
     /**
      * Get a color from the correct API
      *

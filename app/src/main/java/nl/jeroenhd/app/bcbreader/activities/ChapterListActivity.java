@@ -322,32 +322,22 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Intent iNewActivity = new Intent(thisActivity, ChapterReadingActivity.class);
+                Intent fullScreenIntent = new Intent(thisActivity, FullscreenReaderActivity.class);
+                fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_CHAPTER, chapter);
+                fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_PAGE, page);
 
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    // Nice animations (lollipop+)
+                    //View titleView = view.findViewById(R.id.title);
+                    View titleView = thisActivity.findViewById(R.id.toolbar);
+                    Pair<View, String> titlePair = Pair.create(titleView, titleView.getTransitionName());
+                    Pair<View, String> entireViewPair = Pair.create(view, view.getTransitionName());
 
-                    View thumbView = view.findViewById(R.id.thumb);
+                    @SuppressWarnings("unchecked") Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(thisActivity, entireViewPair, titlePair).toBundle();
 
-                    Pair<View, String> thumbPair = Pair.create(thumbView, thumbView.getTransitionName());
-
-                    ActivityOptionsCompat options;
-                    //noinspection unchecked
-                    options = ActivityOptionsCompat.makeSceneTransitionAnimation(thisActivity/*, fabPair*/, thumbPair);
-
-                    // Add own extras
-                    Bundle bundle = options.toBundle();
-                    bundle.setClassLoader(Chapter.class.getClassLoader());
-                    iNewActivity.putExtra(ChapterReadingActivity.CHAPTER, chapter);
-                    iNewActivity.putExtra(ChapterReadingActivity.SCROLL_TO, page);
-
-                    thisActivity.startActivity(iNewActivity, bundle);
+                    startActivity(fullScreenIntent, bundle);
                 } else {
-                    // Ugly animations
-                    //TODO: Try to improve these animations!
-
-                    iNewActivity.putExtra(ChapterReadingActivity.CHAPTER, chapter);
-                    startActivity(iNewActivity);
+                    //TODO: Make a nice transition here
+                    startActivity(fullScreenIntent);
                 }
             }
         });
