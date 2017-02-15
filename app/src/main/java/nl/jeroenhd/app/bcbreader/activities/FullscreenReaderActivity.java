@@ -16,6 +16,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
@@ -156,6 +157,9 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         viewPager = (ViewPager) mContentView;
 
         commentaryView = (TextView) findViewById(R.id.commentary);
+        // Make links in commentary work
+        commentaryView.setMovementMethod(LinkMovementMethod.getInstance());
+
         ScrollView commentaryScroller = (ScrollView) findViewById(R.id.commentary_scroller);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean showCommentary = preferences.getBoolean("show_commentary", true);
