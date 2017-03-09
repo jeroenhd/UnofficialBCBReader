@@ -2,6 +2,7 @@ package nl.jeroenhd.app.bcbreader.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 
 import com.google.gson.annotations.Expose;
 import com.raizlabs.android.dbflow.annotation.Column;
@@ -10,6 +11,7 @@ import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.ArrayList;
@@ -177,6 +179,41 @@ public class Chapter extends BaseModel implements Parcelable {
     @Override
     public int describeContents() {
         return 0;
+    }
+
+
+    /**
+     * Get the chapter following this chapter. If there is no chapter, return null
+     * @return The next chapter or null
+     */
+    @Nullable
+    public Chapter getNext()
+    {
+        return new Select()
+                .from(Chapter.class)
+                .where(
+                        Chapter_Table.number
+                                .greaterThan(this.getNumber()))
+                .limit(1)
+                .orderBy(Chapter_Table.number, true)
+                .querySingle();
+    }
+
+    /**
+     * Get the chapter before this chapter. If there is no chapter, return null
+     * @return The previous chapter or null
+     */
+    @Nullable
+    public Chapter getPrevious()
+    {
+        return new Select()
+                .from(Chapter.class)
+                .where(
+                        Chapter_Table.number
+                                .lessThan(this.getNumber()))
+                .limit(1)
+                .orderBy(Chapter_Table.number, false)
+                .querySingle();
     }
 
     @Override

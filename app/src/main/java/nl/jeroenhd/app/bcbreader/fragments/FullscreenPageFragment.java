@@ -134,7 +134,14 @@ public class FullscreenPageFragment extends Fragment {
         }
     }
 
+    /**
+     * An interface to communicate from page fragments to the parent activity
+     */
     public interface FullscreenPageFragmentCallback {
+        /**
+         * Emitted when the page image has been tapped
+         * @param view The view being tapped
+         */
         void onTap(View view);
     }
 }

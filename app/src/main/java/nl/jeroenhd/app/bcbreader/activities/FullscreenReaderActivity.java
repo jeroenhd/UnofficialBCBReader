@@ -43,14 +43,14 @@ import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 import nl.jeroenhd.app.bcbreader.fragments.FullscreenPageFragment;
+import nl.jeroenhd.app.bcbreader.fragments.NavigationEventFragment;
 import nl.jeroenhd.app.bcbreader.tools.CompatHelper;
 import nl.jeroenhd.app.bcbreader.tools.ShareManager;
 
 /**
  * A full screen comic reader activity
- * TODO: It might be possible to just use the page sum of all chapters as a total amount of elements in the ViewPager
  */
-public class FullscreenReaderActivity extends AppCompatActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener, FullscreenPageFragment.FullscreenPageFragmentCallback, ViewPager.OnPageChangeListener {
+public class FullscreenReaderActivity extends AppCompatActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener, FullscreenPageFragment.FullscreenPageFragmentCallback, ViewPager.OnPageChangeListener, NavigationEventFragment.NavigationEventCallback {
     public static final String EXTRA_CHAPTER = "nl.jeroenhd.app.bcbreader.activities.ChapterListActivity.EXTRA_CHAPTER";
     public static final String EXTRA_PAGE = "nl.jeroenhd.app.bcbreader.activities.ChapterListActivity.EXTRA_PAGE";
     /**
@@ -130,6 +130,10 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
     private TextView commentaryView;
 
+
+    private boolean previousChapterExists = true;
+    private boolean nextChapterExists = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,7 +142,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
-        //mContentView = findViewById(R.id.fullscreen_content);
         mContentView = findViewById(R.id.pager);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -146,7 +149,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //NavUtils.navigateUpFromSameTask(FullscreenReaderActivity.this);
                 thisActivity.onBackPressed();
             }
         });
@@ -202,7 +204,12 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
             currentPage = page;
 
-            if (currentChapter == null || page > currentChapter.getPageCount()) {
+            if (currentChapter == null)
+            {
+                Log.w(App.TAG, "ActivityFromUri: Chapter " + chapterNumber + " does not exist in the database!");
+                Log.w(App.TAG, "ActivityFromUri: Constructing a dummy chapter");
+                currentChapter = new Chapter("Chapter " + chapterNumber, "", currentPage, currentPage, "", chapterNumber);
+            } else if (page > currentChapter.getPageCount()) {
                 Log.d(App.TAG, "ActivityFromUri: Chapter " + chapterNumber + ", page + " + page + " is not in the database (yet)!");
                 //TODO: Figure out if something needs to be done here
             }
@@ -228,15 +235,20 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             throw new IllegalArgumentException("Provide a chapter to display!");
         }
 
-        // 0-based, so pageCount - 1
+        this.nextChapterExists = currentChapter.getNext() != null;
+        this.previousChapterExists = currentChapter.getPrevious() != null;
+
         seekBar.setMax(currentChapter.getPageCount() - 1);
-        // Minus one because p1 = data[0]
-        seekBar.setProgress(currentPage - 1);
+
+        // Corrected page view: do not decrement by one because "page 0" is a dummy Fragment
+        seekBar.setProgress(currentPage - (previousChapterExists?0:1));
 
         // prev + last + next
         viewPager.setOffscreenPageLimit(5);
-        viewPager.setAdapter(new FullscreenPagePagerAdapter(getSupportFragmentManager(), this.currentChapter, this));
-        viewPager.setCurrentItem(currentPage - 1);
+        viewPager.setAdapter(new FullscreenPagePagerAdapter(getSupportFragmentManager(), this.currentChapter, this, this));
+
+        // Corrected page view: do not decrement by one because "page 0" is a dummy Fragment
+        viewPager.setCurrentItem(currentPage- (previousChapterExists?0:1));
 
         viewPager.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -522,14 +534,36 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     /**
      * Update the commentary TextView to reflect the change in page
      *
-     * @param pageIndex The index of the page in the current chapter (0-based!)
+     * @param pageIndex The index of the page in the current chapter (1-based!)
      */
     private void updateCommentary(int pageIndex) {
-        commentaryView.setText(CompatHelper.fromHtml(currentChapter.getPageDescriptions().get(pageIndex).getDescription()));
+        if ((pageIndex < 1 && previousChapterExists) || pageIndex >= currentChapter.getPageDescriptions().size())
+        {
+            commentaryView.setText(R.string.no_description_available);
+        } else {
+            String description = currentChapter.getPageDescriptions().get(pageIndex - (previousChapterExists?0:1)).getDescription();
+            commentaryView.setText(CompatHelper.fromHtml(description));
+        }
     }
 
     @Override
     public void onPageScrollStateChanged(int state) {
 
+    }
+
+    @Override
+    public void onNavigateTo(Chapter chapter, int page) {
+        if (chapter != null)
+        {
+            Intent differentChapterIntent = new Intent(this, FullscreenReaderActivity.class);
+            differentChapterIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            differentChapterIntent.putExtra(EXTRA_CHAPTER, chapter);
+            differentChapterIntent.putExtra(EXTRA_PAGE, page);
+
+            startActivity(differentChapterIntent);
+        } else {
+            // ehm
+            Log.d(App.TAG, "onNavigateTo: Can't navigate to a chapter when chapter == null");
+        }
     }
 }

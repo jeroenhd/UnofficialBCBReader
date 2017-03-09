@@ -85,4 +85,7 @@
     <string name="pref_summary_off_show_commentary">Not showing author commentary above the navigation controls while reading</string>
     <string name="pref_summary_on_show_commentary">Showing author commentary above the navigation controls while reading</string>
     <string name="pref_title_show_commentary">Show author commentary</string>
+    <string name="no_description_available">No description is available right now.</string>
+    <string name="to_next_chapter">Read the next chapter</string>
+    <string name="no_next_chapter">You\'re all up to date! There\'s no next chapter!</string>
 </resources>
