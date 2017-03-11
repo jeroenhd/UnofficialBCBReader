@@ -38,7 +38,12 @@
         </activity>
         <activity
             android:name=".activities.SettingsActivity"
-            android:label="@string/title_activity_settings" />
+            android:parentActivityName=".activities.ChapterListActivity"
+            android:label="@string/title_activity_settings">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="nl.jeroenhd.app.bcbreader.activities.ChapterListActivity" />
+        </activity>
         <activity
             android:name=".activities.FullscreenReaderActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"

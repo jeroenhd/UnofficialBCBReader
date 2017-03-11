@@ -385,12 +385,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             case R.id.go_to_latest_page:
                 openLatestPage();
                 break;
-            case R.id.menu_sort:
-                PopupMenu popupMenu = new PopupMenu(thisActivity, findViewById(R.id.menu_sort));
-                popupMenu.inflate(R.menu.popup_menu_sort);
-                popupMenu.setOnMenuItemClickListener(this);
-                popupMenu.show();
-                break;
             case R.id.popup_menu_ascending:
             case R.id.popup_menu_descending:
                 setSortDescending(id == R.id.popup_menu_descending);
