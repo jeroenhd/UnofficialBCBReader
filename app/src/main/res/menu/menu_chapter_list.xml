@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/go_to_latest_page"
-        android:icon="@drawable/ic_latest_page_24dp_white"
+        android:icon="@drawable/ic_last_page_white_24dp"
         android:title="@string/latest_update"
         app:showAsAction="ifRoom" />
     <item
