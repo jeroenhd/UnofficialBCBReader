@@ -85,4 +85,5 @@
     <string name="pref_summary_off_show_commentary">Not showing author commentary above the navigation controls while reading</string>
     <string name="pref_summary_on_show_commentary">Showing author commentary above the navigation controls while reading</string>
     <string name="pref_title_show_commentary">Show author commentary</string>
+    <string name="continue_reading">Continue reading</string>
 </resources>

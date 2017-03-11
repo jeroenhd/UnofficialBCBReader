@@ -39,6 +39,7 @@ import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.ChapterListRequest;
+import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 import nl.jeroenhd.app.bcbreader.data.check.Check;
 import nl.jeroenhd.app.bcbreader.data.check.DataPreferences;
@@ -326,7 +327,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_CHAPTER, chapter);
                 fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_PAGE, page);
 
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP && view != null) {
                     //View titleView = view.findViewById(R.id.title);
                     View titleView = thisActivity.findViewById(R.id.toolbar);
                     Pair<View, String> titlePair = Pair.create(titleView, titleView.getTransitionName());
@@ -369,10 +370,18 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 Intent settingsIntent = new Intent(thisActivity, SettingsActivity.class);
                 startActivity(settingsIntent);
                 break;
-            case R.id.menu_debug: {
+            case R.id.menu_debug:
                 UpdateEventReceiver.setupAlarm(this);
                 break;
-            }
+            case R.id.menu_continue_reading:{
+                double chapterNr = DataPreferences.getLastReadChapterNumber(this);
+                int pageNr = DataPreferences.getLastReadPageNumber(this);
+                Chapter continueChapter = new Select()
+                        .from(Chapter.class)
+                        .where(Chapter_Table.number.eq(chapterNr))
+                        .querySingle();
+                this.onChapterSelect(null, continueChapter, pageNr);
+                }break;
             case R.id.go_to_latest_page:
                 openLatestPage();
                 break;
