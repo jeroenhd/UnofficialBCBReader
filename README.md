@@ -12,4 +12,5 @@ Right now I can't decide on a open source license so as of now, so the code in t
 ## Can I download the app from somewhere else?
 After every milestone (and sometimes completely randomly) a new file is placed in this directory:
 https://static.jeroenhd.nl/bcb/app/releases/
-Download and install that. **The app should be considered unstable and just for testing untill it reaches the Play Store!**
+Download and install that.
+**The app should be considered unstable and just for testing untill it reaches the Play Store!**
