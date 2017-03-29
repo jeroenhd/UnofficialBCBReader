@@ -10,7 +10,7 @@
         android:id="@+id/menu_continue_reading"
         android:icon="@drawable/ic_bookmark_white_24dp"
         android:title="@string/continue_reading"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_sort"
         android:icon="@drawable/ic_sort_white_24dp"

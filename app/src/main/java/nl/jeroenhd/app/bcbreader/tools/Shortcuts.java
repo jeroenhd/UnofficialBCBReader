@@ -13,11 +13,8 @@ import java.util.Collections;
 
 import nl.jeroenhd.app.bcbreader.BCBReaderApplication;
 import nl.jeroenhd.app.bcbreader.R;
-import nl.jeroenhd.app.bcbreader.activities.ChapterReadingActivity;
 import nl.jeroenhd.app.bcbreader.activities.FullscreenReaderActivity;
 import nl.jeroenhd.app.bcbreader.data.App;
-import nl.jeroenhd.app.bcbreader.data.Chapter;
-import nl.jeroenhd.app.bcbreader.data.check.DataPreferences;
 
 /**
  * This class manages shortcuts for Android 7+ devices.

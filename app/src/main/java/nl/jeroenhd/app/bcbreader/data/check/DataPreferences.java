@@ -124,26 +124,27 @@ public class DataPreferences {
 
     /**
      * Set the page read last by the user
+     *
      * @param mContext The context of the reading fragment
-     * @param chapter The chapter number
-     * @param page The page number
+     * @param chapter  The chapter number
+     * @param page     The page number
      */
     public static void setLastReadPage(Context mContext, double chapter, int page) {
         SharedPreferences.Editor edit = PreferenceManager
                 .getDefaultSharedPreferences(mContext)
                 .edit();
         edit.putInt(PREF_LAST_READ_PAGE, page);
-        edit.putFloat(PREF_LAST_READ_CHAPTER, (float)chapter);
+        edit.putFloat(PREF_LAST_READ_CHAPTER, (float) chapter);
         edit.apply();
     }
 
     /**
      * Get the chapter number of the chapter the user read last
+     *
      * @param context The context to use
      * @return The chapter number or 1 if no number was saved
      */
-    public static float getLastReadChapterNumber(Context context)
-    {
+    public static float getLastReadChapterNumber(Context context) {
         return PreferenceManager
                 .getDefaultSharedPreferences(context)
                 .getFloat(PREF_LAST_READ_CHAPTER, 1.0f);
@@ -151,11 +152,11 @@ public class DataPreferences {
 
     /**
      * Get the page number of the page the user read last
+     *
      * @param context The context to use
      * @return The page number or 1 if no number was saved
      */
-    public static int getLastReadPageNumber(Context context)
-    {
+    public static int getLastReadPageNumber(Context context) {
         return PreferenceManager
                 .getDefaultSharedPreferences(context)
                 .getInt(PREF_LAST_READ_PAGE, 1);

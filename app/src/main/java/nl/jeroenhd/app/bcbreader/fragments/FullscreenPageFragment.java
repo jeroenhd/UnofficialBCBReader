@@ -135,15 +135,10 @@ public class FullscreenPageFragment extends Fragment {
         }
     }
 
-    public interface FullscreenPageFragmentCallback {
-        void onTap(View view);
-    }
-
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser && chapter != null)
-        {
+        if (isVisibleToUser && chapter != null) {
             updateLastRead();
         }
     }
@@ -151,8 +146,11 @@ public class FullscreenPageFragment extends Fragment {
     /**
      * Update the preferences to show that this is the page the user read last
      */
-    protected void updateLastRead()
-    {
+    protected void updateLastRead() {
         DataPreferences.setLastReadPage(mContext, chapter.getNumber(), page);
+    }
+
+    public interface FullscreenPageFragmentCallback {
+        void onTap(View view);
     }
 }
