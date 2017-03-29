@@ -32,6 +32,14 @@ public class DataPreferences {
      * This preference key stores the latest page number
      */
     private static final String PREF_LATEST_PAGE = "hidden_latest_page";
+    /**
+     * This preference key stores the last read page
+     */
+    private static final String PREF_LAST_READ_PAGE = "hidden_last_read_page";
+    /**
+     * This preference key stores the last read chapter number
+     */
+    private static final String PREF_LAST_READ_CHAPTER = "hidden_last_read_chapter";
 
     /**
      * Save a Check object to the cache
@@ -108,6 +116,48 @@ public class DataPreferences {
     @Nullable
     public static Chapter getLatestChapter(Context context) {
         double chapterNumber = getLatestChapterNumber(context);
-        return new Select().from(Chapter.class).where(Chapter_Table.number.eq(chapterNumber)).querySingle();
+        return new Select()
+                .from(Chapter.class)
+                .where(Chapter_Table.number.eq(chapterNumber))
+                .querySingle();
+    }
+
+    /**
+     * Set the page read last by the user
+     * @param mContext The context of the reading fragment
+     * @param chapter The chapter number
+     * @param page The page number
+     */
+    public static void setLastReadPage(Context mContext, double chapter, int page) {
+        SharedPreferences.Editor edit = PreferenceManager
+                .getDefaultSharedPreferences(mContext)
+                .edit();
+        edit.putInt(PREF_LAST_READ_PAGE, page);
+        edit.putFloat(PREF_LAST_READ_CHAPTER, (float)chapter);
+        edit.apply();
+    }
+
+    /**
+     * Get the chapter number of the chapter the user read last
+     * @param context The context to use
+     * @return The chapter number or 1 if no number was saved
+     */
+    public static float getLastReadChapterNumber(Context context)
+    {
+        return PreferenceManager
+                .getDefaultSharedPreferences(context)
+                .getFloat(PREF_LAST_READ_CHAPTER, 1.0f);
+    }
+
+    /**
+     * Get the page number of the page the user read last
+     * @param context The context to use
+     * @return The page number or 1 if no number was saved
+     */
+    public static int getLastReadPageNumber(Context context)
+    {
+        return PreferenceManager
+                .getDefaultSharedPreferences(context)
+                .getInt(PREF_LAST_READ_PAGE, 1);
     }
 }

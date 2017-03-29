@@ -22,6 +22,7 @@ import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.webkit.WebView;
 
 import java.util.List;
@@ -139,6 +140,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // Show the Up button in the action bar.
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home)
+        {
+            onBackPressed();
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -281,7 +292,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         private void showLicense(String licenseAssetFile) {
             Context context = getActivity();
-            WebView view = (WebView) LayoutInflater.from(context).inflate(R.layout.activity_license, null);
+            WebView view = (WebView) LayoutInflater.from(context).inflate(R.layout.activity_license, (ViewGroup)getView(), false);
             view.loadUrl("file:///android_asset/" + licenseAssetFile);
             new AlertDialog.Builder(context, R.style.AppTheme)
                     .setTitle(getString(R.string.title_license))

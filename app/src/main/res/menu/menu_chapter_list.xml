@@ -3,14 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/go_to_latest_page"
-        android:icon="@drawable/ic_latest_page_24dp_white"
+        android:icon="@drawable/ic_last_page_white_24dp"
         android:title="@string/latest_update"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_continue_reading"
+        android:icon="@drawable/ic_bookmark_white_24dp"
+        android:title="@string/continue_reading"
+        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/menu_sort"
         android:icon="@drawable/ic_sort_white_24dp"
         android:title="@string/sort_chapters"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom">
+        <menu xmlns:android="http://schemas.android.com/apk/res/android">
+            <item
+                android:id="@+id/popup_menu_ascending"
+                android:title="@string/ascending" />
+            <item
+                android:id="@+id/popup_menu_descending"
+                android:title="@string/descending" />
+        </menu>
+    </item>
     <item
         android:id="@+id/menu_settings"
         android:title="@string/action_settings"

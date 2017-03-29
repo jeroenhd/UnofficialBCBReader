@@ -29,7 +29,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 25
         versionCode 2
-        versionName "Elementary " + getBranchName() + "@" + getVersionName()
+        versionName "Elementary " + getBranchName() + "@" + getVersionName() + ' (' + new Date().format("yyyyMMddHHmmss") + ')'
     }
     buildTypes {
         release {
@@ -47,12 +47,12 @@ def dbflow_version = "3.1.1"
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.1.1'
-    compile 'com.android.support:design:25.1.1'
+    compile 'com.android.support:appcompat-v7:25.3.0'
+    compile 'com.android.support:design:25.3.0'
+    compile 'com.android.support:palette-v7:25.3.0'
     compile 'de.hdodenhof:circleimageview:2.0.0'
     compile 'com.google.code.gson:gson:2.7'
     compile 'com.android.volley:volley:1.0.0'
-    compile 'com.android.support:palette-v7:25.1.1'
 
     testCompile 'org.mockito:mockito-core:1.10.19'
 
