@@ -20,12 +20,14 @@ import java.io.PrintWriter;
 
 import nl.jeroenhd.app.bcbreader.BuildConfig;
 import nl.jeroenhd.app.bcbreader.data.App;
+import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 import nl.jeroenhd.app.bcbreader.data.Telemetry;
 
 /**
  * A class to store and retrieve crash data
  */
 public class AppCrashStorage {
+    public static final String CRASH_REPORT_URL = "https://app.jeroenhd.nl/bcb/crashReport.php";
     /**
      * The app data directory to store all crash logs in
      */
@@ -124,8 +126,8 @@ public class AppCrashStorage {
      * Send crash reports
      */
     public void send() {
-        for (File crashReportFile : this.getCrashFiles()) {
-            BufferedReader reader = null;
+        for (final File crashReportFile : this.getCrashFiles()) {
+            BufferedReader reader;
             try {
                 reader = new BufferedReader(new FileReader(crashReportFile));
 
@@ -137,19 +139,21 @@ public class AppCrashStorage {
                 String JSON = builder.toString();
 
                 JSONObject crashReportObject = new JSONObject(JSON);
-                JsonObjectRequest request = new JsonObjectRequest("https://app.jeroenhd.nl/bcb/crashReport.php", crashReportObject, new Response.Listener<JSONObject>() {
+                JsonObjectRequest request = new JsonObjectRequest(CRASH_REPORT_URL, crashReportObject, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        //Ignored
+                        // Report OK, delete crash file
+                        crashReportFile.delete();
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        //Ignored
+                        error.printStackTrace();
                     }
                 });
+                SuperSingleton.getInstance(context).getVolleyRequestQueue().add(request);
             } catch (Exception e) {
-                // IGNORE
+                e.printStackTrace();
             }
 
         }
