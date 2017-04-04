@@ -1,6 +1,8 @@
 package nl.jeroenhd.app.bcbreader.tools;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import java.io.File;
@@ -46,17 +48,35 @@ public class AppCrashStorage {
             File crashDirectory = context.getDir(CRASH_DIRECTORY, 0);
             String fileName = System.currentTimeMillis() + "-" + App.Version() + "-" + crashedThread.getName() + ".crash";
             File outputFile = new File(crashDirectory, fileName);
-
-            Telemetry deviceInformation = Telemetry.getInstance(context);
-
             PrintWriter printWriter = new PrintWriter(outputFile);
+
+            // Write basic device info
+            Telemetry deviceInformation = Telemetry.getInstance(context);
             printWriter.write(CRASH_LOG_HEADER);
-            printWriter.write("App version number: " + BuildConfig.VERSION_CODE + "(" + BuildConfig.VERSION_NAME + ")\n");
+            printWriter.write("App version number: " + BuildConfig.VERSION_CODE +
+                    "\nFull app version: " + BuildConfig.VERSION_NAME + "======\n");
             printWriter.write("Basic device information:\nModel: " + deviceInformation.getModel()
                     + "\nAndroid version: " + deviceInformation.getAndroidVersion() + "\n======\n");
+
+
+            // Write crash log
             printWriter.write("Crashed thread: " + crashedThread.getName() + "\n");
             printWriter.write("Stack trace:\n");
             crashThrowable.printStackTrace(printWriter);
+            printWriter.write("======\n");
+            // Flush just to be sure (the code below can trigger an exception)
+            printWriter.flush();
+
+            // Write permissions
+            printWriter.write("Granted permissions:\n");
+            PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_PERMISSIONS);
+            for (int i = 0; i < pi.requestedPermissions.length; i++) {
+                if ((pi.requestedPermissionsFlags[i] & PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0) {
+                    printWriter.write(pi.requestedPermissions[i] + "\n");
+                }
+            }
+
+            // Flush and close file
             printWriter.flush();
             printWriter.close();
         } catch (Exception e) {

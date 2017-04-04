@@ -34,7 +34,6 @@ import java.util.List;
 
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.adapters.ChapterListAdapter;
-import nl.jeroenhd.app.bcbreader.broadcast_receivers.UpdateEventReceiver;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
@@ -68,7 +67,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            int errorStringId = -1;
+            int errorStringId;
             if (error.getCause().getClass() == javax.net.ssl.SSLHandshakeException.class) {
                 errorStringId = R.string.update_check_failed_hackers_on_the_loose;
             } else {
@@ -378,7 +377,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 startActivity(settingsIntent);
                 break;
             case R.id.menu_debug:
-                UpdateEventReceiver.setupAlarm(this);
+                int i = 10 / 0;
                 break;
             case R.id.menu_continue_reading: {
                 double chapterNr = DataPreferences.getLastReadChapterNumber(this);
