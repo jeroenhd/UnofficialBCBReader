@@ -1,11 +1,14 @@
 package nl.jeroenhd.app.bcbreader;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 import nl.jeroenhd.app.bcbreader.broadcast_receivers.UpdateEventReceiver;
+import nl.jeroenhd.app.bcbreader.data.App;
+import nl.jeroenhd.app.bcbreader.tools.AppCrashStorage;
 import nl.jeroenhd.app.bcbreader.tools.Shortcuts;
 
 /**
@@ -13,6 +16,7 @@ import nl.jeroenhd.app.bcbreader.tools.Shortcuts;
  */
 public class BCBReaderApplication extends Application {
     public static final String ACTION_SHORTCUT = "nl.jeroenhd.app.bcbreader.ACTION_SHORTCUT";
+    private Thread.UncaughtExceptionHandler systemHandler;
 
     /**
      * Called when the application is starting, before any activity, service,
@@ -26,11 +30,34 @@ public class BCBReaderApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        this.initCrashReporting();
+
         FlowManager.init(
                 new FlowConfig.Builder(this).build()
         );
 
         UpdateEventReceiver.setupAlarm(this);
         Shortcuts.Update(this);
+    }
+
+    /**
+     * Set up a crash report system.
+     */
+    private void initCrashReporting() {
+        systemHandler = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable throwable) {
+                Log.e(App.TAG, "Unhandled exception! The global crash handler has been invoked!");
+
+                AppCrashStorage appCrashStorage = new AppCrashStorage(BCBReaderApplication.this);
+                appCrashStorage.StoreCrash(thread, throwable);
+
+                if (systemHandler != null) {
+                    systemHandler.uncaughtException(thread, throwable);
+                }
+            }
+        });
     }
 }

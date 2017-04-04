@@ -1,6 +1,7 @@
 package nl.jeroenhd.app.bcbreader.activities;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -9,6 +10,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -28,13 +30,13 @@ import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.adapters.ChapterListAdapter;
-import nl.jeroenhd.app.bcbreader.broadcast_receivers.UpdateEventReceiver;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
@@ -45,6 +47,7 @@ import nl.jeroenhd.app.bcbreader.data.check.Check;
 import nl.jeroenhd.app.bcbreader.data.check.DataPreferences;
 import nl.jeroenhd.app.bcbreader.data.check.UpdateTimes;
 import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
+import nl.jeroenhd.app.bcbreader.tools.AppCrashStorage;
 
 public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener, Toolbar.OnMenuItemClickListener, SwipeRefreshLayout.OnRefreshListener, PopupMenu.OnMenuItemClickListener {
     private final Activity thisActivity = this;
@@ -62,55 +65,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private SuperSingleton singleton;
-    /**
-     * Called when downloading the check fails
-     */
-    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            int errorStringId = -1;
-            if (error.getCause().getClass() == javax.net.ssl.SSLHandshakeException.class) {
-                errorStringId = R.string.update_check_failed_hackers_on_the_loose;
-            } else {
-                errorStringId = R.string.update_check_failed;
-            }
-
-            Snackbar.make(mRecycler, errorStringId, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
-    /**
-     * Called when downloading the chapter list fails
-     */
-    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            error.printStackTrace();
-            Snackbar.make(mRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
     /**
      * The latest update times data.
      * Is initialised to null!
@@ -221,6 +175,55 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             }
         }
     };
+    /**
+     * Called when downloading the check fails
+     */
+    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            int errorStringId;
+            if (error.getCause().getClass() == javax.net.ssl.SSLHandshakeException.class) {
+                errorStringId = R.string.update_check_failed_hackers_on_the_loose;
+            } else {
+                errorStringId = R.string.update_check_failed;
+            }
+
+            Snackbar.make(mRecycler, errorStringId, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+    /**
+     * Called when downloading the chapter list fails
+     */
+    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            error.printStackTrace();
+            Snackbar.make(mRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
+
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
     private LinearLayoutManager mLayoutManager;
 
     /**
@@ -263,6 +266,36 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
 
         SetupData();
         SetupRecycler();
+        CheckOrSubmitCrashLogs();
+    }
+
+    /**
+     * Check for crash logs, ask permission to send
+     */
+    private void CheckOrSubmitCrashLogs() {
+        final AppCrashStorage appCrashStorage = new AppCrashStorage(this);
+        File[] crashFiles = appCrashStorage.getCrashFiles();
+
+        if (crashFiles.length == 0)
+            return;
+
+        AlertDialog alertDialog = new AlertDialog
+                .Builder(this, R.style.Theme_AppCompat_Light_Dialog_Alert)
+                .setTitle(R.string.crash_dialog_title)
+                .setMessage(R.string.confirm_send_crash_report)
+                .setPositiveButton(R.string.send_crash_reports, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        appCrashStorage.send();
+                    }
+                })
+                .setNegativeButton(R.string.dont_send_crash_reports, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        appCrashStorage.deleteReports();
+                    }
+                })
+                .show();
     }
 
     /**
@@ -378,7 +411,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 startActivity(settingsIntent);
                 break;
             case R.id.menu_debug:
-                UpdateEventReceiver.setupAlarm(this);
+                int i = 10 / 0;
                 break;
             case R.id.menu_continue_reading: {
                 double chapterNr = DataPreferences.getLastReadChapterNumber(this);
