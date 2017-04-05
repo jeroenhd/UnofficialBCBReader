@@ -1,11 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/page_thumb"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:drawableTop="@drawable/lqthumb"
-    android:padding="@dimen/activity_vertical_margin"
-    android:text="@string/dummy_page_number"
-    android:textAlignment="center">
+    android:padding="4dp">
 
-</TextView>
+    <nl.jeroenhd.app.bcbreader.views.PageThumbImageView
+        android:id="@+id/thumb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/lqthumb"
+        android:transitionName="thumb" />
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@id/thumb"
+        android:layout_alignLeft="@+id/thumb"
+        android:layout_alignRight="@id/thumb"
+        android:layout_alignStart="@+id/thumb"
+        android:layout_below="@+id/thumb"
+        android:text="@string/dummy_page_number"
+        android:textAlignment="center" />
+</RelativeLayout>

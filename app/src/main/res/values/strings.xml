@@ -92,4 +92,6 @@
     <string name="send_crash_reports">Send reports</string>
     <string name="dont_send_crash_reports">Delete reports</string>
     <string name="dummy_page_number">Page 1</string>
+    <string name="page_number">Page %1$d</string>
+    <string name="chapter_title_big">Chapter %1$s: %2$s</string>
 </resources>

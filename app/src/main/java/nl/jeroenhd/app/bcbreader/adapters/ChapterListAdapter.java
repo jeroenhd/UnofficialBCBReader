@@ -107,14 +107,14 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
          *
          * @param view    The view the user has interacted with
          * @param chapter The chapter the user has selected
-         * @param page    The page to scroll to (use 1 to start from the beginning)
+         * @param page    The page to scroll to (use 1 to start from the beginning, 0 to indicate no page in particular)
          */
         void onChapterSelect(View view, Chapter chapter, int page);
 
         void onChapterFavourite(AppCompatImageView view, Chapter chapter);
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         final FadingNetworkImageView ChapterThumbView;
         final TextView ChapterTitleView;
         final TextView ChapterDescriptionView;
@@ -142,7 +142,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
 
         @Override
         public void onClick(View v) {
-            this.ClickHandler.onChapterSelect(v, this.CurrentChapter, 1);
+            this.ClickHandler.onChapterSelect(v, this.CurrentChapter, 0);
         }
     }
 }
