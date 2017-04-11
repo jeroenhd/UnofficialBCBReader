@@ -13,6 +13,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -23,6 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -37,6 +39,7 @@ import java.util.List;
 
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.adapters.ChapterListAdapter;
+import nl.jeroenhd.app.bcbreader.adapters.PageThumbAdapter;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
@@ -49,22 +52,74 @@ import nl.jeroenhd.app.bcbreader.data.check.UpdateTimes;
 import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
 import nl.jeroenhd.app.bcbreader.tools.AppCrashStorage;
 
-public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener, Toolbar.OnMenuItemClickListener, SwipeRefreshLayout.OnRefreshListener, PopupMenu.OnMenuItemClickListener {
+public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener, Toolbar.OnMenuItemClickListener, SwipeRefreshLayout.OnRefreshListener, PopupMenu.OnMenuItemClickListener, PageThumbAdapter.OnThumbClickListener {
     private final Activity thisActivity = this;
 
-    private RecyclerView mRecycler;
+    private RecyclerView mChapterRecycler;
     private final Response.ErrorListener errorListener = new Response.ErrorListener() {
         @Override
         public void onErrorResponse(VolleyError error) {
-            Snackbar.make(mRecycler, error.getMessage(), Snackbar.LENGTH_LONG).show();
+            Snackbar.make(mChapterRecycler, error.getMessage(), Snackbar.LENGTH_LONG).show();
         }
     };
+    private RecyclerView mPageThumbRecycler;
+    private TextView mBigChapterTitle;
     private ProgressBar mLoadingProgressbar;
     private ArrayList<Chapter> mChapterData;
-    private ChapterListAdapter mAdapter;
+    private ChapterListAdapter mChapterListAdapter;
+    private PageThumbAdapter mPageThumbAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private SuperSingleton singleton;
+    /**
+     * Called when downloading the check fails
+     */
+    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            int errorStringId;
+            if (error.getCause().getClass() == javax.net.ssl.SSLHandshakeException.class) {
+                errorStringId = R.string.update_check_failed_hackers_on_the_loose;
+            } else {
+                errorStringId = R.string.update_check_failed;
+            }
+
+            Snackbar.make(mChapterRecycler, errorStringId, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+    /**
+     * Called when downloading the chapter list fails
+     */
+    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            error.printStackTrace();
+            Snackbar.make(mChapterRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
+
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
     /**
      * The latest update times data.
      * Is initialised to null!
@@ -97,7 +152,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                             c.setFavourite(oldChapter.isFavourite());
                             // Metadata is not the same, update it!
                             mChapterData.set(j, c);
-                            mAdapter.notifyItemChanged(j);
+                            mChapterListAdapter.notifyItemChanged(j);
                         }
                     }
                 }
@@ -110,7 +165,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 }
             }
             mLoadingProgressbar.setVisibility(View.GONE);
-            mAdapter.notifyItemRangeInserted(startingIndex, count);
+            mChapterListAdapter.notifyItemRangeInserted(startingIndex, count);
 
             if (swipeRefreshLayout != null) {
                 swipeRefreshLayout.setRefreshing(false);
@@ -175,56 +230,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             }
         }
     };
-    /**
-     * Called when downloading the check fails
-     */
-    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            int errorStringId;
-            if (error.getCause().getClass() == javax.net.ssl.SSLHandshakeException.class) {
-                errorStringId = R.string.update_check_failed_hackers_on_the_loose;
-            } else {
-                errorStringId = R.string.update_check_failed;
-            }
-
-            Snackbar.make(mRecycler, errorStringId, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
-    /**
-     * Called when downloading the chapter list fails
-     */
-    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            error.printStackTrace();
-            Snackbar.make(mRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
-    private LinearLayoutManager mLayoutManager;
+    private LinearLayoutManager mChapterListLayoutManager;
 
     /**
      * Open the latest page
@@ -232,7 +238,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private void openLatestPage() {
         Chapter latestChapter = ChapterDatabase.getLastChapter();
 
-        View chapterView = mRecycler.getChildAt(mRecycler.getChildCount() - 1);
+        View chapterView = mChapterRecycler.getChildAt(mChapterRecycler.getChildCount() - 1);
         onChapterSelect(chapterView, latestChapter, DataPreferences.getLatestPage(this));
     }
 
@@ -265,7 +271,8 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         assert  mCoordinatorLayout != null;
 
         SetupData();
-        SetupRecycler();
+        SetupChapterListRecycler();
+        SetupPageThumbRecycler();
         CheckOrSubmitCrashLogs();
     }
 
@@ -328,17 +335,34 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     /**
      * Prepare the RecyclerView for showing chapters
      */
-    private void SetupRecycler() {
-        mRecycler = (RecyclerView) findViewById(R.id.chapterList);
+    private void SetupChapterListRecycler() {
+        mChapterRecycler = (RecyclerView) findViewById(R.id.chapterList);
 
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecycler.setLayoutManager(mLayoutManager);
+        mChapterListLayoutManager = new LinearLayoutManager(this);
+        mChapterRecycler.setLayoutManager(mChapterListLayoutManager);
 
         boolean isSortDescending = getSortDescending();
         setSortDescending(isSortDescending);
 
-        mAdapter = new ChapterListAdapter(this, mChapterData, this);
-        mRecycler.setAdapter(mAdapter);
+        mChapterListAdapter = new ChapterListAdapter(this, mChapterData, this);
+        mChapterRecycler.setAdapter(mChapterListAdapter);
+    }
+
+    /**
+     * Prepare the RecyclerView for showing page thumbs (in tablet mode)
+     */
+    private void SetupPageThumbRecycler() {
+        mPageThumbRecycler = (RecyclerView) findViewById(R.id.page_thumb_recycler);
+        if (mPageThumbRecycler == null)
+            return;
+
+        mBigChapterTitle = (TextView) findViewById(R.id.chapter_list_title);
+
+        GridLayoutManager mPageThumbLayoutManager = new GridLayoutManager(this, getResources().getInteger(R.integer.page_thumb_column_count));
+        mPageThumbRecycler.setLayoutManager(mPageThumbLayoutManager);
+
+        mPageThumbAdapter = new PageThumbAdapter(this, null, this);
+        mPageThumbRecycler.setAdapter(mPageThumbAdapter);
     }
 
     @Override
@@ -359,29 +383,46 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
      * @param page The page to scroll to (use 1 to start from the beginning)
      */
     @Override
-    public void onChapterSelect(final View view, final Chapter chapter, final int page) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Intent fullScreenIntent = new Intent(thisActivity, FullscreenReaderActivity.class);
-                fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_CHAPTER, chapter);
-                fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_PAGE, page);
+    public void onChapterSelect(final View view, final Chapter chapter, int page) {
+        final int adjustedPage;
 
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP && view != null) {
-                    //View titleView = view.findViewById(R.id.title);
-                    View titleView = thisActivity.findViewById(R.id.toolbar);
-                    Pair<View, String> titlePair = Pair.create(titleView, titleView.getTransitionName());
-                    Pair<View, String> entireViewPair = Pair.create(view, view.getTransitionName());
+        if (mPageThumbRecycler == null && page <= 0)
+            adjustedPage = 1;
+        else
+            adjustedPage = page;
 
-                    @SuppressWarnings("unchecked") Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(thisActivity, entireViewPair, titlePair).toBundle();
+        if (mPageThumbRecycler == null || page > 0) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Intent fullScreenIntent = new Intent(thisActivity, FullscreenReaderActivity.class);
+                    fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_CHAPTER, chapter);
+                    fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_PAGE, adjustedPage);
 
-                    startActivity(fullScreenIntent, bundle);
-                } else {
-                    //TODO: Make a nice transition here
-                    startActivity(fullScreenIntent);
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP && view != null) {
+                        //View titleView = view.findViewById(R.id.title);
+                        View titleView = thisActivity.findViewById(R.id.toolbar);
+                        Pair<View, String> titlePair = Pair.create(titleView, titleView.getTransitionName());
+                        Pair<View, String> entireViewPair = Pair.create(view, view.getTransitionName());
+
+                        @SuppressWarnings("unchecked") Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(thisActivity, entireViewPair, titlePair).toBundle();
+
+                        startActivity(fullScreenIntent, bundle);
+                    } else {
+                        //TODO: Make a nice transition here
+                        startActivity(fullScreenIntent);
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mBigChapterTitle.setText(String.format(getString(R.string.chapter_title_big), API.FormatChapterNumber(chapter.getNumber()), chapter.getTitle()));
+                    mPageThumbAdapter.setChapter(chapter);
+                }
+            });
+        }
     }
 
     /**
@@ -399,7 +440,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
 
         // Update the list
         int index = mChapterData.indexOf(chapter);
-        mAdapter.notifyItemChanged(index);
+        mChapterListAdapter.notifyItemChanged(index);
     }
 
     @Override
@@ -457,8 +498,8 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 .putBoolean("chapter_sort_descending", descending)
                 .apply();
 
-        mLayoutManager.setReverseLayout(descending);
-        mLayoutManager.setStackFromEnd(descending);
+        mChapterListLayoutManager.setReverseLayout(descending);
+        mChapterListLayoutManager.setStackFromEnd(descending);
     }
 
     @Override
@@ -473,5 +514,10 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     @Override
     public void onRefresh() {
         startChapterListUpdateCheck();
+    }
+
+    @Override
+    public void onThumbnailClick(Chapter chapter, int page, View clickedView) {
+        onChapterSelect(clickedView, chapter, page);
     }
 }
