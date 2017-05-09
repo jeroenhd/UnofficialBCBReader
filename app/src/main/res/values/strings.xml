@@ -85,6 +85,15 @@
     <string name="pref_summary_off_show_commentary">Not showing author commentary above the navigation controls while reading</string>
     <string name="pref_summary_on_show_commentary">Showing author commentary above the navigation controls while reading</string>
     <string name="pref_title_show_commentary">Show author commentary</string>
+    <string name="continue_reading">Continue reading</string>
+    <string name="update_check_failed_hackers_on_the_loose">Your connection is being intercepted! You are likely being attacked by hackers!</string>
+    <string name="crash_dialog_title">Send crash report</string>
+    <string name="confirm_send_crash_report">The app has found unsent crash reports! Would you like to send these report so the cause of the crashes can be fixed?</string>
+    <string name="send_crash_reports">Send reports</string>
+    <string name="dont_send_crash_reports">Delete reports</string>
+    <string name="dummy_page_number">Page 1</string>
+    <string name="page_number">Page %1$d</string>
+    <string name="chapter_title_big">Chapter %1$s: %2$s</string>
     <string name="no_description_available">No description is available right now.</string>
     <string name="to_next_chapter">Read the next chapter</string>
     <string name="no_next_chapter">You\'re all up to date! There\'s no next chapter!</string>

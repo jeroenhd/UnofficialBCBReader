@@ -36,12 +36,14 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import java.util.List;
 import java.util.Locale;
 
+import nl.jeroenhd.app.bcbreader.BCBReaderApplication;
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.adapters.FullscreenPagePagerAdapter;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
+import nl.jeroenhd.app.bcbreader.data.check.DataPreferences;
 import nl.jeroenhd.app.bcbreader.fragments.FullscreenPageFragment;
 import nl.jeroenhd.app.bcbreader.fragments.NavigationEventFragment;
 import nl.jeroenhd.app.bcbreader.tools.CompatHelper;
@@ -53,6 +55,7 @@ import nl.jeroenhd.app.bcbreader.tools.ShareManager;
 public class FullscreenReaderActivity extends AppCompatActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener, FullscreenPageFragment.FullscreenPageFragmentCallback, ViewPager.OnPageChangeListener, NavigationEventFragment.NavigationEventCallback {
     public static final String EXTRA_CHAPTER = "nl.jeroenhd.app.bcbreader.activities.ChapterListActivity.EXTRA_CHAPTER";
     public static final String EXTRA_PAGE = "nl.jeroenhd.app.bcbreader.activities.ChapterListActivity.EXTRA_PAGE";
+    public static final String JUST_SHOW_LATEST = "nl.jeroenhd.app.bcbreader.activities.ChapterListActivity.JUST_SHOW_LATEST";
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -70,20 +73,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private static final int UI_ANIMATION_DELAY = 300;
     private final FullscreenReaderActivity thisActivity = this;
     private final Handler mHideHandler = new Handler();
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
     private Button buttonPrev;
     private Button buttonNext;
     private SeekBar seekBar;
@@ -122,6 +111,20 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         @Override
         public void run() {
             hide();
+        }
+    };
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring behavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
         }
     };
     private Chapter currentChapter;
@@ -213,6 +216,10 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
                 Log.d(App.TAG, "ActivityFromUri: Chapter " + chapterNumber + ", page + " + page + " is not in the database (yet)!");
                 //TODO: Figure out if something needs to be done here
             }
+        } else if (action != null && action.equals(BCBReaderApplication.ACTION_SHORTCUT)) {
+            // The app was started using a custom shortcut
+            currentChapter = DataPreferences.getLatestChapter(this);
+            currentPage = DataPreferences.getLatestPage(this);
         } else if (extras != null) {
             if (!extras.containsKey(EXTRA_CHAPTER) || !extras.containsKey(EXTRA_PAGE)) {
                 throw new IllegalArgumentException("Missing argument (CHAPTER or PAGE_NUMBER)");
@@ -231,7 +238,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             }
         } else {
             // No extra's?
-            Log.e(App.TAG, "FullScreenReader: Activity started without any extras");
+            Log.e(App.TAG, "FullScreenReader: Activity started without action or without any extras");
             throw new IllegalArgumentException("Provide a chapter to display!");
         }
 

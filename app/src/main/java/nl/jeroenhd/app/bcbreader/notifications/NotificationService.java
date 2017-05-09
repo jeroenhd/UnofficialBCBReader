@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.TimeZone;
 
 import nl.jeroenhd.app.bcbreader.R;
-import nl.jeroenhd.app.bcbreader.activities.ChapterReadingActivity;
 import nl.jeroenhd.app.bcbreader.activities.FullscreenReaderActivity;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
@@ -232,10 +231,10 @@ public class NotificationService extends IntentService {
      * @param pageBitmap The bitmap for the latest page. Optional but recommended
      */
     private void DisplayNotification(@Nullable Bitmap pageBitmap) {
-        Intent intent = new Intent(this, ChapterReadingActivity.class);
+        Intent intent = new Intent(this, FullscreenReaderActivity.class);
         Bundle extras = new Bundle();
 
-        // These values are used by ChapterReadingActivity to determine what page is being opened
+        // These values are used by @Link{FullscreenReaderActivity} to determine what page is being opened
         Chapter chapter = ChapterDatabase.getLastChapter();
         extras.putParcelable(FullscreenReaderActivity.EXTRA_CHAPTER, chapter);
         extras.putInt(FullscreenReaderActivity.EXTRA_PAGE, chapter.getPageCount());

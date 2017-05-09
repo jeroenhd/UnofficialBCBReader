@@ -20,6 +20,7 @@ import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
+import nl.jeroenhd.app.bcbreader.data.check.DataPreferences;
 import nl.jeroenhd.app.bcbreader.views.PageImageView;
 
 /**
@@ -137,6 +138,21 @@ public class FullscreenPageFragment extends Fragment {
     /**
      * An interface to communicate from page fragments to the parent activity
      */
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser && chapter != null) {
+            updateLastRead();
+        }
+    }
+
+    /**
+     * Update the preferences to show that this is the page the user read last
+     */
+    protected void updateLastRead() {
+        DataPreferences.setLastReadPage(mContext, chapter.getNumber(), page);
+    }
+
     public interface FullscreenPageFragmentCallback {
         /**
          * Emitted when the page image has been tapped

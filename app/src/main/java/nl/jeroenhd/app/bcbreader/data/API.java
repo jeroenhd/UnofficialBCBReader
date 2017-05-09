@@ -166,7 +166,7 @@ public class API {
          * 2:00 PM <SuitCase> dont use that
          * 2:00 PM <SuitCase> use the site itself, https://www.
          **/
-        return CDNUrl + "comics/" + formatChapterNumber(chapter) + "/" + "" + ((long) page) + quality + ext;
+        return CDNUrl + "comics/" + FormatChapterNumber(chapter) + "/" + "" + ((long) page) + quality + ext;
     }
 
     /**
@@ -180,7 +180,7 @@ public class API {
      */
     public static String FormatPageUrl(Context context, Double chapter, double page, String quality) {
         String ext = isJpegChapter(chapter, quality) ? ".jpg" : ".png";
-        return getResourceBaseURL(context) + "comics/" + formatChapterNumber(chapter) + "/" + "" + ((long) page) + quality + ext;
+        return getResourceBaseURL(context) + "comics/" + FormatChapterNumber(chapter) + "/" + "" + ((long) page) + quality + ext;
     }
 
     /**
@@ -191,12 +191,12 @@ public class API {
      * @return The short link URL to the page
      */
     public static String FormatPageLink(Double chapterNumber, long pageNumber) {
-        return String.format(Locale.US, "http://bcb.cat/c%1$s/p%2$s/", formatChapterNumber(chapterNumber), pageNumber);
+        return String.format(Locale.US, "http://bcb.cat/c%1$s/p%2$s/", FormatChapterNumber(chapterNumber), pageNumber);
     }
 
     @Deprecated
     public static String FormatLqThumbURL(double chapter, double page) {
-        return CDNUrl + "app/comics/lqthumb/" + formatChapterNumber(chapter) + "-" + (long) page + ".jpg";
+        return CDNUrl + "app/comics/lqthumb/" + FormatChapterNumber(chapter) + "-" + (long) page + ".jpg";
     }
 
     /**
@@ -208,7 +208,7 @@ public class API {
      * @return A full URL to the image file containing a low quality page preview
      */
     public static String FormatLqThumbURL(Context context, double chapter, double page) {
-        return getResourceBaseURL(context) + "app/comics/lqthumb/" + formatChapterNumber(chapter) + "-" + (long) page + ".jpg";
+        return getResourceBaseURL(context) + "app/comics/lqthumb/" + FormatChapterNumber(chapter) + "-" + (long) page + ".jpg";
     }
 
     /**
@@ -217,7 +217,7 @@ public class API {
      * @param chapter The chapter numer to format
      * @return The chapter number, either in the format ## or ##.#
      */
-    private static String formatChapterNumber(double chapter) {
+    public static String FormatChapterNumber(double chapter) {
         String out;
 
         // Check for decimals
@@ -246,9 +246,9 @@ public class API {
          */
         final boolean useCDN = true;
         if (useCDN) {
-            return CDNUrl + "app/comics/icon/" + formatChapterNumber(chapter) + ".png";
+            return CDNUrl + "app/comics/icon/" + FormatChapterNumber(chapter) + ".png";
         } else {
-            return BaseURL + "app/comics/icon/" + formatChapterNumber(chapter) + ".png";
+            return BaseURL + "app/comics/icon/" + FormatChapterNumber(chapter) + ".png";
         }
     }
 
@@ -261,9 +261,9 @@ public class API {
     public static String FormatChapterThumbURL(Context context, Double chapter) {
         //CDN returns 404 page instead of empty image for unknown chapters!!
         if (UseCDN(context)) {
-            return CDNUrl + "app/comics/icon/" + formatChapterNumber(chapter) + ".png";
+            return CDNUrl + "app/comics/icon/" + FormatChapterNumber(chapter) + ".png";
         } else {
-            return BaseURL + "app/comics/icon/" + formatChapterNumber(chapter) + ".png";
+            return BaseURL + "app/comics/icon/" + FormatChapterNumber(chapter) + ".png";
         }
     }
 
