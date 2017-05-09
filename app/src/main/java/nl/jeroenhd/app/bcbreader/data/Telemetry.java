@@ -26,7 +26,7 @@ import nl.jeroenhd.app.bcbreader.R;
  * Class to detect telemetry
  */
 public class Telemetry {
-    private static final String TelemetryURL = "https://www.jeroenhd.nl/proj/app/androidTelemetry.php";
+    private static final String TelemetryURL = "https://app.jeroenhd.nl/bcb/androidTelemetry.php";
     private static Telemetry instance;
     private final String Model;
     private final String AndroidVersion;

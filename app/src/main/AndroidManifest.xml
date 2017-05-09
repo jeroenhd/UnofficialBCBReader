@@ -29,15 +29,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.ChapterReadingActivity"
-            android:label="@string/title_activity_chapter_reading"
-            android:parentActivityName=".activities.ChapterListActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="nl.jeroenhd.app.bcbreader.activities.ChapterListActivity" />
-        </activity>
-        <activity
             android:name=".activities.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".activities.ChapterListActivity">
