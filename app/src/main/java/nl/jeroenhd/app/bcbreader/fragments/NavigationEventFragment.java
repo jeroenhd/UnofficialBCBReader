@@ -80,8 +80,7 @@ public class NavigationEventFragment extends Fragment {
         /**
          * Called when the parent activity should navigate to another chapter
          * @param chapter The chapter to navigate to
-         * @param page The page to navigate to
          */
-        void onNavigateTo(Chapter chapter, int page);
+        void onNavigateTo(Chapter chapter);
     }
 }

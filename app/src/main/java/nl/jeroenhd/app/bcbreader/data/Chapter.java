@@ -208,9 +208,7 @@ public class Chapter extends BaseModel implements Parcelable {
     {
         return new Select()
                 .from(Chapter.class)
-                .where(
-                        Chapter_Table.number
-                                .lessThan(this.getNumber()))
+                .where(Chapter_Table.number.lessThan(this.getNumber()))
                 .limit(1)
                 .orderBy(Chapter_Table.number, false)
                 .querySingle();

@@ -35,7 +35,11 @@ public class FullscreenPagePagerAdapter extends FragmentStatePagerAdapter {
         } else if (position == mChapter.getPageCount() && mChapter.getNext() != null) {
             return NextChapterFragment.newInstance(mChapter, mNavigationCallback);
         }
-        return FullscreenPageFragment.newInstance(mChapter, position, mPageCallback);
+
+        int pageNumber = position;
+        if (mChapter.getPrevious() != null)
+            pageNumber--;
+        return FullscreenPageFragment.newInstance(mChapter, pageNumber, mPageCallback);
     }
 
     @Override

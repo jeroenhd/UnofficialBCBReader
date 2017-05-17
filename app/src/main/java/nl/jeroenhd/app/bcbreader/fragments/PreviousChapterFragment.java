@@ -43,9 +43,9 @@ public class PreviousChapterFragment extends NavigationEventFragment {
             // There might not be a previous chapter in some cases
             if (previousChapter == null)
             {
-                callback.onNavigateTo(null, -1);
+                callback.onNavigateTo(null);
             } else {
-                callback.onNavigateTo(previousChapter, previousChapter.getPageCount());
+                callback.onNavigateTo(previousChapter);
             }
         }
     }

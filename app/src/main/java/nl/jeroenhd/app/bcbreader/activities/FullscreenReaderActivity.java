@@ -127,8 +127,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             return false;
         }
     };
-
-
     private boolean previousChapterExists = true;
     private boolean nextChapterExists = true;
 
@@ -139,7 +137,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         setContentView(R.layout.activity_fullscreen_reader);
 
         mVisible = true;
-        mControlsView = findViewById(R.id.fullscreen_content_controls);
         //mContentView = findViewById(R.id.fullscreen_content);
         mContentView = findViewById(R.id.pager);
 
@@ -243,20 +240,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             throw new IllegalArgumentException("Provide a chapter to display!");
         }
 
-        this.nextChapterExists = currentChapter.getNext() != null;
-        this.previousChapterExists = currentChapter.getPrevious() != null;
-
-        seekBar.setMax(currentChapter.getPageCount() - 1);
-
-        // Corrected page view: do not decrement by one because "page 0" is a dummy Fragment
-        seekBar.setProgress(currentPage - (previousChapterExists?0:1));
-
-        // prev + last + next
-        viewPager.setOffscreenPageLimit(5);
-        viewPager.setAdapter(new FullscreenPagePagerAdapter(getSupportFragmentManager(), this.currentChapter, this, this));
-
-        // Corrected page view: do not decrement by one because "page 0" is a dummy Fragment
-        viewPager.setCurrentItem(currentPage- (previousChapterExists?0:1));
+        setupChapterView(currentPage);
 
         viewPager.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -274,6 +258,23 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         viewPager.addOnPageChangeListener(this);
 
         updateCommentary(viewPager.getCurrentItem());
+    }
+
+    private void setupChapterView(int currentPage) {
+        this.nextChapterExists = currentChapter.getNext() != null;
+        this.previousChapterExists = currentChapter.getPrevious() != null;
+
+        seekBar.setMax(currentChapter.getPageCount() - 1);
+
+        // Corrected page view: do not decrement by one because "page 0" is a dummy Fragment
+        seekBar.setProgress(currentPage - (previousChapterExists ? 0 : 1));
+
+        // prev + last + next
+        viewPager.setOffscreenPageLimit(5);
+        viewPager.setAdapter(new FullscreenPagePagerAdapter(getSupportFragmentManager(), this.currentChapter, this, this));
+
+        // Corrected page view: do not decrement by one because "page 0" is a dummy Fragment
+        viewPager.setCurrentItem(currentPage - (previousChapterExists ? 0 : 1));
     }
 
     @Override
@@ -552,18 +553,23 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     }
 
     @Override
-    public void onNavigateTo(Chapter chapter, int page) {
-        if (chapter != null)
-        {
-            Intent differentChapterIntent = new Intent(this, FullscreenReaderActivity.class);
-            differentChapterIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            differentChapterIntent.putExtra(EXTRA_CHAPTER, chapter);
-            differentChapterIntent.putExtra(EXTRA_PAGE, page);
-
-            startActivity(differentChapterIntent);
-        } else {
+    public void onNavigateTo(Chapter chapter) {
+        if (chapter == null) {
             // ehm
             Log.d(App.TAG, "onNavigateTo: Can't navigate to a chapter when chapter == null");
+
+            return;
         }
+
+        int page = 0;
+        if (chapter.getNumber() < this.currentChapter.getNumber()) {
+            page = chapter.getPageCount() - 1;
+        } else {
+            page = 0;
+        }
+
+
+        this.currentChapter = chapter;
+        this.setupChapterView(page);
     }
 }
