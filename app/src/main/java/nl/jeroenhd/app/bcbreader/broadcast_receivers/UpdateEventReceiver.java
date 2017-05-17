@@ -30,8 +30,7 @@ public class UpdateEventReceiver extends WakefulBroadcastReceiver {
      */
     public static void setupAlarm(Context context) {
         // Check if the user has enable notifications, if not, stop
-        // By default notifications should be disabled
-        if (PreferenceManager
+        if (!PreferenceManager
                 .getDefaultSharedPreferences(context)
                 .getBoolean("notifications_enabled", true)) {
             return;

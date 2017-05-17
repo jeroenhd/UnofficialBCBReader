@@ -10,9 +10,11 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -25,7 +27,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -48,6 +49,8 @@ import nl.jeroenhd.app.bcbreader.fragments.FullscreenPageFragment;
 import nl.jeroenhd.app.bcbreader.fragments.NavigationEventFragment;
 import nl.jeroenhd.app.bcbreader.tools.CompatHelper;
 import nl.jeroenhd.app.bcbreader.tools.ShareManager;
+
+import static android.view.View.GONE;
 
 /**
  * A full screen comic reader activity
@@ -77,11 +80,21 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private Button buttonNext;
     private SeekBar seekBar;
     private View mContentView;
+    private Toolbar toolbar;
+    private boolean mVisible;
+    private Chapter currentChapter;
+    private ViewPager viewPager;
+    private boolean firstToolbarShow = true;
+    private TextView commentaryView;
+    private BottomSheetBehavior bottomSheetBehavior;
+    private NestedScrollView commentaryScroller;
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
         @Override
         public void run() {
             // Delayed removal of status and navigation bar
+
+            commentaryScroller.setVisibility(GONE);
 
             // Note that some of these constants are new as of API 16 (Jelly Bean)
             // and API 19 (KitKat). It is safe to use them, as they are inlined
@@ -94,19 +107,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
     };
-    private Toolbar toolbar;
-    private View mControlsView;
-    private final Runnable mShowPart2Runnable = new Runnable() {
-        @Override
-        public void run() {
-            // Delayed display of UI elements
-            mControlsView.animate()
-                    .translationY(/*-mControlsView.getHeight()*/0)
-                    .setDuration(UI_ANIMATION_DELAY)
-                    .start();
-        }
-    };
-    private boolean mVisible;
     private final Runnable mHideRunnable = new Runnable() {
         @Override
         public void run() {
@@ -115,7 +115,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     };
     /**
      * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
+     * system UI. This is to prevent the jarring bottomSheetBehavior of controls going away
      * while interacting with activity UI.
      */
     private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
@@ -127,11 +127,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             return false;
         }
     };
-    private Chapter currentChapter;
-    private ViewPager viewPager;
-    private boolean firstToolbarShow = true;
-
-    private TextView commentaryView;
 
 
     private boolean previousChapterExists = true;
@@ -145,6 +140,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
+        //mContentView = findViewById(R.id.fullscreen_content);
         mContentView = findViewById(R.id.pager);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -165,11 +161,16 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         // Make links in commentary work
         commentaryView.setMovementMethod(LinkMovementMethod.getInstance());
 
-        ScrollView commentaryScroller = (ScrollView) findViewById(R.id.commentary_scroller);
+        commentaryScroller = (NestedScrollView) findViewById(R.id.bottom_sheet);
+        bottomSheetBehavior = BottomSheetBehavior.from(commentaryScroller);
+        bottomSheetBehavior.setHideable(true);
+        bottomSheetBehavior.setSkipCollapsed(true);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean showCommentary = preferences.getBoolean("show_commentary", true);
         commentaryScroller.setVisibility(
-                showCommentary ? View.VISIBLE : View.GONE
+                showCommentary ? View.VISIBLE : GONE
         );
 
         assert buttonPrev != null;
@@ -347,27 +348,23 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         // Hide UI first
         ActionBar actionBar = getSupportActionBar();
         hideActionBar(actionBar);
-        mControlsView.animate()
-                .translationY(mControlsView.getHeight())
-                .setDuration(UI_ANIMATION_DELAY)
-                .start();
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         mVisible = false;
 
         // Schedule a runnable to remove the status and navigation bar after a delay
-        mHideHandler.removeCallbacks(mShowPart2Runnable);
         mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
-
     }
 
     /**
      * Show the controls after coming back from full screen
      */
     private void show() {
+        commentaryScroller.setVisibility(View.VISIBLE);
         // Show the system bar
         mContentView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+                /*| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION*/);
         mVisible = true;
 
         ActionBar actionBar = getSupportActionBar();
@@ -377,11 +374,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
         // Schedule a runnable to display UI elements after a delay
         mHideHandler.removeCallbacks(mHidePart2Runnable);
-        //mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
-        mControlsView.animate()
-                .translationY(/*-mControlsView.getHeight()*/0)
-                .setDuration(UI_ANIMATION_DELAY)
-                .start();
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
     /**
