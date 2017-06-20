@@ -78,7 +78,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         @Override
         public void onErrorResponse(VolleyError error) {
             int errorStringId;
-            if (error.getCause() != null && error.getCause().getClass() == javax.net.ssl.SSLHandshakeException.class) {
+            if (error != null && error.getCause() != null && error.getCause().getClass() == javax.net.ssl.SSLHandshakeException.class) {
                 errorStringId = R.string.update_check_failed_hackers_on_the_loose;
             } else {
                 errorStringId = R.string.update_check_failed;
