@@ -130,6 +130,9 @@ public class DataPreferences {
     /**
      * Set the page read last by the user
      *
+     * Contains fix from:
+     * https://stackoverflow.com/questions/16319237/cant-put-double-sharedpreferences
+     *
      * @param mContext The context of the reading fragment
      * @param chapter  The chapter number
      * @param page     The page number
@@ -139,20 +142,23 @@ public class DataPreferences {
                 .getDefaultSharedPreferences(mContext)
                 .edit();
         edit.putInt(PREF_LAST_READ_PAGE, page);
-        edit.putFloat(PREF_LAST_READ_CHAPTER, (float) chapter);
+
+        edit.putLong(PREF_LAST_READ_CHAPTER, Double.doubleToLongBits(chapter));
         edit.apply();
     }
 
     /**
      * Get the chapter number of the chapter the user read last
      *
+     * Contains fix from:
+     * https://stackoverflow.com/questions/16319237/cant-put-double-sharedpreferences
      * @param context The context to use
      * @return The chapter number or 1 if no number was saved
      */
-    public static float getLastReadChapterNumber(Context context) {
-        return PreferenceManager
+    public static Double getLastReadChapterNumber(Context context) {
+        return Double.longBitsToDouble(PreferenceManager
                 .getDefaultSharedPreferences(context)
-                .getFloat(PREF_LAST_READ_CHAPTER, 1.0f);
+                .getLong(PREF_LAST_READ_CHAPTER, 1));
     }
 
     /**
