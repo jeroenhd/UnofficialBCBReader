@@ -7,6 +7,10 @@ import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.language.Select;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
@@ -40,6 +44,7 @@ public class DataPreferences {
      * This preference key stores the last read chapter number
      */
     private static final String PREF_LAST_READ_CHAPTER = "hidden_last_read_chapter";
+    private static final String PREF_LAST_NOTIFICATION_TIME = "last_notification_time";
 
     /**
      * Save a Check object to the cache
@@ -160,5 +165,24 @@ public class DataPreferences {
         return PreferenceManager
                 .getDefaultSharedPreferences(context)
                 .getInt(PREF_LAST_READ_PAGE, 1);
+    }
+
+    /**
+     * Get the last time a notification has been shown
+     * @param context The context to use
+     * @return A Date object containing the last notification
+     */
+    public static long getLastNotificationTime(Context context)
+    {
+        return PreferenceManager.getDefaultSharedPreferences(context).getLong(PREF_LAST_NOTIFICATION_TIME, 0);
+    }
+
+    /**
+     * Set the last time a notification has been shown to the current time
+     * @param context The context to use
+     */
+    public static void setLastNotificationDate(Context context)
+    {
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putLong(PREF_LAST_NOTIFICATION_TIME, System.currentTimeMillis()).apply();
     }
 }
