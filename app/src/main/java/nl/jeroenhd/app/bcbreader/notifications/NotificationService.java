@@ -236,7 +236,7 @@ public class NotificationService extends IntentService {
      * @param pageBitmap The bitmap for the latest page. Optional but recommended
      */
     public void DisplayNotification(@Nullable Bitmap pageBitmap) {
-        Intent intent = new Intent(this, FullscreenReaderActivity.class);
+        Intent intent = new Intent(NotificationService.this, FullscreenReaderActivity.class);
         Bundle extras = new Bundle();
 
         // These values are used by @Link{FullscreenReaderActivity} to determine what page is being opened
