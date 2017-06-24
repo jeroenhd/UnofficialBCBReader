@@ -235,7 +235,7 @@ public class NotificationService extends IntentService {
      *
      * @param pageBitmap The bitmap for the latest page. Optional but recommended
      */
-    private void DisplayNotification(@Nullable Bitmap pageBitmap) {
+    public void DisplayNotification(@Nullable Bitmap pageBitmap) {
         Intent intent = new Intent(this, FullscreenReaderActivity.class);
         Bundle extras = new Bundle();
 
