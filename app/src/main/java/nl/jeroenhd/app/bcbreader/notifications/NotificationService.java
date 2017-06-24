@@ -199,7 +199,7 @@ public class NotificationService extends IntentService {
             stringBuilder.append(",");
         }
 
-        final long DAY = 1000 * 60 * 60 *24;
+        final long DAY = 1000 * 60 * 60 * 24;
 
         showNotification &= (DataPreferences.getLastNotificationTime(leakingContext) - System.currentTimeMillis() >= DAY);
 
@@ -215,7 +215,7 @@ public class NotificationService extends IntentService {
 
         SuperSingleton.getInstance(this)
                 .getImageLoader()
-                .get(API.FormatPageUrl(this, chapterNumber, page, API.getQualitySuffix(this)), new ImageLoader.ImageListener() {
+                .get(API.FormatPageUrl(this, chapterNumber, page, "@m"), new ImageLoader.ImageListener() {
                     @Override
                     public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                         DisplayNotification(response.getBitmap());
@@ -273,6 +273,8 @@ public class NotificationService extends IntentService {
 
         if (null != pageBitmap) {
             NotificationCompat.BigPictureStyle notificationStyle = new NotificationCompat.BigPictureStyle();
+            notificationStyle.setBigContentTitle(this.getString(R.string.notification_title));
+            notificationStyle.setSummaryText(this.getString(R.string.notification_description));
             notificationStyle.bigPicture(pageBitmap);
             builder = builder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(pageBitmap));
         }

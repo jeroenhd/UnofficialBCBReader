@@ -7,10 +7,6 @@ import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.language.Select;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
@@ -175,20 +171,20 @@ public class DataPreferences {
 
     /**
      * Get the last time a notification has been shown
+     *
      * @param context The context to use
      * @return A Date object containing the last notification
      */
-    public static long getLastNotificationTime(Context context)
-    {
+    public static long getLastNotificationTime(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getLong(PREF_LAST_NOTIFICATION_TIME, 0);
     }
 
     /**
      * Set the last time a notification has been shown to the current time
+     *
      * @param context The context to use
      */
-    public static void setLastNotificationDate(Context context)
-    {
+    public static void setLastNotificationDate(Context context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit().putLong(PREF_LAST_NOTIFICATION_TIME, System.currentTimeMillis()).apply();
     }
 }
