@@ -199,9 +199,13 @@ public class NotificationService extends IntentService {
             stringBuilder.append(",");
         }
 
+        final long DAY = 1000 * 60 * 60 *24;
+
+        showNotification &= (DataPreferences.getLastNotificationTime(leakingContext) - System.currentTimeMillis() >= DAY);
+
         if (!showNotification) {
             String updateDaysStr = stringBuilder.toString();
-            Log.d(App.TAG, "Not showing the notification: today (" + today + ") is not in the update days (" + updateDaysStr + ")");
+            Log.d(App.TAG, "Not showing the notification: today (" + today + ") is not in the update days (" + updateDaysStr + ") or the notification has already been shown!");
             return;
         }
 
@@ -215,6 +219,7 @@ public class NotificationService extends IntentService {
                     @Override
                     public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                         DisplayNotification(response.getBitmap());
+                        DataPreferences.setLastNotificationDate(leakingContext);
                     }
 
                     @Override
