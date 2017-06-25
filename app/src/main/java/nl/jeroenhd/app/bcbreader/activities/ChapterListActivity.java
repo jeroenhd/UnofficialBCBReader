@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -28,6 +29,7 @@ import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
 import com.raizlabs.android.dbflow.sql.language.Select;
@@ -50,6 +52,7 @@ import nl.jeroenhd.app.bcbreader.data.check.Check;
 import nl.jeroenhd.app.bcbreader.data.check.DataPreferences;
 import nl.jeroenhd.app.bcbreader.data.check.UpdateTimes;
 import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
+import nl.jeroenhd.app.bcbreader.notifications.NotificationService;
 import nl.jeroenhd.app.bcbreader.tools.AppCrashStorage;
 
 public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener, Toolbar.OnMenuItemClickListener, SwipeRefreshLayout.OnRefreshListener, PopupMenu.OnMenuItemClickListener, PageThumbAdapter.OnThumbClickListener {
@@ -78,7 +81,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         @Override
         public void onErrorResponse(VolleyError error) {
             int errorStringId;
-            if (error.getCause().getClass() == javax.net.ssl.SSLHandshakeException.class) {
+            if (error != null && error.getCause() != null && error.getCause().getClass() == javax.net.ssl.SSLHandshakeException.class) {
                 errorStringId = R.string.update_check_failed_hackers_on_the_loose;
             } else {
                 errorStringId = R.string.update_check_failed;
@@ -372,6 +375,12 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_chapter_list, menu);
 
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            int adb = Settings.Secure.getInt(this.getContentResolver(),
+                    Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0);
+            menu.findItem(R.id.menu_debug).setVisible(adb != 0);
+        }
+
         return true;
     }
 
@@ -452,7 +461,20 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 startActivity(settingsIntent);
                 break;
             case R.id.menu_debug:
-                int i = 10 / 0;
+                SuperSingleton.getInstance(this)
+                        .getImageLoader()
+                        .get(API.FormatPageUrl(this, DataPreferences.getLatestChapterNumber(this), DataPreferences.getLatestPage(this), "@m"), new ImageLoader.ImageListener() {
+                            @Override
+                            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                                new NotificationService().DisplayNotification(response.getBitmap());
+                                DataPreferences.setLastNotificationDate(ChapterListActivity.this);
+                            }
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                new NotificationService().DisplayNotification(null);
+                            }
+                        });
                 break;
             case R.id.menu_continue_reading: {
                 double chapterNr = DataPreferences.getLastReadChapterNumber(this);

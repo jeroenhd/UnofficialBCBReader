@@ -199,9 +199,13 @@ public class NotificationService extends IntentService {
             stringBuilder.append(",");
         }
 
+        final long DAY = 1000 * 60 * 60 * 24;
+
+        showNotification &= (DataPreferences.getLastNotificationTime(leakingContext) - System.currentTimeMillis() >= DAY);
+
         if (!showNotification) {
             String updateDaysStr = stringBuilder.toString();
-            Log.d(App.TAG, "Not showing the notification: today (" + today + ") is not in the update days (" + updateDaysStr + ")");
+            Log.d(App.TAG, "Not showing the notification: today (" + today + ") is not in the update days (" + updateDaysStr + ") or the notification has already been shown!");
             return;
         }
 
@@ -211,10 +215,11 @@ public class NotificationService extends IntentService {
 
         SuperSingleton.getInstance(this)
                 .getImageLoader()
-                .get(API.FormatPageUrl(this, chapterNumber, page, API.getQualitySuffix(this)), new ImageLoader.ImageListener() {
+                .get(API.FormatPageUrl(this, chapterNumber, page, "@m"), new ImageLoader.ImageListener() {
                     @Override
                     public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                         DisplayNotification(response.getBitmap());
+                        DataPreferences.setLastNotificationDate(leakingContext);
                     }
 
                     @Override
@@ -230,8 +235,8 @@ public class NotificationService extends IntentService {
      *
      * @param pageBitmap The bitmap for the latest page. Optional but recommended
      */
-    private void DisplayNotification(@Nullable Bitmap pageBitmap) {
-        Intent intent = new Intent(this, FullscreenReaderActivity.class);
+    public void DisplayNotification(@Nullable Bitmap pageBitmap) {
+        Intent intent = new Intent(NotificationService.this, FullscreenReaderActivity.class);
         Bundle extras = new Bundle();
 
         // These values are used by @Link{FullscreenReaderActivity} to determine what page is being opened
@@ -268,6 +273,8 @@ public class NotificationService extends IntentService {
 
         if (null != pageBitmap) {
             NotificationCompat.BigPictureStyle notificationStyle = new NotificationCompat.BigPictureStyle();
+            notificationStyle.setBigContentTitle(this.getString(R.string.notification_title));
+            notificationStyle.setSummaryText(this.getString(R.string.notification_description));
             notificationStyle.bigPicture(pageBitmap);
             builder = builder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(pageBitmap));
         }

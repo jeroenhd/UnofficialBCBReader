@@ -40,6 +40,7 @@ public class DataPreferences {
      * This preference key stores the last read chapter number
      */
     private static final String PREF_LAST_READ_CHAPTER = "hidden_last_read_chapter";
+    private static final String PREF_LAST_NOTIFICATION_TIME = "last_notification_time";
 
     /**
      * Save a Check object to the cache
@@ -125,6 +126,9 @@ public class DataPreferences {
     /**
      * Set the page read last by the user
      *
+     * Contains fix from:
+     * https://stackoverflow.com/questions/16319237/cant-put-double-sharedpreferences
+     *
      * @param mContext The context of the reading fragment
      * @param chapter  The chapter number
      * @param page     The page number
@@ -134,20 +138,23 @@ public class DataPreferences {
                 .getDefaultSharedPreferences(mContext)
                 .edit();
         edit.putInt(PREF_LAST_READ_PAGE, page);
-        edit.putFloat(PREF_LAST_READ_CHAPTER, (float) chapter);
+
+        edit.putLong(PREF_LAST_READ_CHAPTER, Double.doubleToLongBits(chapter));
         edit.apply();
     }
 
     /**
      * Get the chapter number of the chapter the user read last
      *
+     * Contains fix from:
+     * https://stackoverflow.com/questions/16319237/cant-put-double-sharedpreferences
      * @param context The context to use
      * @return The chapter number or 1 if no number was saved
      */
-    public static float getLastReadChapterNumber(Context context) {
-        return PreferenceManager
+    public static Double getLastReadChapterNumber(Context context) {
+        return Double.longBitsToDouble(PreferenceManager
                 .getDefaultSharedPreferences(context)
-                .getFloat(PREF_LAST_READ_CHAPTER, 1.0f);
+                .getLong(PREF_LAST_READ_CHAPTER, 1));
     }
 
     /**
@@ -160,5 +167,24 @@ public class DataPreferences {
         return PreferenceManager
                 .getDefaultSharedPreferences(context)
                 .getInt(PREF_LAST_READ_PAGE, 1);
+    }
+
+    /**
+     * Get the last time a notification has been shown
+     *
+     * @param context The context to use
+     * @return A Date object containing the last notification
+     */
+    public static long getLastNotificationTime(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getLong(PREF_LAST_NOTIFICATION_TIME, 0);
+    }
+
+    /**
+     * Set the last time a notification has been shown to the current time
+     *
+     * @param context The context to use
+     */
+    public static void setLastNotificationDate(Context context) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putLong(PREF_LAST_NOTIFICATION_TIME, System.currentTimeMillis()).apply();
     }
 }
