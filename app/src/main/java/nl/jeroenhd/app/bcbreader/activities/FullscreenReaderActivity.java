@@ -76,6 +76,20 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private static final int UI_ANIMATION_DELAY = 300;
     private final FullscreenReaderActivity thisActivity = this;
     private final Handler mHideHandler = new Handler();
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring bottomSheetBehavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            return false;
+        }
+    };
     private Button buttonPrev;
     private Button buttonNext;
     private SeekBar seekBar;
@@ -87,6 +101,12 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private boolean firstToolbarShow = true;
     private TextView commentaryView;
     private BottomSheetBehavior bottomSheetBehavior;
+    private final Runnable mHideRunnable = new Runnable() {
+        @Override
+        public void run() {
+            hide();
+        }
+    };
     private NestedScrollView commentaryScroller;
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
@@ -107,28 +127,9 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
     };
-    private final Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            hide();
-        }
-    };
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring bottomSheetBehavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
     private boolean previousChapterExists = true;
     private boolean nextChapterExists = true;
+    private FullscreenPagePagerAdapter fullscreenPagePagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -264,14 +265,20 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         this.nextChapterExists = currentChapter.getNext() != null;
         this.previousChapterExists = currentChapter.getPrevious() != null;
 
-        seekBar.setMax(currentChapter.getPageCount() - 1);
+        seekBar.setMax(currentChapter.getPageCount() - 1 + (previousChapterExists ? 1 : 0) + (nextChapterExists ? 1 : 0));
 
         // Corrected page view: do not decrement by one because "page 0" is a dummy Fragment
         seekBar.setProgress(currentPage - (previousChapterExists ? 0 : 1));
 
         // prev + last + next
         viewPager.setOffscreenPageLimit(5);
-        viewPager.setAdapter(new FullscreenPagePagerAdapter(getSupportFragmentManager(), this.currentChapter, this, this));
+        if (fullscreenPagePagerAdapter == null) {
+            fullscreenPagePagerAdapter = new FullscreenPagePagerAdapter(getSupportFragmentManager(), this.currentChapter, this, this);
+            viewPager.setAdapter(fullscreenPagePagerAdapter);
+        } else {
+            fullscreenPagePagerAdapter.setChapter(this.currentChapter);
+            fullscreenPagePagerAdapter.notifyDataSetChanged();
+        }
 
         // Corrected page view: do not decrement by one because "page 0" is a dummy Fragment
         viewPager.setCurrentItem(currentPage - (previousChapterExists ? 0 : 1));
@@ -471,12 +478,9 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
      * Handle the request to show the previous page
      */
     private void onNext() {
-        //TODO: Maybe allow loading the next chapter?
         int currentItem = viewPager.getCurrentItem();
         if (currentItem < currentChapter.getPageDescriptions().size() - 1) {
             viewPager.setCurrentItem(currentItem + 1);
-        } else {
-            viewPager.setCurrentItem(0);
         }
     }
 
@@ -484,15 +488,10 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
      * Handle the request to show the previous page
      */
     private void onPrev() {
-        //TODO: Maybe allow loading the previous chapter?
         int currentItem = viewPager.getCurrentItem();
-        int pageIndex;
         if (currentItem >= 1) {
-            pageIndex = currentItem - 1;
-        } else {
-            pageIndex = currentChapter.getPageCount() - 1;
+            viewPager.setCurrentItem(currentItem - 1);
         }
-        viewPager.setCurrentItem(pageIndex);
     }
 
     @Override
@@ -500,7 +499,11 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         if (fromUser) {
             viewPager.setCurrentItem(progress);
         }
-        String title = String.format(Locale.getDefault(), getString(R.string.title_chapter_title_page_number), currentChapter.getTitle(), progress + 1);
+
+        if (!previousChapterExists)
+            progress++;
+
+        String title = String.format(Locale.getDefault(), getString(R.string.title_chapter_title_page_number), currentChapter.getTitle(), progress);
         toolbar.setTitle(title);
         this.setTitle(title);
     }
@@ -554,6 +557,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
     @Override
     public void onNavigateTo(Chapter chapter) {
+        // See if navigating makes sense
         if (chapter == null) {
             // ehm
             Log.d(App.TAG, "onNavigateTo: Can't navigate to a chapter when chapter == null");
@@ -561,15 +565,25 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             return;
         }
 
-        int page = 0;
+        int page;
+        // new chapter < current chapter?
         if (chapter.getNumber() < this.currentChapter.getNumber()) {
+            // begin at the end
             page = chapter.getPageCount() - 1;
         } else {
-            page = 0;
+            // new chapter >= current chapter?
+            // begin at the beginning
+            page = 1;
+
+            // If there's a previous chapter to this chapter, increase the page by one
+            if (chapter.getPrevious() != null)
+                page++;
         }
 
-
+        // Update state
         this.currentChapter = chapter;
+
+        // Set up view
         this.setupChapterView(page);
     }
 }

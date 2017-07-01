@@ -14,9 +14,9 @@ import nl.jeroenhd.app.bcbreader.fragments.PreviousChapterFragment;
  * A pager adapter for the full screen comic reader
  */
 public class FullscreenPagePagerAdapter extends FragmentStatePagerAdapter {
-    private final Chapter mChapter;
     private final FullscreenPageFragment.FullscreenPageFragmentCallback mPageCallback;
     private final NextChapterFragment.NavigationEventCallback mNavigationCallback;
+    private Chapter mChapter;
 
     public FullscreenPagePagerAdapter(FragmentManager fm, Chapter chapter, FullscreenPageFragment.FullscreenPageFragmentCallback pageFragmentCallback, NavigationEventFragment.NavigationEventCallback navigationEventCallback) {
         super(fm);
@@ -30,15 +30,18 @@ public class FullscreenPagePagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
         // Check if this is the first or last page
-        if (position == 0 && mChapter.getPrevious() != null) {
+        boolean hasPrevious = mChapter.getPrevious() != null;
+        boolean hasNext = mChapter.getNext() != null;
+
+        if (position == 0 && hasPrevious) {
             return PreviousChapterFragment.newInstance(mChapter, mNavigationCallback);
-        } else if (position == mChapter.getPageCount() && mChapter.getNext() != null) {
+        } else if (position == mChapter.getPageCount() + (hasPrevious ? 1 : 0) && hasNext) {
             return NextChapterFragment.newInstance(mChapter, mNavigationCallback);
         }
 
         int pageNumber = position;
-        if (mChapter.getPrevious() != null)
-            pageNumber--;
+        if (mChapter.getPrevious() == null)
+            pageNumber++;
         return FullscreenPageFragment.newInstance(mChapter, pageNumber, mPageCallback);
     }
 
@@ -56,5 +59,9 @@ public class FullscreenPagePagerAdapter extends FragmentStatePagerAdapter {
             count ++;
 
         return count;
+    }
+
+    public void setChapter(Chapter currentChapter) {
+        this.mChapter = currentChapter;
     }
 }
