@@ -1,4 +1,4 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -12,7 +12,7 @@
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
 
     <android.support.v7.widget.Toolbar
@@ -31,84 +31,84 @@
         app:titleTextColor="@android:color/white" />
 
 
-    <!-- This FrameLayout insets its children based on system windows using
-         android:fitsSystemWindows. -->
-    <FrameLayout
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:background="@android:color/white"
+        android:clipToPadding="true"
+        android:elevation="@dimen/elevation_toolbar"
+        app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
 
-        <LinearLayout
-            android:id="@+id/fullscreen_content_controls"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin">
 
-            <ScrollView
-                android:id="@+id/commentary_scroller"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/commentary_height"
-                android:background="@android:color/white"
-                android:elevation="@dimen/elevation_toolbar">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingBottom="@dimen/activity_vertical_margin"
-                    android:paddingEnd="@dimen/activity_horizontal_margin"
-                    android:paddingStart="@dimen/activity_horizontal_margin"
-                    android:paddingTop="@dimen/activity_vertical_margin">
-
-                    <android.support.v7.widget.AppCompatTextView
-                        android:id="@+id/appCompatTextView"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/title_commentary"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
-
-                    <android.support.v7.widget.AppCompatTextView
-                        android:id="@+id/commentary"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/dummy_commentary" />
-                </LinearLayout>
-            </ScrollView>
-
-            <LinearLayout
-                style="?metaButtonBarStyle"
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/authorCommentaryTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/black_overlay"
-                android:orientation="horizontal"
-                tools:ignore="UselessParent">
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:text="@string/title_commentary"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
-                <android.support.v7.widget.AppCompatButton
-                    android:id="@+id/button_left"
-                    style="?metaButtonBarButtonStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:drawableLeft="@drawable/ic_chevron_left_accent_24dp"
-                    android:drawableStart="@drawable/ic_chevron_left_accent_24dp" />
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/commentary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@id/authorCommentaryTextView"
+                android:text="@string/dummy_commentary" />
 
-                <SeekBar
-                    android:id="@+id/seekbar"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="4" />
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/button_left"
+                android:layout_width="24dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@id/commentary"
+                android:background="@android:color/white"
+                android:drawableLeft="@drawable/ic_chevron_left_accent_24dp"
+                android:drawableStart="@drawable/ic_chevron_left_accent_24dp" />
 
-                <android.support.v7.widget.AppCompatButton
-                    android:id="@+id/button_right"
-                    style="?metaButtonBarButtonStyle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:drawableEnd="@drawable/ic_chevron_right_accent_24dp"
-                    android:drawableRight="@drawable/ic_chevron_right_accent_24dp" />
+            <android.support.v7.widget.AppCompatButton
+                android:id="@+id/button_right"
+                android:layout_width="24dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/commentary"
+                android:background="@android:color/white"
+                android:drawableEnd="@drawable/ic_chevron_right_accent_24dp"
+                android:drawableRight="@drawable/ic_chevron_right_accent_24dp" />
 
-            </LinearLayout>
-        </LinearLayout>
-    </FrameLayout>
-</FrameLayout>
+            <SeekBar
+                android:id="@+id/seekbar"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_alignBottom="@id/button_left"
+                android:layout_alignTop="@id/button_left"
+                android:layout_below="@id/commentary"
+                android:layout_toEndOf="@id/button_left"
+                android:layout_toLeftOf="@id/button_right"
+                android:layout_toRightOf="@id/button_left"
+                android:layout_toStartOf="@id/button_right" />
+        </RelativeLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+</android.support.design.widget.CoordinatorLayout>
