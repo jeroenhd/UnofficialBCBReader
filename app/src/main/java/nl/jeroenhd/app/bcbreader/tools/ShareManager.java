@@ -40,13 +40,15 @@ public class ShareManager {
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, message);
         shareIntent.putExtra(Intent.EXTRA_TEXT, message);
 
+        shareIntent.setType("text/plain");
+
         // Have sharing the full image depend on a user preference
         // Most chat apps already preview pages
         if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("share_upload_image", false)) {
             Uri pictureUri = getBitmapUri(context, image);
             shareIntent.putExtra(Intent.EXTRA_STREAM, pictureUri);
+            shareIntent.setType("image/*");
         }
-        shareIntent.setType("image/png");
         shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         context.startActivity(Intent.createChooser(shareIntent, shareIntentTitle));
     }
