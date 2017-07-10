@@ -142,7 +142,8 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
 
         @Override
         public void onClick(View v) {
-            this.ClickHandler.onChapterSelect(v, this.CurrentChapter, 0);
+            this.ClickHandler.onChapterSelect(v, this.CurrentChapter, this.CurrentChapter.getLastPageRead());
         }
     }
 }
+
