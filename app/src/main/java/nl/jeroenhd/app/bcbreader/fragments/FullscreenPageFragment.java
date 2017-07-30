@@ -139,6 +139,9 @@ public class FullscreenPageFragment extends Fragment {
         }
     }
 
+    /**
+     * An interface to communicate from page fragments to the parent activity
+     */
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
@@ -152,9 +155,18 @@ public class FullscreenPageFragment extends Fragment {
      */
     protected void updateLastRead() {
         DataPreferences.setLastReadPage(mContext, chapter.getNumber(), page);
+        chapter.setLastPageRead(page);
+        chapter.update();
     }
 
     public interface FullscreenPageFragmentCallback {
+        /**
+         * Emitted when the page image has been tapped
+         * @param view The view being tapped
+         */
         void onTap(View view);
     }
 }
+
+
+
