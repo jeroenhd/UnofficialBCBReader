@@ -34,7 +34,6 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
     private final Context mContext;
     private final ArrayList<Chapter> mData;
     private final OnChapterClickListener mOnItemClickListener;
-    private final SuperSingleton singleton;
     private final Drawable clonedFavDrawable;
     private final Drawable clonedFavDrawableBorder;
 
@@ -42,8 +41,6 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         this.mContext = context;
         this.mData = data;
         this.mOnItemClickListener = onItemClickListener;
-
-        this.singleton = SuperSingleton.getInstance(context);
 
         // Clone drawables and cache them
         // Without cloning, setting the tint on them causes the drawable to have the tint
