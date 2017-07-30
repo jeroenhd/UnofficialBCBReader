@@ -63,6 +63,21 @@ public class NotificationService extends IntentService {
      */
     private int errorCount;
     /**
+     * A listener to receive errors during the update check
+     */
+    private final Response.ErrorListener checkError = new Response.ErrorListener() {
+        /**
+         * Callback method that an error has been occurred with the
+         * provided error code and optional user-readable message.
+         *
+         * @param error The error that caused this problem
+         */
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            errorCount++;
+        }
+    };
+    /**
      * A listener to receive the result of an update check
      */
     private final Response.Listener<Check> checkListener = new Response.Listener<Check>() {
@@ -82,23 +97,9 @@ public class NotificationService extends IntentService {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     errorCount++;
+                    checkForNewChapters();
                 }
             }));
-        }
-    };
-    /**
-     * A listener to receive errors during the update check
-     */
-    private final Response.ErrorListener checkError = new Response.ErrorListener() {
-        /**
-         * Callback method that an error has been occurred with the
-         * provided error code and optional user-readable message.
-         *
-         * @param error The error that caused this problem
-         */
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            errorCount++;
         }
     };
 
@@ -156,26 +157,32 @@ public class NotificationService extends IntentService {
             Log.d(App.TAG, "Notification action: " + action);
 
             if (action.equals(ACTION_START)) {
-                // Add a new request to the Volley queue
-                // We need to check for an update before we notify the user so we don't show a notification
-                // if there's nothing to notify about
-                // (who knows, maybe the buffer dried up, it happens)
-                SuperSingleton
-                        .getInstance(this)
-                        .getVolleyRequestQueue()
-                        .add(new JsonRequest<Check>(JsonRequest.Method.GET, API.CheckURI, null, this.checkListener, this.checkError) {
-                            @Override
-                            protected Response<Check> parseNetworkResponse(NetworkResponse response) {
-                                String json = new String(response.data);
-                                Check check = SuperSingleton.getInstance(leakingContext).getGsonBuilder().create().fromJson(json, Check.class);
-                                DataPreferences.SaveCheck(leakingContext, check);
-                                return Response.success(check, null);
-                            }
-                        });
+                checkForNewChapters();
             }
         } finally {
             WakefulBroadcastReceiver.completeWakefulIntent(intent);
         }
+    }
+
+    /**
+     * Add a new request to the Volley queue
+     * We need to check for an update before we notify the user so we don't show a notification
+     * if there's nothing to notify about
+     * (who knows, maybe the buffer dried up, it happens)
+     */
+    void checkForNewChapters() {
+        SuperSingleton
+                .getInstance(this)
+                .getVolleyRequestQueue()
+                .add(new JsonRequest<Check>(JsonRequest.Method.GET, API.CheckURI, null, this.checkListener, this.checkError) {
+                    @Override
+                    protected Response<Check> parseNetworkResponse(NetworkResponse response) {
+                        String json = new String(response.data);
+                        Check check = SuperSingleton.getInstance(leakingContext).getGsonBuilder().create().fromJson(json, Check.class);
+                        DataPreferences.SaveCheck(leakingContext, check);
+                        return Response.success(check, null);
+                    }
+                });
     }
 
     /**

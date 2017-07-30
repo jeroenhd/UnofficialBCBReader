@@ -54,7 +54,7 @@ public class DataPreferences {
         editor.putInt(PREF_UPDATE_TIME, Integer.parseInt(check.getUpdateTimes().getUpdateHour()));
         editor.putString(PREF_UPDATE_DAYS, check.getUpdateTimes().getUpdateDays());
 
-        editor.putFloat(PREF_LATEST_CHAPTER, check.getAddress().getLatestChapter().floatValue());
+        editor.putLong(PREF_LATEST_CHAPTER, Double.doubleToLongBits(check.getAddress().getLatestChapter()));
         editor.putInt(PREF_LATEST_PAGE, check.getAddress().getLatestPage());
 
         editor.apply();
@@ -95,7 +95,9 @@ public class DataPreferences {
      * @return The latest chapter number
      */
     public static double getLatestChapterNumber(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getFloat(PREF_LATEST_CHAPTER, API.DEFAULT_LATEST_CHAPTER);
+        return Double.longBitsToDouble(PreferenceManager
+                .getDefaultSharedPreferences(context)
+                .getLong(PREF_LATEST_CHAPTER, 1));
     }
 
     /**
