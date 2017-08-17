@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/list_item_max_height">
+    android:layout_height="@dimen/list_item_max_height"
+    android:transitionName="entireView">
 
     <nl.jeroenhd.app.bcbreader.views.FadingNetworkImageView
         android:id="@+id/thumb"

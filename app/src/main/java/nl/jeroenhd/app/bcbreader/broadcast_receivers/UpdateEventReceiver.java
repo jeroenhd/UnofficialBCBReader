@@ -33,7 +33,7 @@ public class UpdateEventReceiver extends WakefulBroadcastReceiver {
         // By default notifications should be disabled
         if (PreferenceManager
                 .getDefaultSharedPreferences(context)
-                .getBoolean("notifications_enabled", false)) {
+                .getBoolean("notifications_enabled", true)) {
             return;
         }
 

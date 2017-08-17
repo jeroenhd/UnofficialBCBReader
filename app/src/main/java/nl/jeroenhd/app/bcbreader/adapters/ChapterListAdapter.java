@@ -6,16 +6,23 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.raizlabs.android.dbflow.annotation.NotNull;
+import com.raizlabs.android.dbflow.sql.language.Method;
+import com.raizlabs.android.dbflow.sql.language.Select;
+
 import java.util.ArrayList;
 
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.data.API;
+import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
+import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 import nl.jeroenhd.app.bcbreader.tools.CompatHelper;
 import nl.jeroenhd.app.bcbreader.views.FadingNetworkImageView;
@@ -107,19 +114,21 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
          *
          * @param view    The view the user has interacted with
          * @param chapter The chapter the user has selected
-         * @param page    The page to scroll to (use 1 to start from the beginning)
+         * @param page    The page to scroll to (use 1 to start from the beginning, 0 to indicate no page in particular)
          */
         void onChapterSelect(View view, Chapter chapter, int page);
 
         void onChapterFavourite(AppCompatImageView view, Chapter chapter);
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         final FadingNetworkImageView ChapterThumbView;
         final TextView ChapterTitleView;
         final TextView ChapterDescriptionView;
         final AppCompatImageView FavouriteImageView;
         private final OnChapterClickListener ClickHandler;
+
+        @NotNull
         Chapter CurrentChapter;
 
         ViewHolder(View itemView, OnChapterClickListener onClick) {
@@ -142,7 +151,15 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
 
         @Override
         public void onClick(View v) {
-            this.ClickHandler.onChapterSelect(v, this.CurrentChapter, 1);
+            Chapter updateChapter = new Select(Method.ALL_PROPERTY).from(Chapter.class).where(Chapter_Table.number.eq(CurrentChapter.getNumber())).querySingle();
+            if (updateChapter == null)
+            {
+                Log.d(App.TAG, "ChapterListAdapter::ViewHolder::onClick: refresh of Chapter object failed!");
+            } else {
+                this.CurrentChapter = updateChapter;
+            }
+            this.ClickHandler.onChapterSelect(v, this.CurrentChapter, this.CurrentChapter.getLastPageRead());
         }
     }
 }
+

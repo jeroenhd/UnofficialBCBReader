@@ -7,6 +7,10 @@ import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.language.Select;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
@@ -32,6 +36,15 @@ public class DataPreferences {
      * This preference key stores the latest page number
      */
     private static final String PREF_LATEST_PAGE = "hidden_latest_page";
+    /**
+     * This preference key stores the last read page
+     */
+    private static final String PREF_LAST_READ_PAGE = "hidden_last_read_page";
+    /**
+     * This preference key stores the last read chapter number
+     */
+    private static final String PREF_LAST_READ_CHAPTER = "hidden_last_read_chapter";
+    private static final String PREF_LAST_NOTIFICATION_TIME = "last_notification_time";
 
     /**
      * Save a Check object to the cache
@@ -108,6 +121,74 @@ public class DataPreferences {
     @Nullable
     public static Chapter getLatestChapter(Context context) {
         double chapterNumber = getLatestChapterNumber(context);
-        return new Select().from(Chapter.class).where(Chapter_Table.number.eq(chapterNumber)).querySingle();
+        return new Select()
+                .from(Chapter.class)
+                .where(Chapter_Table.number.eq(chapterNumber))
+                .querySingle();
+    }
+
+    /**
+     * Set the page read last by the user
+     *
+     * Contains fix from:
+     * https://stackoverflow.com/questions/16319237/cant-put-double-sharedpreferences
+     *
+     * @param mContext The context of the reading fragment
+     * @param chapter  The chapter number
+     * @param page     The page number
+     */
+    public static void setLastReadPage(Context mContext, double chapter, int page) {
+        SharedPreferences.Editor edit = PreferenceManager
+                .getDefaultSharedPreferences(mContext)
+                .edit();
+        edit.putInt(PREF_LAST_READ_PAGE, page);
+
+        edit.putLong(PREF_LAST_READ_CHAPTER, Double.doubleToLongBits(chapter));
+        edit.apply();
+    }
+
+    /**
+     * Get the chapter number of the chapter the user read last
+     *
+     * Contains fix from:
+     * https://stackoverflow.com/questions/16319237/cant-put-double-sharedpreferences
+     * @param context The context to use
+     * @return The chapter number or 1 if no number was saved
+     */
+    public static Double getLastReadChapterNumber(Context context) {
+        return Double.longBitsToDouble(PreferenceManager
+                .getDefaultSharedPreferences(context)
+                .getLong(PREF_LAST_READ_CHAPTER, 1));
+    }
+
+    /**
+     * Get the page number of the page the user read last
+     *
+     * @param context The context to use
+     * @return The page number or 1 if no number was saved
+     */
+    public static int getLastReadPageNumber(Context context) {
+        return PreferenceManager
+                .getDefaultSharedPreferences(context)
+                .getInt(PREF_LAST_READ_PAGE, 1);
+    }
+
+    /**
+     * Get the last time a notification has been shown
+     * @param context The context to use
+     * @return A Date object containing the last notification
+     */
+    public static long getLastNotificationTime(Context context)
+    {
+        return PreferenceManager.getDefaultSharedPreferences(context).getLong(PREF_LAST_NOTIFICATION_TIME, 0);
+    }
+
+    /**
+     * Set the last time a notification has been shown to the current time
+     * @param context The context to use
+     */
+    public static void setLastNotificationDate(Context context)
+    {
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putLong(PREF_LAST_NOTIFICATION_TIME, System.currentTimeMillis()).apply();
     }
 }

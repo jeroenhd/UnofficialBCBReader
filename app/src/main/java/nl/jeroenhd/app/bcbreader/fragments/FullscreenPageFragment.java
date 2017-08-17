@@ -23,6 +23,7 @@ import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 import nl.jeroenhd.app.bcbreader.views.CallbackNetworkImageView;
+import nl.jeroenhd.app.bcbreader.data.check.DataPreferences;
 import nl.jeroenhd.app.bcbreader.views.PageImageView;
 
 /**
@@ -82,7 +83,12 @@ public class FullscreenPageFragment extends Fragment {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callback.onTap(v);
+                if (callback != null)
+                {
+                    callback.onTap(v);
+                } else {
+                    Log.e(App.TAG, "FullScreenPageFragment:onCreateView:imageView.OnClickListener: callback not set, not handling click!");
+                }
             }
         });
         imageView.setOnImageEventListener(new CallbackNetworkImageView.ImageEventListener() {
@@ -160,12 +166,31 @@ public class FullscreenPageFragment extends Fragment {
     }
 
     /**
+     * An interface to communicate from page fragments to the parent activity
+     */
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser && chapter != null) {
+            updateLastRead();
+        }
+    }
+
+    /**
+     * Update the preferences to show that this is the page the user read last
+     */
+    protected void updateLastRead() {
+        DataPreferences.setLastReadPage(mContext, chapter.getNumber(), page);
+        chapter.setLastPageRead(page);
+        chapter.update();
+    }
+
+    /**
      * A callback from the FullScreenPageFragment to the hosting Activity
      */
     public interface FullscreenPageFragmentCallback {
         /**
-         * Called when the user taps on the contents of the page
-         *
+         * Emitted when the page image has been tapped
          * @param view The view being tapped
          */
         void onTap(View view);
@@ -178,3 +203,6 @@ public class FullscreenPageFragment extends Fragment {
         void onUpdatePalette(Palette palette);
     }
 }
+
+
+

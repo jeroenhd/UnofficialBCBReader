@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import nl.jeroenhd.app.bcbreader.R;
-import nl.jeroenhd.app.bcbreader.activities.ChapterReadingActivity;
+import nl.jeroenhd.app.bcbreader.activities.FullscreenReaderActivity;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
@@ -199,9 +199,13 @@ public class NotificationService extends IntentService {
             stringBuilder.append(",");
         }
 
+        final long DAY = 1000 * 60 * 60 *24;
+
+        showNotification &= (DataPreferences.getLastNotificationTime(leakingContext) - System.currentTimeMillis() >= DAY);
+
         if (!showNotification) {
             String updateDaysStr = stringBuilder.toString();
-            Log.d(App.TAG, "Not showing the notification: today (" + today + ") is not in the update days (" + updateDaysStr + ")");
+            Log.d(App.TAG, "Not showing the notification: today (" + today + ") is not in the update days (" + updateDaysStr + ") or the notification has already been shown!");
             return;
         }
 
@@ -215,6 +219,7 @@ public class NotificationService extends IntentService {
                     @Override
                     public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                         DisplayNotification(response.getBitmap());
+                        DataPreferences.setLastNotificationDate(leakingContext);
                     }
 
                     @Override
@@ -231,13 +236,13 @@ public class NotificationService extends IntentService {
      * @param pageBitmap The bitmap for the latest page. Optional but recommended
      */
     private void DisplayNotification(@Nullable Bitmap pageBitmap) {
-        Intent intent = new Intent(this, ChapterReadingActivity.class);
+        Intent intent = new Intent(this, FullscreenReaderActivity.class);
         Bundle extras = new Bundle();
 
-        // These values are used by ChapterReadingActivity to determine what page is being opened
+        // These values are used by @Link{FullscreenReaderActivity} to determine what page is being opened
         Chapter chapter = ChapterDatabase.getLastChapter();
-        extras.putParcelable(ChapterReadingActivity.CHAPTER, chapter);
-        extras.putInt(ChapterReadingActivity.SCROLL_TO, chapter.getPageCount());
+        extras.putParcelable(FullscreenReaderActivity.EXTRA_CHAPTER, chapter);
+        extras.putInt(FullscreenReaderActivity.EXTRA_PAGE, chapter.getPageCount());
 
         // PendingIntent instead of a regular Intent, because the Intent will happen in the future
         PendingIntent pendingIntent;

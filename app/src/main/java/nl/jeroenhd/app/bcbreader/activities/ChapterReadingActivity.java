@@ -1,4 +1,3 @@
-package nl.jeroenhd.app.bcbreader.activities;
 
 import android.animation.Animator;
 import android.content.Intent;
