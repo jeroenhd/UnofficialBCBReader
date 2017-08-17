@@ -80,7 +80,12 @@ public class FullscreenPageFragment extends Fragment {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callback.onTap(v);
+                if (callback != null)
+                {
+                    callback.onTap(v);
+                } else {
+                    Log.e(App.TAG, "FullScreenPageFragment:onCreateView:imageView.OnClickListener: callback not set, not handling click!");
+                }
             }
         });
 
@@ -151,6 +156,8 @@ public class FullscreenPageFragment extends Fragment {
      */
     protected void updateLastRead() {
         DataPreferences.setLastReadPage(mContext, chapter.getNumber(), page);
+        chapter.setLastPageRead(page);
+        chapter.update();
     }
 
     public interface FullscreenPageFragmentCallback {
@@ -161,3 +168,6 @@ public class FullscreenPageFragment extends Fragment {
         void onTap(View view);
     }
 }
+
+
+

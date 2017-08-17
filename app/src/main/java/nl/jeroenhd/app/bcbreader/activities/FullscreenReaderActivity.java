@@ -124,6 +124,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             if (AUTO_HIDE) {
                 delayedHide(AUTO_HIDE_DELAY_MILLIS);
             }
+            view.performClick();
             return false;
         }
     };
@@ -196,7 +197,15 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         // Check if the application was started by visiting a URL
         if (action != null && action.equals(Intent.ACTION_VIEW)) {
             Uri data = intent.getData();
+
+            if (data == null)
+            {
+                Log.e(App.TAG, "No data! Not doing anything and praying for the best...");
+                return;
+            }
+
             Log.d(App.TAG, "ActivityFromUri: Data: " + data.toString());
+
             List<String> queryParams = data.getPathSegments();
             double chapterNumber = Double.parseDouble(queryParams.get(0).substring(1));
             Integer page = Integer.parseInt(queryParams.get(1).replaceAll("[^0-9]", ""));
@@ -232,7 +241,9 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
             if (currentPage > currentChapter.getPageCount()) {
                 // Page number is too high
-                throw new IllegalArgumentException("The page number is higher than the page count of this chapter!");
+                //throw new IllegalArgumentException("The page number is higher than the page count of this chapter!");
+                // New behaviour: update the temporary page count instead of crashing
+                currentChapter.setPageCount(currentPage);
             }
         } else {
             // No extra's?
