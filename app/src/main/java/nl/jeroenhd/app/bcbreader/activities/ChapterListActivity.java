@@ -14,7 +14,6 @@ import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
@@ -104,7 +103,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                         numberFound = true;
                         // Check if the descriptions are the same, if so, don't add this one
                         if (oldChapter != c) {
-                            c.setFavourite(oldChapter.isFavourite());
                             // Metadata is not the same, update it!
                             mChapterData.set(j, c);
                             mChapterListAdapter.notifyItemChanged(j);
@@ -433,24 +431,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 }
             });
         }
-    }
-
-    /**
-     * Called when a chapter has been added to the user's favourites
-     * @param view The view the user has interacted with
-     * @param chapter The chapter the user has selected
-     */
-    @Override
-    public void onChapterFavourite(AppCompatImageView view, Chapter chapter) {
-        // Switch between favourite/not favourite
-        chapter.setFavourite(!chapter.isFavourite());
-
-        // Save the fav state
-        chapter.save();
-
-        // Update the list
-        int index = mChapterData.indexOf(chapter);
-        mChapterListAdapter.notifyItemChanged(index);
     }
 
     @Override

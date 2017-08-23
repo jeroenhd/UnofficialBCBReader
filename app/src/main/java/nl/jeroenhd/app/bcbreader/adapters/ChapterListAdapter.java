@@ -1,10 +1,8 @@
 package nl.jeroenhd.app.bcbreader.adapters;
 
 import android.content.Context;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -72,12 +70,8 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         holder.ChapterTitleView.setText(chapter.getTitle());
         holder.ChapterDescriptionView.setText(chapter.getDescription());
 
-        holder.FavouriteImageView.setImageDrawable(chapter.isFavourite() ? clonedFavDrawable : clonedFavDrawableBorder);
-
         holder.CurrentChapter = chapter;
         int color = CompatHelper.getColor(mContext, R.color.colorAccent);
-
-        holder.FavouriteImageView.getDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
     }
 
     /**
@@ -114,15 +108,12 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
          * @param page    The page to scroll to (use 1 to start from the beginning, 0 to indicate no page in particular)
          */
         void onChapterSelect(View view, Chapter chapter, int page);
-
-        void onChapterFavourite(AppCompatImageView view, Chapter chapter);
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         final FadingNetworkImageView ChapterThumbView;
         final TextView ChapterTitleView;
         final TextView ChapterDescriptionView;
-        final AppCompatImageView FavouriteImageView;
         private final OnChapterClickListener ClickHandler;
 
         @NotNull
@@ -137,13 +128,6 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
             this.ChapterThumbView = (FadingNetworkImageView) itemView.findViewById(R.id.thumb);
             this.ChapterTitleView = (TextView) itemView.findViewById(R.id.title);
             this.ChapterDescriptionView = (TextView) itemView.findViewById(R.id.description);
-            this.FavouriteImageView = (AppCompatImageView) itemView.findViewById(R.id.favourite);
-            this.FavouriteImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ClickHandler.onChapterFavourite(FavouriteImageView, CurrentChapter);
-                }
-            });
         }
 
         @Override
