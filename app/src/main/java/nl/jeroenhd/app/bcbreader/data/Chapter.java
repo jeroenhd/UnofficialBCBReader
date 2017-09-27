@@ -3,6 +3,7 @@ package nl.jeroenhd.app.bcbreader.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.google.gson.annotations.Expose;
 import com.raizlabs.android.dbflow.annotation.Column;
@@ -218,12 +219,14 @@ public class Chapter extends BaseModel implements Parcelable {
     @Nullable
     public Chapter getPrevious()
     {
-        return new Select()
+        Chapter previous = new Select()
                 .from(Chapter.class)
                 .where(Chapter_Table.number.lessThan(this.getNumber()))
                 .limit(1)
                 .orderBy(Chapter_Table.number, false)
                 .querySingle();
+
+        return previous;
     }
 
     @Override

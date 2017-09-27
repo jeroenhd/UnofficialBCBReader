@@ -278,11 +278,17 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         seekBar.setMax(currentChapter.getPageCount() - 1);
 
         // Corrected page view: do not decrement by one because "page 0" is a dummy Fragment
-        seekBar.setProgress(currentPage - (previousChapterExists ? 0 : 1));
+        seekBar.setProgress(currentPage - (previousChapterExists ? 1:0));
 
         // prev + last + next
         viewPager.setOffscreenPageLimit(5);
-        viewPager.setAdapter(new FullscreenPagePagerAdapter(getSupportFragmentManager(), this.currentChapter, this, this));
+        viewPager.setAdapter(
+                new FullscreenPagePagerAdapter(
+                        getSupportFragmentManager(),
+                        this.currentChapter,
+                        this,
+                        this)
+        );
 
         // Corrected page view: do not decrement by one because "page 0" is a dummy Fragment
         viewPager.setCurrentItem(currentPage - (previousChapterExists ? 0 : 1));
@@ -508,10 +514,11 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        progress += (previousChapterExists?1:0);
         if (fromUser) {
             viewPager.setCurrentItem(progress);
         }
-        String title = String.format(Locale.getDefault(), getString(R.string.title_chapter_title_page_number), currentChapter.getTitle(), progress + 1);
+        String title = String.format(Locale.getDefault(), getString(R.string.title_chapter_title_page_number), currentChapter.getTitle(), progress + (previousChapterExists?0:1));
         toolbar.setTitle(title);
         this.setTitle(title);
     }
@@ -538,7 +545,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
     @Override
     public void onPageSelected(int position) {
-        seekBar.setProgress(position);
+        seekBar.setProgress(position - (previousChapterExists?1:0));
 
         updateCommentary(position);
     }
@@ -553,7 +560,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         {
             commentaryView.setText(R.string.no_description_available);
         } else {
-            String description = currentChapter.getPageDescriptions().get(pageIndex - (previousChapterExists?0:1)).getDescription();
+            String description = currentChapter.getPageDescriptions().get(pageIndex - (previousChapterExists?1:0)).getDescription();
             commentaryView.setText(CompatHelper.fromHtml(description));
         }
     }
