@@ -21,14 +21,14 @@ def getBranchName = { ->
 }
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 26
     buildToolsVersion "25.0.3"
 
     defaultConfig {
         applicationId "nl.jeroenhd.app.bcbreader"
         minSdkVersion 16
-        targetSdkVersion 25
-        versionCode 6
+        targetSdkVersion 26
+        versionCode 7
         versionName "Elementary " + getBranchName() + "@" + getVersionName() + ' (' + new Date().format("yyyyMMddHHmmss") + ')'
     }
     buildTypes {
@@ -54,9 +54,9 @@ dependencies {
     compile "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
 
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:design:25.3.1'
-    compile 'com.android.support:palette-v7:25.3.1'
+    compile 'com.android.support:appcompat-v7:26+'
+    compile 'com.android.support:design:26+'
+    compile 'com.android.support:palette-v7:26+'
     compile 'de.hdodenhof:circleimageview:2.0.0'
     compile 'com.google.code.gson:gson:2.7'
     compile 'com.android.volley:volley:1.0.0'
