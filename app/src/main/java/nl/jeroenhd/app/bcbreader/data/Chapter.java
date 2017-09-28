@@ -2,6 +2,7 @@ package nl.jeroenhd.app.bcbreader.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 
 import com.google.gson.annotations.Expose;
 import com.raizlabs.android.dbflow.annotation.Column;
@@ -10,6 +11,7 @@ import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.ArrayList;
@@ -58,12 +60,10 @@ public class Chapter extends BaseModel implements Parcelable {
     @Column
     @Expose
     String yearPublished;
-
-    @Column
-    boolean favourite;
-
     @Expose
     List<Page> pageDescriptions;
+    @Column
+    private int lastPageRead;
 
     /**
      * Required for DBFlow
@@ -79,6 +79,7 @@ public class Chapter extends BaseModel implements Parcelable {
         this.totalPages = totalPages;
         this.yearPublished = yearPublished;
         this.number = number;
+        this.lastPageRead = 0;
     }
 
     /**
@@ -99,7 +100,7 @@ public class Chapter extends BaseModel implements Parcelable {
             page.setChapter(this.getNumber());
         }
 
-        this.favourite = data.readInt() == 1;
+        this.lastPageRead = data.readInt();
     }
 
     public Double getNumber() {
@@ -166,17 +167,49 @@ public class Chapter extends BaseModel implements Parcelable {
         this.pageDescriptions = pageDescriptions;
     }
 
-    public boolean isFavourite() {
-        return favourite;
-    }
-
-    public void setFavourite(boolean favourite) {
-        this.favourite = favourite;
-    }
-
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    public int getLastPageRead() {
+        return lastPageRead;
+    }
+
+    public void setLastPageRead(int lastPageRead) {
+        this.lastPageRead = lastPageRead;
+    }
+
+    /**
+     * Get the chapter following this chapter. If there is no chapter, return null
+     * @return The next chapter or null
+     */
+    @Nullable
+    public Chapter getNext()
+    {
+        return new Select()
+                .from(Chapter.class)
+                .where(
+                        Chapter_Table.number
+                                .greaterThan(this.getNumber()))
+                .limit(1)
+                .orderBy(Chapter_Table.number, true)
+                .querySingle();
+    }
+
+    /**
+     * Get the chapter before this chapter. If there is no chapter, return null
+     * @return The previous chapter or null
+     */
+    @Nullable
+    public Chapter getPrevious()
+    {
+        return new Select()
+                .from(Chapter.class)
+                .where(Chapter_Table.number.lessThan(this.getNumber()))
+                .limit(1)
+                .orderBy(Chapter_Table.number, false)
+                .querySingle();
     }
 
     @Override
@@ -188,6 +221,6 @@ public class Chapter extends BaseModel implements Parcelable {
         dest.writeString(this.yearPublished);
         dest.writeDouble(this.number);
         dest.writeList(pageDescriptions);
-        dest.writeInt(favourite ? 1 : 0);
+        dest.writeInt(lastPageRead);
     }
 }

@@ -7,10 +7,6 @@ import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.language.Select;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
@@ -58,7 +54,7 @@ public class DataPreferences {
         editor.putInt(PREF_UPDATE_TIME, Integer.parseInt(check.getUpdateTimes().getUpdateHour()));
         editor.putString(PREF_UPDATE_DAYS, check.getUpdateTimes().getUpdateDays());
 
-        editor.putFloat(PREF_LATEST_CHAPTER, check.getAddress().getLatestChapter().floatValue());
+        editor.putLong(PREF_LATEST_CHAPTER, Double.doubleToLongBits(check.getAddress().getLatestChapter()));
         editor.putInt(PREF_LATEST_PAGE, check.getAddress().getLatestPage());
 
         editor.apply();
@@ -99,7 +95,9 @@ public class DataPreferences {
      * @return The latest chapter number
      */
     public static double getLatestChapterNumber(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getFloat(PREF_LATEST_CHAPTER, API.DEFAULT_LATEST_CHAPTER);
+        return Double.longBitsToDouble(PreferenceManager
+                .getDefaultSharedPreferences(context)
+                .getLong(PREF_LATEST_CHAPTER, 1));
     }
 
     /**
@@ -175,20 +173,20 @@ public class DataPreferences {
 
     /**
      * Get the last time a notification has been shown
+     *
      * @param context The context to use
      * @return A Date object containing the last notification
      */
-    public static long getLastNotificationTime(Context context)
-    {
+    public static long getLastNotificationTime(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context).getLong(PREF_LAST_NOTIFICATION_TIME, 0);
     }
 
     /**
      * Set the last time a notification has been shown to the current time
+     *
      * @param context The context to use
      */
-    public static void setLastNotificationDate(Context context)
-    {
+    public static void setLastNotificationDate(Context context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit().putLong(PREF_LAST_NOTIFICATION_TIME, System.currentTimeMillis()).apply();
     }
 }

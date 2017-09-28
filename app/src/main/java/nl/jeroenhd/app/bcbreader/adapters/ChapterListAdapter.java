@@ -1,21 +1,26 @@
 package nl.jeroenhd.app.bcbreader.adapters;
 
 import android.content.Context;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.raizlabs.android.dbflow.annotation.NotNull;
+import com.raizlabs.android.dbflow.sql.language.Method;
+import com.raizlabs.android.dbflow.sql.language.Select;
+
 import java.util.ArrayList;
 
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.data.API;
+import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
+import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
 import nl.jeroenhd.app.bcbreader.data.SuperSingleton;
 import nl.jeroenhd.app.bcbreader.tools.CompatHelper;
 import nl.jeroenhd.app.bcbreader.views.FadingNetworkImageView;
@@ -27,7 +32,6 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
     private final Context mContext;
     private final ArrayList<Chapter> mData;
     private final OnChapterClickListener mOnItemClickListener;
-    private final SuperSingleton singleton;
     private final Drawable clonedFavDrawable;
     private final Drawable clonedFavDrawableBorder;
 
@@ -35,8 +39,6 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         this.mContext = context;
         this.mData = data;
         this.mOnItemClickListener = onItemClickListener;
-
-        this.singleton = SuperSingleton.getInstance(context);
 
         // Clone drawables and cache them
         // Without cloning, setting the tint on them causes the drawable to have the tint
@@ -68,12 +70,8 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         holder.ChapterTitleView.setText(chapter.getTitle());
         holder.ChapterDescriptionView.setText(chapter.getDescription());
 
-        holder.FavouriteImageView.setImageDrawable(chapter.isFavourite() ? clonedFavDrawable : clonedFavDrawableBorder);
-
         holder.CurrentChapter = chapter;
         int color = CompatHelper.getColor(mContext, R.color.colorAccent);
-
-        holder.FavouriteImageView.getDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
     }
 
     /**
@@ -110,16 +108,15 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
          * @param page    The page to scroll to (use 1 to start from the beginning, 0 to indicate no page in particular)
          */
         void onChapterSelect(View view, Chapter chapter, int page);
-
-        void onChapterFavourite(AppCompatImageView view, Chapter chapter);
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         final FadingNetworkImageView ChapterThumbView;
         final TextView ChapterTitleView;
         final TextView ChapterDescriptionView;
-        final AppCompatImageView FavouriteImageView;
         private final OnChapterClickListener ClickHandler;
+
+        @NotNull
         Chapter CurrentChapter;
 
         ViewHolder(View itemView, OnChapterClickListener onClick) {
@@ -131,18 +128,19 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
             this.ChapterThumbView = (FadingNetworkImageView) itemView.findViewById(R.id.thumb);
             this.ChapterTitleView = (TextView) itemView.findViewById(R.id.title);
             this.ChapterDescriptionView = (TextView) itemView.findViewById(R.id.description);
-            this.FavouriteImageView = (AppCompatImageView) itemView.findViewById(R.id.favourite);
-            this.FavouriteImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ClickHandler.onChapterFavourite(FavouriteImageView, CurrentChapter);
-                }
-            });
         }
 
         @Override
         public void onClick(View v) {
-            this.ClickHandler.onChapterSelect(v, this.CurrentChapter, 0);
+            Chapter updateChapter = new Select(Method.ALL_PROPERTY).from(Chapter.class).where(Chapter_Table.number.eq(CurrentChapter.getNumber())).querySingle();
+            if (updateChapter == null)
+            {
+                Log.d(App.TAG, "ChapterListAdapter::ViewHolder::onClick: refresh of Chapter object failed!");
+            } else {
+                this.CurrentChapter = updateChapter;
+            }
+            this.ClickHandler.onChapterSelect(v, this.CurrentChapter, this.CurrentChapter.getLastPageRead());
         }
     }
 }
+

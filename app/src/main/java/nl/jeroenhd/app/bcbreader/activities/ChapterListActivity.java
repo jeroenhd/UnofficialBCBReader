@@ -3,8 +3,10 @@ package nl.jeroenhd.app.bcbreader.activities;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -12,7 +14,6 @@ import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
@@ -28,6 +29,7 @@ import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
 import com.raizlabs.android.dbflow.sql.language.Select;
@@ -50,6 +52,7 @@ import nl.jeroenhd.app.bcbreader.data.check.Check;
 import nl.jeroenhd.app.bcbreader.data.check.DataPreferences;
 import nl.jeroenhd.app.bcbreader.data.check.UpdateTimes;
 import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
+import nl.jeroenhd.app.bcbreader.notifications.NotificationService;
 import nl.jeroenhd.app.bcbreader.tools.AppCrashStorage;
 
 public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener, Toolbar.OnMenuItemClickListener, SwipeRefreshLayout.OnRefreshListener, PopupMenu.OnMenuItemClickListener, PageThumbAdapter.OnThumbClickListener {
@@ -71,55 +74,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private SuperSingleton singleton;
-    /**
-     * Called when downloading the check fails
-     */
-    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            int errorStringId;
-            if (error != null && error.getCause() != null && error.getCause().getClass() == javax.net.ssl.SSLHandshakeException.class) {
-                errorStringId = R.string.update_check_failed_hackers_on_the_loose;
-            } else {
-                errorStringId = R.string.update_check_failed;
-            }
-
-            Snackbar.make(mChapterRecycler, errorStringId, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
-    /**
-     * Called when downloading the chapter list fails
-     */
-    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            error.printStackTrace();
-            Snackbar.make(mChapterRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
-                    .show();
-
-
-            if (swipeRefreshLayout != null) {
-                swipeRefreshLayout.setRefreshing(false);
-            }
-        }
-    };
     /**
      * The latest update times data.
      * Is initialised to null!
@@ -149,7 +103,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                         numberFound = true;
                         // Check if the descriptions are the same, if so, don't add this one
                         if (oldChapter != c) {
-                            c.setFavourite(oldChapter.isFavourite());
                             // Metadata is not the same, update it!
                             mChapterData.set(j, c);
                             mChapterListAdapter.notifyItemChanged(j);
@@ -223,6 +176,55 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 ChapterListRequest downloadRequest = new ChapterListRequest(API.ChaptersDB, API.RequestHeaders(), chapterDownloadSuccessListener, chapterListDownloadErrorListener);
                 singleton.getVolleyRequestQueue().add(downloadRequest);
             }
+
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+    /**
+     * Called when downloading the check fails
+     */
+    private final Response.ErrorListener checkErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            int errorStringId;
+            if (error != null && error.getCause() != null && error.getCause().getClass() == javax.net.ssl.SSLHandshakeException.class) {
+                errorStringId = R.string.update_check_failed_hackers_on_the_loose;
+            } else {
+                errorStringId = R.string.update_check_failed;
+            }
+
+            Snackbar.make(mChapterRecycler, errorStringId, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
+
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
+    };
+    /**
+     * Called when downloading the chapter list fails
+     */
+    private final Response.ErrorListener chapterListDownloadErrorListener = new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            error.printStackTrace();
+            Snackbar.make(mChapterRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startChapterListUpdateCheck();
+                        }
+                    })
+                    .show();
 
 
             if (swipeRefreshLayout != null) {
@@ -372,6 +374,12 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_chapter_list, menu);
 
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            int adb = Settings.Secure.getInt(this.getContentResolver(),
+                    Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0);
+            menu.findItem(R.id.menu_debug).setVisible(adb != 0);
+        }
+
         return true;
     }
 
@@ -425,24 +433,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         }
     }
 
-    /**
-     * Called when a chapter has been added to the user's favourites
-     * @param view The view the user has interacted with
-     * @param chapter The chapter the user has selected
-     */
-    @Override
-    public void onChapterFavourite(AppCompatImageView view, Chapter chapter) {
-        // Switch between favourite/not favourite
-        chapter.setFavourite(!chapter.isFavourite());
-
-        // Save the fav state
-        chapter.save();
-
-        // Update the list
-        int index = mChapterData.indexOf(chapter);
-        mChapterListAdapter.notifyItemChanged(index);
-    }
-
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         int id = item.getItemId();
@@ -452,7 +442,25 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 startActivity(settingsIntent);
                 break;
             case R.id.menu_debug:
-                int i = 10 / 0;
+                SuperSingleton.getInstance(this)
+                        .getImageLoader()
+                        .get(API.FormatPageUrl(this, DataPreferences.getLatestChapterNumber(this), DataPreferences.getLatestPage(this), "@m"), new ImageLoader.ImageListener() {
+                            @Override
+                            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+                                Bitmap bmp = response.getBitmap();
+                                if (bmp == null) {
+                                    Log.d(App.TAG, "Could not load bitmap for notification!");
+                                } else {
+                                    new NotificationService().DisplayNotification(bmp);
+                                    DataPreferences.setLastNotificationDate(ChapterListActivity.this);
+                                }
+                            }
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                new NotificationService().DisplayNotification(null);
+                            }
+                        });
                 break;
             case R.id.menu_continue_reading: {
                 double chapterNr = DataPreferences.getLastReadChapterNumber(this);
