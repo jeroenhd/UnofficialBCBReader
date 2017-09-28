@@ -12,6 +12,8 @@ import com.android.volley.toolbox.ImageLoader;
 import com.google.gson.GsonBuilder;
 
 import java.io.File;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 
 /**
  * A singleton class to keep track of all unique objects within the app
@@ -60,6 +62,11 @@ public class SuperSingleton {
 
     private void InitVolley(Context mContext) {
         gsonBuilder = new GsonBuilder();
+
+        // Prepare for cookies!
+        CookieManager cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
+        CookieManager.setDefault(cookieManager);
+
         // 1MB general cache
         volleyCache = new DiskBasedCache(new File(mContext.getCacheDir(), "volley"), 1024 * 1024 * 1024);
 

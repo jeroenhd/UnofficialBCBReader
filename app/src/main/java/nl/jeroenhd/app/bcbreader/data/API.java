@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -45,6 +46,8 @@ public class API {
      * The URL of the BCB CDN
      */
     private static final String CDNUrl = "https://blasto.enterprises/";
+    public static final String BCI_VALIDATION_URL = "https://www.bittersweetcandybowl.com/members/";
+    public static final String BCI_LOGOUT_URL = "https://www.bittersweetcandybowl.com/members/signout";
 
     /**
      * Determine whether the files for a chapter end in JPG or are not

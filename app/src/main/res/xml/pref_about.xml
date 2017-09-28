@@ -16,4 +16,8 @@
         android:key="pref_license_dbflow"
         android:summary="@string/pref_summary_dbflow_license"
         android:title="@string/pref_title_dbflow_license" />
+    <Preference
+        android:key="pref_license_jsoup"
+        android:summary="@string/pref_summary_jsoup_license"
+        android:title="@string/pref_title_jsoup_license" />
 </PreferenceScreen>
