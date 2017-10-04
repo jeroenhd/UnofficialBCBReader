@@ -537,7 +537,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
         List<Page> pageDescriptions = currentChapter.getPageDescriptions();
         String description;
-        if (pageDescriptions.size()<pageIndex){
+        if (pageIndex < pageDescriptions.size()){
             description = pageDescriptions.get(pageIndex).getDescription();
         } else {
             Log.w(App.TAG, "We don't have commentary for chapter " + currentChapter.getNumber() + ", pageIndex " + pageIndex + " yet!");
