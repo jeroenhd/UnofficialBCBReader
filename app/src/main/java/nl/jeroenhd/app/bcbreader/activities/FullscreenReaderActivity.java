@@ -44,6 +44,7 @@ import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
+import nl.jeroenhd.app.bcbreader.data.Page;
 import nl.jeroenhd.app.bcbreader.data.check.DataPreferences;
 import nl.jeroenhd.app.bcbreader.fragments.FullscreenPageFragment;
 import nl.jeroenhd.app.bcbreader.tools.CompatHelper;
@@ -533,7 +534,17 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
      * @param pageIndex The index of the page in the current chapter (0-based!)
      */
     private void updateCommentary(int pageIndex) {
-        commentaryView.setText(CompatHelper.fromHtml(currentChapter.getPageDescriptions().get(pageIndex).getDescription()));
+
+        List<Page> pageDescriptions = currentChapter.getPageDescriptions();
+        String description;
+        if (pageDescriptions.size()<pageIndex){
+            description = pageDescriptions.get(pageIndex).getDescription();
+        } else {
+            Log.w(App.TAG, "We don't have commentary for chapter " + currentChapter.getNumber() + ", pageIndex " + pageIndex + " yet!");
+            description = getString(R.string.no_commentary_available);
+        }
+
+        commentaryView.setText(CompatHelper.fromHtml(description));
     }
 
     @Override
