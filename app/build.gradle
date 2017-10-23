@@ -22,7 +22,7 @@ def getBranchName = { ->
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "25.0.3"
+    buildToolsVersion '26.0.2'
 
     defaultConfig {
         applicationId "nl.jeroenhd.app.bcbreader"
@@ -60,6 +60,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.7'
     compile 'com.android.volley:volley:1.0.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.evernote:android-job:1.2.0'
     testCompile 'org.mockito:mockito-core:1.10.19'
     androidTestCompile 'org.testng:testng:6.9.6'
 }

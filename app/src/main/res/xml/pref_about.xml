@@ -16,4 +16,8 @@
         android:key="pref_license_dbflow"
         android:summary="@string/pref_summary_dbflow_license"
         android:title="@string/pref_title_dbflow_license" />
+    <Preference
+        android:key="pref_license_android-job"
+        android:summary="@string/pref_summary_android_job_license"
+        android:title="@string/pref_title_android_job_license" />
 </PreferenceScreen>

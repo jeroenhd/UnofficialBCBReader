@@ -61,6 +61,7 @@ public class Chapter extends BaseModel implements Parcelable {
     @Expose
     String yearPublished;
     @Expose
+    public
     List<Page> pageDescriptions;
     @Column
     private int lastPageRead;

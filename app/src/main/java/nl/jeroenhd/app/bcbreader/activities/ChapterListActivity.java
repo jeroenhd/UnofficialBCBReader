@@ -1,6 +1,7 @@
 package nl.jeroenhd.app.bcbreader.activities;
 
 import android.app.Activity;
+import android.app.job.JobScheduler;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -31,6 +32,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.StringRequest;
+import com.evernote.android.job.Job;
+import com.evernote.android.job.JobManager;
+import com.evernote.android.job.JobRequest;
 import com.google.gson.Gson;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
@@ -52,7 +56,8 @@ import nl.jeroenhd.app.bcbreader.data.check.Check;
 import nl.jeroenhd.app.bcbreader.data.check.DataPreferences;
 import nl.jeroenhd.app.bcbreader.data.check.UpdateTimes;
 import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
-import nl.jeroenhd.app.bcbreader.notifications.NotificationService;
+import nl.jeroenhd.app.bcbreader.notifications.CheckForUpdateJob;
+import nl.jeroenhd.app.bcbreader.notifications.NotificationJobCreator;
 import nl.jeroenhd.app.bcbreader.tools.AppCrashStorage;
 
 public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener, Toolbar.OnMenuItemClickListener, SwipeRefreshLayout.OnRefreshListener, PopupMenu.OnMenuItemClickListener, PageThumbAdapter.OnThumbClickListener {
@@ -442,25 +447,10 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 startActivity(settingsIntent);
                 break;
             case R.id.menu_debug:
-                SuperSingleton.getInstance(this)
-                        .getImageLoader()
-                        .get(API.FormatPageUrl(this, DataPreferences.getLatestChapterNumber(this), DataPreferences.getLatestPage(this), "@m"), new ImageLoader.ImageListener() {
-                            @Override
-                            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                                Bitmap bmp = response.getBitmap();
-                                if (bmp == null) {
-                                    Log.d(App.TAG, "Could not load bitmap for notification!");
-                                } else {
-                                    new NotificationService().DisplayNotification(bmp);
-                                    DataPreferences.setLastNotificationDate(ChapterListActivity.this);
-                                }
-                            }
-
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                new NotificationService().DisplayNotification(null);
-                            }
-                        });
+                new JobRequest.Builder(CheckForUpdateJob.TAG)
+                        .startNow()
+                        .build()
+                        .schedule();
                 break;
             case R.id.menu_continue_reading: {
                 double chapterNr = DataPreferences.getLastReadChapterNumber(this);
