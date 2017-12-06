@@ -194,7 +194,7 @@ public class API {
      * @return The short link URL to the page
      */
     public static String FormatPageLink(Double chapterNumber, long pageNumber) {
-        return String.format(Locale.US, "http://bcb.cat/c%1$s/p%2$s/", FormatChapterNumber(chapterNumber), pageNumber);
+        return String.format(Locale.US, "https://bcb.cat/c%1$s/p%2$s/", FormatChapterNumber(chapterNumber), pageNumber);
     }
 
     @Deprecated
