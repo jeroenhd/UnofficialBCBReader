@@ -102,4 +102,9 @@
     <string name="prompt_email">E-mail</string>
     <string name="pref_summary_jsoup_license">This app uses jsoup. Tap to view its license.</string>
     <string name="pref_title_jsoup_license">JSoup License</string>
+    <string name="permission_rationale">Contact information is required to autofill these fields</string>
+    <string name="error_invalid_password">That didn\'t work! Check your password and try again.</string>
+    <string name="error_field_required">This is a required field.</string>
+    <string name="error_invalid_email">Invalid e-mail address!</string>
+    <string name="error_incorrect_password">That didn\'t work! Check your password and try again.</string>
 </resources>

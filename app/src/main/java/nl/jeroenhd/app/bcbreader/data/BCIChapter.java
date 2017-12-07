@@ -2,7 +2,12 @@ package nl.jeroenhd.app.bcbreader.data;
 
 import android.util.Log;
 
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.OneToMany;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.annotation.provider.ContentUri;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import org.jsoup.Jsoup;
@@ -27,13 +32,30 @@ import nl.jeroenhd.app.bcbreader.data.databases.BCIChapterDatabase;
 
 @Table(database = BCIChapterDatabase.class)
 public class BCIChapter extends BaseModel {
-    private String Title;
-    private Date PostDate;
-    private int TotalPages;
-    private BCIPage[] Parts;
-    private URL ThumbURL;
 
-    public BCIChapter(String title, Date postDate, int totalPages, BCIPage[] parts, URL thumbUrl) {
+    @Column
+    @PrimaryKey
+    private String Title;
+    @Column
+    private Date PostDate;
+    @Column
+    private int TotalPages;
+
+    List<BCIPage> Parts;
+    @Column
+    private String ThumbURL;
+
+    BCIChapter()
+    {
+        // Only here because DBFlow wants it here
+        this.Title = null;
+        this.PostDate = null;
+        this.TotalPages = 0;
+        this.Parts = new ArrayList<>();
+        this.ThumbURL = null;
+    }
+
+    private BCIChapter(String title, Date postDate, int totalPages, List<BCIPage> parts, String thumbUrl) {
         Title = title;
         PostDate = postDate;
         TotalPages = totalPages;
@@ -45,20 +67,49 @@ public class BCIChapter extends BaseModel {
         return Title;
     }
 
-    public Date getPostDate() {
+    Date getPostDate() {
         return PostDate;
     }
 
-    public int getTotalPages() {
+    int getTotalPages() {
         return TotalPages;
     }
 
-    public BCIPage[] getParts() {
+    @OneToMany(methods = {OneToMany.Method.ALL}, variableName = "Parts")
+    List<BCIPage> getParts() {
+
+        if (Parts == null)
+        {
+            Parts = SQLite.select()
+                    .from(BCIPage.class)
+                    .where(BCIPage_Table.ChapterTitle.eq(this.getTitle()))
+                    .queryList();
+        }
         return Parts;
     }
 
-    public URL getThumbURL() {
+    String getThumbURL() {
         return ThumbURL;
+    }
+
+    public void setTitle(String title) {
+        Title = title;
+    }
+
+    void setPostDate(Date postDate) {
+        PostDate = postDate;
+    }
+
+    void setTotalPages(int totalPages) {
+        TotalPages = totalPages;
+    }
+
+    public void setParts(List<BCIPage> parts) {
+        Parts = parts;
+    }
+
+    void setThumbURL(String thumbURL) {
+        ThumbURL = thumbURL;
     }
 
     /**
@@ -88,22 +139,22 @@ public class BCIChapter extends BaseModel {
                 Element parts = e.select(".parts").get(0);
 
                 int partsAmount = parts == null ? 1 : parts.select("a").size();
-                BCIPage[] bciPages = new BCIPage[partsAmount];
+                List<BCIPage> bciPages = new ArrayList<>(partsAmount);
 
                 if (parts == null)
                 {
                     // Only a single part
-                    bciPages[0] = new BCIPage(titleLink.attr("href"));
+                    bciPages.add(new BCIPage(title, titleLink.attr("href")));
                 } else {
                     int i = 0;
                     for (Element part : e.select("a"))
                     {
-                        bciPages[i++] = new BCIPage(part.attr("href"));
+                        bciPages.add(new BCIPage(title, part.attr("href")));
                     }
                 }
 
                 bciChapters.add(new BCIChapter(
-                        title, chapterDate, totalPages, bciPages, thumbURL
+                        title, chapterDate, totalPages, bciPages, thumbURL.toString()
 
                 ));
             } catch (MalformedURLException urlEx) {
