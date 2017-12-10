@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Process;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -291,6 +292,7 @@ public class CheckForUpdateJob extends Job {
 
         @Override
         public void run() {
+            android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
             RequestFuture<Check> future = RequestFuture.newFuture();
 
             final Context context = getContext();

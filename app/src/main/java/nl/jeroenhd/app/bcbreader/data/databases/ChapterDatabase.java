@@ -29,8 +29,8 @@ public class ChapterDatabase {
                         new ProcessModelTransaction.ProcessModel<Chapter>() {
                             @Override
                             public void processModel(Chapter model) {
-                                model.update();
-                                model.save();
+                                model.async().update();
+                                model.async().save();
                             }
                         }).addAll(chapters).build())
                 .error(new Transaction.Error() {
