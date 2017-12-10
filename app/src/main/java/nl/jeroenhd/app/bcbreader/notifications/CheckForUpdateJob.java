@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,13 +14,15 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
+import android.util.TypedValue;
+import android.widget.ImageView;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
-import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.RequestFuture;
 import com.evernote.android.job.Job;
@@ -33,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -61,45 +65,31 @@ public class CheckForUpdateJob extends Job {
      */
     private static final int NewChapterNotificationId = 0xB00B;
 
+    public static void scheduleJob() {
+
+        long intervalMs = TimeUnit.MINUTES.toMillis(30);
+        long flexMs = TimeUnit.MINUTES.toMillis(5);
+        new JobRequest.Builder(CheckForUpdateJob.TAG)
+                .setRequiredNetworkType(JobRequest.NetworkType.CONNECTED)
+                .setPeriodic(intervalMs, flexMs)
+                .build()
+                .schedule();
+    }
+
     @NonNull
     @Override
     protected Result onRunJob(Params params) {
-        RequestFuture<Check> future = RequestFuture.newFuture();
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
 
-        final Context context = getContext();
-
-        JsonRequest<Check> jsonRequest = new JsonRequest<Check>(JsonRequest.Method.GET, API.CheckURI, null, future, future) {
-            @Override
-            protected Response<Check> parseNetworkResponse(NetworkResponse response) {
-                String json = new String(response.data);
-                Check check = SuperSingleton.getInstance(context).getGsonBuilder().create().fromJson(json, Check.class);
-                DataPreferences.SaveCheck(context, check);
-                return Response.success(check, null);
-            }
-        };
-
-        SuperSingleton.getInstance(context)
-                .getVolleyRequestQueue()
-                .add(jsonRequest);
+        JobOnBackgroundRunnable r = new JobOnBackgroundRunnable(countDownLatch);
+        new Thread(r).start();
 
         try {
-            Check check = future.get(30, TimeUnit.SECONDS);
-
-            DataPreferences.SaveCheck(context, check);
-
-            return this.downloadChapterList();
+            countDownLatch.await();
+            return r.getResult() == null ? Result.FAILURE : r.getResult();
         } catch (InterruptedException e) {
-            Log.e(App.TAG, "CheckForUpdateJob failed to get Check object from queue. Reason will be dumped below!");
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            Log.e(App.TAG, "CheckForUpdateJob failed to get Check object from queue. Reason will be dumped below!");
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            Log.e(App.TAG, "CheckForUpdateJob failed to get Check object from queue. Reason will be dumped below!");
-            e.printStackTrace();
+            return Result.FAILURE;
         }
-        // Reschedule after any failure
-        return Result.RESCHEDULE;
     }
 
     private Result downloadChapterList() {
@@ -156,7 +146,7 @@ public class CheckForUpdateJob extends Job {
             List<Chapter> chapters = future.get(30, TimeUnit.SECONDS);
             ChapterDatabase.SaveUpdate(chapters);
 
-            PrepareNotification();
+            return PrepareNotification();
         } catch (InterruptedException e) {
             Log.e(App.TAG, "CheckForUpdateJob failed to get chapter list from queue. Reason will be dumped below!");
             e.printStackTrace();
@@ -174,7 +164,7 @@ public class CheckForUpdateJob extends Job {
     /**
      * Prepare to show a notification to the user.
      */
-    private void PrepareNotification() {
+    private Result PrepareNotification() {
         int[] updateDays = DataPreferences.getUpdateDays(getContext());
         int updateHour = DataPreferences.getUpdateHour(getContext());
 
@@ -192,34 +182,42 @@ public class CheckForUpdateJob extends Job {
             stringBuilder.append(",");
         }
 
-        final long DAY = 1000 * 60 * 60 * 24;
+        final long DAY = TimeUnit.DAYS.toMillis(1);
 
         showNotification &= (DataPreferences.getLastNotificationTime(getContext()) - System.currentTimeMillis() >= DAY);
 
-        if (!showNotification) {
+        if (!showNotification && false) {
             String updateDaysStr = stringBuilder.toString();
             Log.d(App.TAG, "Not showing the notification: today (" + today + ") is not in the update days (" + updateDaysStr + ") or the notification has already been shown!");
-            return;
+            return Result.RESCHEDULE;
         }
 
 
-        double chapterNumber = DataPreferences.getLatestChapterNumber(getContext());
-        int page = DataPreferences.getLatestPage(getContext());
+        final double chapterNumber = DataPreferences.getLatestChapterNumber(getContext());
+        final int page = DataPreferences.getLatestPage(getContext());
 
+        Resources r = getContext().getResources();
+        int maxWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 256, r.getDisplayMetrics());
+        int maxHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 128, r.getDisplayMetrics());
+
+        ImageRequest ir = new ImageRequest(API.FormatPageUrl(getContext(), chapterNumber, page, "@m"), new Response.Listener<Bitmap>() {
+            @Override
+            public void onResponse(Bitmap response) {
+                DisplayNotification(response);
+                DataPreferences.setLastNotificationDate(getContext());
+            }
+        }, maxWidth, maxHeight, ImageView.ScaleType.FIT_START, Bitmap.Config.RGB_565, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                DisplayNotification(null);
+            }
+        });
         SuperSingleton.getInstance(getContext())
-                .getImageLoader()
-                .get(API.FormatPageUrl(getContext(), chapterNumber, page, "@m"), new ImageLoader.ImageListener() {
-                    @Override
-                    public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                        DisplayNotification(response.getBitmap());
-                        DataPreferences.setLastNotificationDate(getContext());
-                    }
+                .getVolleyRequestQueue()
+                .add(ir);
 
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        DisplayNotification(null);
-                    }
-                });
+        return Result.SUCCESS;
     }
 
     /**
@@ -242,8 +240,9 @@ public class CheckForUpdateJob extends Job {
         intent.putExtras(extras);
         pendingIntent = PendingIntent.getActivity(getContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        // I don't know how to obtain the default vibration pattern, so this will need to do
-        long[] vibrationPattern = new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400};
+        // First element: time before starting
+        // Then: on followed by off followed by on etc.
+        long[] vibrationPattern = new long[]{0, 300};
 
         // Get the ringtone from the preferences
         String ringtonePath = PreferenceManager.getDefaultSharedPreferences(getContext()).getString("notifications_ringtone", "DEFAULT_SOUND");
@@ -282,13 +281,57 @@ public class CheckForUpdateJob extends Job {
         notificationManagerCompat.notify(NewChapterNotificationId, notification);
     }
 
-    public static void scheduleJob() {
+    private class JobOnBackgroundRunnable implements Runnable {
+        volatile Result result;
+        private CountDownLatch countDownLatch;
 
+        JobOnBackgroundRunnable(CountDownLatch countDownLatch) {
+            this.countDownLatch = countDownLatch;
+        }
 
-        new JobRequest.Builder(CheckForUpdateJob.TAG)
-                .setRequiredNetworkType(JobRequest.NetworkType.CONNECTED)
-                .setPeriodic(TimeUnit.MINUTES.toMillis(30), TimeUnit.MINUTES.toMillis(2))
-                .build()
-                .schedule();
+        @Override
+        public void run() {
+            RequestFuture<Check> future = RequestFuture.newFuture();
+
+            final Context context = getContext();
+
+            JsonRequest<Check> jsonRequest = new JsonRequest<Check>(JsonRequest.Method.GET, API.CheckURI, null, future, future) {
+                @Override
+                protected Response<Check> parseNetworkResponse(NetworkResponse response) {
+                    String json = new String(response.data);
+                    Check check = SuperSingleton.getInstance(context).getGsonBuilder().create().fromJson(json, Check.class);
+                    DataPreferences.SaveCheck(context, check);
+                    return Response.success(check, null);
+                }
+            };
+
+            SuperSingleton.getInstance(context)
+                    .getVolleyRequestQueue()
+                    .add(jsonRequest);
+
+            try {
+                Check check = future.get(30, TimeUnit.SECONDS);
+
+                DataPreferences.SaveCheck(context, check);
+
+                result = downloadChapterList();
+                countDownLatch.countDown();
+            } catch (InterruptedException e) {
+                Log.e(App.TAG, "CheckForUpdateJob failed to get Check object from queue. Reason will be dumped below!");
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                Log.e(App.TAG, "CheckForUpdateJob failed to get Check object from queue. Reason will be dumped below!");
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                Log.e(App.TAG, "CheckForUpdateJob failed to get Check object from queue. Reason will be dumped below!");
+                e.printStackTrace();
+            }
+            // Reschedule after any failure
+            result = Result.RESCHEDULE;
+        }
+
+        Result getResult() {
+            return result;
+        }
     }
 }
