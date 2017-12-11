@@ -187,7 +187,7 @@ public class CheckForUpdateJob extends Job {
 
         showNotification &= (DataPreferences.getLastNotificationTime(getContext()) - System.currentTimeMillis() >= DAY);
 
-        if (!showNotification && false) {
+        if (!showNotification) {
             String updateDaysStr = stringBuilder.toString();
             Log.d(App.TAG, "Not showing the notification: today (" + today + ") is not in the update days (" + updateDaysStr + ") or the notification has already been shown!");
             return Result.RESCHEDULE;
