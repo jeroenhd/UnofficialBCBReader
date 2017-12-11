@@ -3,7 +3,9 @@ package nl.jeroenhd.app.bcbreader.adapters;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.util.Log;
 
+import nl.jeroenhd.app.bcbreader.data.App;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.fragments.FullscreenPageFragment;
 import nl.jeroenhd.app.bcbreader.fragments.NavigationEventFragment;
@@ -35,7 +37,8 @@ public class FullscreenPagePagerAdapter extends FragmentStatePagerAdapter {
 
         if (position == 0 && hasPrevious) {
             return PreviousChapterFragment.newInstance(mChapter, mNavigationCallback);
-        } else if (position == mChapter.getPageCount() + (hasPrevious ? 1 : 0) && hasNext) {
+        } else if (position > mChapter.getPageCount() + (hasPrevious ? 1 : 0) && hasNext) {
+            Log.d(App.TAG, "[Chapter " + mChapter.getNumber() + ", position " + position + "]: spawning next chapter fragment");
             return NextChapterFragment.newInstance(mChapter, mNavigationCallback);
         }
 
