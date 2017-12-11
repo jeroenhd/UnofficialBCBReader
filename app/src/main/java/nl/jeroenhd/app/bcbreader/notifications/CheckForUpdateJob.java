@@ -185,7 +185,7 @@ public class CheckForUpdateJob extends Job {
 
         final long DAY = TimeUnit.DAYS.toMillis(1);
 
-        showNotification &= (DataPreferences.getLastNotificationTime(getContext()) - System.currentTimeMillis() >= DAY);
+        showNotification &= (System.currentTimeMillis() - DataPreferences.getLastNotificationTime(getContext()) >= DAY);
 
         if (!showNotification) {
             String updateDaysStr = stringBuilder.toString();
