@@ -74,7 +74,7 @@ public class FullscreenPageFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_page_fullscreen, container, false);
 
         assert v != null;
-        imageView = (PageImageView) v.findViewById(R.id.page);
+        imageView = v.findViewById(R.id.page);
         imageView.setBackgroundColorId(android.R.color.black);
         imageView.setPage(chapter.getNumber(), page);
         imageView.setOnClickListener(new View.OnClickListener() {
@@ -155,6 +155,8 @@ public class FullscreenPageFragment extends Fragment {
      */
     protected void updateLastRead() {
         DataPreferences.setLastReadPage(mContext, chapter.getNumber(), page);
+        chapter.setLastPageRead(page);
+        chapter.update();
     }
 
     public interface FullscreenPageFragmentCallback {
@@ -165,3 +167,6 @@ public class FullscreenPageFragment extends Fragment {
         void onTap(View view);
     }
 }
+
+
+

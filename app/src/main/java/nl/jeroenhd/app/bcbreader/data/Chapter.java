@@ -60,12 +60,10 @@ public class Chapter extends BaseModel implements Parcelable {
     @Column
     @Expose
     String yearPublished;
-
-    @Column
-    boolean favourite;
-
     @Expose
     List<Page> pageDescriptions;
+    @Column
+    private int lastPageRead;
 
     /**
      * Required for DBFlow
@@ -81,6 +79,7 @@ public class Chapter extends BaseModel implements Parcelable {
         this.totalPages = totalPages;
         this.yearPublished = yearPublished;
         this.number = number;
+        this.lastPageRead = 0;
     }
 
     /**
@@ -101,7 +100,7 @@ public class Chapter extends BaseModel implements Parcelable {
             page.setChapter(this.getNumber());
         }
 
-        this.favourite = data.readInt() == 1;
+        this.lastPageRead = data.readInt();
     }
 
     public Double getNumber() {
@@ -168,19 +167,18 @@ public class Chapter extends BaseModel implements Parcelable {
         this.pageDescriptions = pageDescriptions;
     }
 
-    public boolean isFavourite() {
-        return favourite;
-    }
-
-    public void setFavourite(boolean favourite) {
-        this.favourite = favourite;
-    }
-
     @Override
     public int describeContents() {
         return 0;
     }
 
+    public int getLastPageRead() {
+        return lastPageRead;
+    }
+
+    public void setLastPageRead(int lastPageRead) {
+        this.lastPageRead = lastPageRead;
+    }
 
     /**
      * Get the chapter following this chapter. If there is no chapter, return null
@@ -223,6 +221,6 @@ public class Chapter extends BaseModel implements Parcelable {
         dest.writeString(this.yearPublished);
         dest.writeDouble(this.number);
         dest.writeList(pageDescriptions);
-        dest.writeInt(favourite ? 1 : 0);
+        dest.writeInt(lastPageRead);
     }
 }

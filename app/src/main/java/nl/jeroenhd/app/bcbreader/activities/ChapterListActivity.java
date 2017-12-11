@@ -3,6 +3,7 @@ package nl.jeroenhd.app.bcbreader.activities;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -13,7 +14,6 @@ import android.support.v4.util.Pair;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
@@ -152,7 +152,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                         numberFound = true;
                         // Check if the descriptions are the same, if so, don't add this one
                         if (oldChapter != c) {
-                            c.setFavourite(oldChapter.isFavourite());
                             // Metadata is not the same, update it!
                             mChapterData.set(j, c);
                             mChapterListAdapter.notifyItemChanged(j);
@@ -248,13 +247,13 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chapter_list);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         assert toolbar != null;
         toolbar.setOnMenuItemClickListener(this);
 
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        swipeRefreshLayout = findViewById(R.id.swiperefresh);
         assert swipeRefreshLayout != null;
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
@@ -265,10 +264,10 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 R.color.paulo
         );
 
-        CoordinatorLayout mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
+        CoordinatorLayout mCoordinatorLayout = findViewById(R.id.coordinator);
 
         singleton = SuperSingleton.getInstance(this);
-        mLoadingProgressbar = (ProgressBar) findViewById(R.id.emptyListSpinner);
+        mLoadingProgressbar = findViewById(R.id.emptyListSpinner);
 
         assert mLoadingProgressbar != null;
         assert  mCoordinatorLayout != null;
@@ -339,7 +338,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
      * Prepare the RecyclerView for showing chapters
      */
     private void SetupChapterListRecycler() {
-        mChapterRecycler = (RecyclerView) findViewById(R.id.chapterList);
+        mChapterRecycler = findViewById(R.id.chapterList);
 
         mChapterListLayoutManager = new LinearLayoutManager(this);
         mChapterRecycler.setLayoutManager(mChapterListLayoutManager);
@@ -355,11 +354,11 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
      * Prepare the RecyclerView for showing page thumbs (in tablet mode)
      */
     private void SetupPageThumbRecycler() {
-        mPageThumbRecycler = (RecyclerView) findViewById(R.id.page_thumb_recycler);
+        mPageThumbRecycler = findViewById(R.id.page_thumb_recycler);
         if (mPageThumbRecycler == null)
             return;
 
-        mBigChapterTitle = (TextView) findViewById(R.id.chapter_list_title);
+        mBigChapterTitle = findViewById(R.id.chapter_list_title);
 
         GridLayoutManager mPageThumbLayoutManager = new GridLayoutManager(this, getResources().getInteger(R.integer.page_thumb_column_count));
         mPageThumbRecycler.setLayoutManager(mPageThumbLayoutManager);
@@ -434,24 +433,6 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         }
     }
 
-    /**
-     * Called when a chapter has been added to the user's favourites
-     * @param view The view the user has interacted with
-     * @param chapter The chapter the user has selected
-     */
-    @Override
-    public void onChapterFavourite(AppCompatImageView view, Chapter chapter) {
-        // Switch between favourite/not favourite
-        chapter.setFavourite(!chapter.isFavourite());
-
-        // Save the fav state
-        chapter.save();
-
-        // Update the list
-        int index = mChapterData.indexOf(chapter);
-        mChapterListAdapter.notifyItemChanged(index);
-    }
-
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         int id = item.getItemId();
@@ -466,8 +447,13 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                         .get(API.FormatPageUrl(this, DataPreferences.getLatestChapterNumber(this), DataPreferences.getLatestPage(this), "@m"), new ImageLoader.ImageListener() {
                             @Override
                             public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                                new NotificationService().DisplayNotification(response.getBitmap());
-                                DataPreferences.setLastNotificationDate(ChapterListActivity.this);
+                                Bitmap bmp = response.getBitmap();
+                                if (bmp == null) {
+                                    Log.d(App.TAG, "Could not load bitmap for notification!");
+                                } else {
+                                    new NotificationService().DisplayNotification(bmp);
+                                    DataPreferences.setLastNotificationDate(ChapterListActivity.this);
+                                }
                             }
 
                             @Override

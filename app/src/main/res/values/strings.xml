@@ -53,7 +53,7 @@
     <string name="thank_you_for_sending_telemetry">Thank you for sending telemetry!</string>
     <string name="error_sending_telemetry">Error sending telemetry</string>
 
-    <string name="title_activity_fullscreen_reader">FullscreenReaderActivity</string>
+    <string name="title_activity_fullscreen_reader">Read this BCB chapter</string>
     <string name="go_fullscreen">Full screen</string>
     <string name="pref_title_enable_preloading">Enable preloading</string>
     <string name="pref_summary_preloading">Preloading allows a smoother experience but increases data usage</string>
@@ -61,7 +61,7 @@
     <string name="pref_summary_use_cdn">Try toggling this preference if pages load slowly</string>
     <string name="share">Share</string>
     <string name="error_while_sharing">Something went wrong while sharing: %1$s</string>
-    <string name="title_chapter_title_page_number">%1$s: page %2$d</string>
+    <string name="title_chapter_title_page_number">%1$s, page %2$d</string>
     <string name="pref_title_share_upload_image">Share image files</string>
     <string name="pref_summary_share_upload_image">Also add image files when sharing a page using another app</string>
     <string name="go_to_latest_update">The comic just updated! Do you want to see the latest page?</string>
@@ -94,6 +94,7 @@
     <string name="dummy_page_number">Page 1</string>
     <string name="page_number">Page %1$d</string>
     <string name="chapter_title_big">Chapter %1$s: %2$s</string>
+    <string name="no_commentary_available"><![CDATA[<p>Commentary not (yet) available for this page.</p>]]></string>
     <string name="no_description_available">No description is available right now.</string>
     <string name="to_next_chapter">Read the next chapter</string>
     <string name="no_next_chapter">You\'re all up to date! There\'s no next chapter!</string>

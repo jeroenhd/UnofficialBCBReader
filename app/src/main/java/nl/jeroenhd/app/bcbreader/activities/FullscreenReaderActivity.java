@@ -76,20 +76,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private static final int UI_ANIMATION_DELAY = 300;
     private final FullscreenReaderActivity thisActivity = this;
     private final Handler mHideHandler = new Handler();
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring bottomSheetBehavior of controls going away
-     * while interacting with activity UI.
-     */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
     private Button buttonPrev;
     private Button buttonNext;
     private SeekBar seekBar;
@@ -101,12 +87,6 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
     private boolean firstToolbarShow = true;
     private TextView commentaryView;
     private BottomSheetBehavior bottomSheetBehavior;
-    private final Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            hide();
-        }
-    };
     private NestedScrollView commentaryScroller;
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
@@ -127,6 +107,27 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
     };
+    private final Runnable mHideRunnable = new Runnable() {
+        @Override
+        public void run() {
+            hide();
+        }
+    };
+    /**
+     * Touch listener to use for in-layout UI controls to delay hiding the
+     * system UI. This is to prevent the jarring bottomSheetBehavior of controls going away
+     * while interacting with activity UI.
+     */
+    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (AUTO_HIDE) {
+                delayedHide(AUTO_HIDE_DELAY_MILLIS);
+            }
+            view.performClick();
+            return false;
+        }
+    };
     private boolean previousChapterExists = true;
     private boolean nextChapterExists = true;
     private FullscreenPagePagerAdapter fullscreenPagePagerAdapter;
@@ -141,7 +142,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         //mContentView = findViewById(R.id.fullscreen_content);
         mContentView = findViewById(R.id.pager);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         toolbar.setVisibility(View.VISIBLE);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,16 +151,16 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
             }
         });
 
-        buttonNext = (Button) findViewById(R.id.button_right);
-        buttonPrev = (Button) findViewById(R.id.button_left);
-        seekBar = (SeekBar) findViewById(R.id.seekbar);
+        buttonNext = findViewById(R.id.button_right);
+        buttonPrev = findViewById(R.id.button_left);
+        seekBar = findViewById(R.id.seekbar);
         viewPager = (ViewPager) mContentView;
 
-        commentaryView = (TextView) findViewById(R.id.commentary);
+        commentaryView = findViewById(R.id.commentary);
         // Make links in commentary work
         commentaryView.setMovementMethod(LinkMovementMethod.getInstance());
 
-        commentaryScroller = (NestedScrollView) findViewById(R.id.bottom_sheet);
+        commentaryScroller = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(commentaryScroller);
         bottomSheetBehavior.setHideable(true);
         bottomSheetBehavior.setSkipCollapsed(true);
@@ -197,7 +198,14 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         // Check if the application was started by visiting a URL
         if (action != null && action.equals(Intent.ACTION_VIEW)) {
             Uri data = intent.getData();
+
+            if (data == null) {
+                Log.e(App.TAG, "No data! Not doing anything and praying for the best...");
+                return;
+            }
+
             Log.d(App.TAG, "ActivityFromUri: Data: " + data.toString());
+
             List<String> queryParams = data.getPathSegments();
             double chapterNumber = Double.parseDouble(queryParams.get(0).substring(1));
             Integer page = Integer.parseInt(queryParams.get(1).replaceAll("[^0-9]", ""));
@@ -233,7 +241,9 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
 
             if (currentPage > currentChapter.getPageCount()) {
                 // Page number is too high
-                throw new IllegalArgumentException("The page number is higher than the page count of this chapter!");
+                //throw new IllegalArgumentException("The page number is higher than the page count of this chapter!");
+                // New behaviour: update the temporary page count instead of crashing
+                currentChapter.setPageCount(currentPage);
             }
         } else {
             // No extra's?
