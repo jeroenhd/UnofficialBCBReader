@@ -246,6 +246,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             Preference volleyLicense = findPreference("pref_license_volley");
             Preference gsonLicense = findPreference("pref_license_gson");
             Preference dbflowLicense = findPreference("pref_license_dbflow");
+            Preference androidJobLicence = findPreference("pref_license_android-job");
             Preference versionName = findPreference("app_version");
 
             volleyLicense.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -266,6 +267,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     showLicense("dbflow_license.txt");
+                    return false;
+                }
+            });
+            androidJobLicence.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    showLicense("Android-Job_license.html");
                     return false;
                 }
             });

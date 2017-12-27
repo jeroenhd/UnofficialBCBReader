@@ -26,7 +26,7 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.RequestFuture;
-import com.evernote.android.job.Job;
+import com.evernote.android.job.DailyJob;
 import com.evernote.android.job.JobRequest;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -58,7 +58,7 @@ import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
  * A job that is executed periodically to check if there are any updates
  */
 
-public class CheckForUpdateJob extends Job {
+public class CheckForUpdateJob extends DailyJob {
     public static final String TAG = "nl.jeroenhd.app.bcbreader.notifications.CheckForUpdateJob";
 
     /**
@@ -77,9 +77,31 @@ public class CheckForUpdateJob extends Job {
                 .schedule();
     }
 
+    /**
+     * Get the local update hour
+     *
+     * @param context A context to use for getting preferences
+     * @return The hour of day that the app should check for updates
+     */
+    private static long getUpdateHour(Context context) {
+        int updateHourUTC = DataPreferences.getUpdateHour(context);
+        Calendar c = Calendar.getInstance();
+        c.setTimeZone(TimeZone.getTimeZone("UTC"));
+        c.set(Calendar.HOUR_OF_DAY, updateHourUTC);
+        c.setTimeZone(TimeZone.getDefault());
+        return c.get(Calendar.HOUR_OF_DAY);
+    }
+
+    public static void schedule(Context context) {
+        DailyJob.schedule(
+                new JobRequest.Builder(App.TAG),
+                TimeUnit.HOURS.toMillis(getUpdateHour(context)),
+                TimeUnit.HOURS.toMillis(getUpdateHour(context)) + TimeUnit.MINUTES.toMillis(15));
+    }
+
     @NonNull
     @Override
-    protected Result onRunJob(Params params) {
+    protected DailyJobResult onRunDailyJob(Params params) {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
 
         JobOnBackgroundRunnable r = new JobOnBackgroundRunnable(countDownLatch);
@@ -87,13 +109,13 @@ public class CheckForUpdateJob extends Job {
 
         try {
             countDownLatch.await();
-            return r.getResult() == null ? Result.FAILURE : r.getResult();
+            return r.getResult() == null ? DailyJobResult.SUCCESS : r.getResult();
         } catch (InterruptedException e) {
-            return Result.FAILURE;
+            return DailyJobResult.SUCCESS;
         }
     }
 
-    private Result downloadChapterList() {
+    private DailyJobResult downloadChapterList() {
         final Context context = this.getContext();
 
         RequestFuture<List<Chapter>> future = RequestFuture.newFuture();
@@ -159,13 +181,13 @@ public class CheckForUpdateJob extends Job {
             e.printStackTrace();
         }
 
-        return Result.RESCHEDULE;
+        return DailyJobResult.SUCCESS;
     }
 
     /**
      * Prepare to show a notification to the user.
      */
-    private Result PrepareNotification() {
+    private DailyJobResult PrepareNotification() {
         int[] updateDays = DataPreferences.getUpdateDays(getContext());
         int updateHour = DataPreferences.getUpdateHour(getContext());
 
@@ -189,8 +211,8 @@ public class CheckForUpdateJob extends Job {
 
         if (!showNotification) {
             String updateDaysStr = stringBuilder.toString();
-            Log.d(App.TAG, "Not showing the notification: today (" + today + ") is not in the update days (" + updateDaysStr + ") or the notification has already been shown!");
-            return Result.RESCHEDULE;
+            Log.w(App.TAG, "Not showing the notification: today (" + today + ") is not in the update days (" + updateDaysStr + ") or the notification has already been shown!");
+            return DailyJobResult.SUCCESS;
         }
 
 
@@ -218,7 +240,7 @@ public class CheckForUpdateJob extends Job {
                 .getVolleyRequestQueue()
                 .add(ir);
 
-        return Result.SUCCESS;
+        return DailyJobResult.SUCCESS;
     }
 
     /**
@@ -283,7 +305,7 @@ public class CheckForUpdateJob extends Job {
     }
 
     private class JobOnBackgroundRunnable implements Runnable {
-        volatile Result result;
+        volatile DailyJobResult result;
         private CountDownLatch countDownLatch;
 
         JobOnBackgroundRunnable(CountDownLatch countDownLatch) {
@@ -328,11 +350,11 @@ public class CheckForUpdateJob extends Job {
                 Log.e(App.TAG, "CheckForUpdateJob failed to get Check object from queue. Reason will be dumped below!");
                 e.printStackTrace();
             }
-            // Reschedule after any failure
-            result = Result.RESCHEDULE;
+
+            result = DailyJobResult.SUCCESS;
         }
 
-        Result getResult() {
+        DailyJobResult getResult() {
             return result;
         }
     }

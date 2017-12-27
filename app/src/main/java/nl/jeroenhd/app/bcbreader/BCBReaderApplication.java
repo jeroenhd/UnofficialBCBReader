@@ -12,7 +12,6 @@ import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 import nl.jeroenhd.app.bcbreader.notifications.CheckForUpdateJob;
-import nl.jeroenhd.app.bcbreader.notifications.NotificationJobCreator;
 import nl.jeroenhd.app.bcbreader.tools.AppCrashStorage;
 import nl.jeroenhd.app.bcbreader.tools.Shortcuts;
 
@@ -46,8 +45,8 @@ public class BCBReaderApplication extends Application {
 
         // Prepare notifications
         this.prepareNotifications();
-        JobManager.create(this).addJobCreator(new NotificationJobCreator());
-        CheckForUpdateJob.scheduleJob();
+        JobManager.create(this);
+        CheckForUpdateJob.schedule(getApplicationContext());
 
         Shortcuts.Update(this);
     }
