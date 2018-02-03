@@ -247,13 +247,13 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chapter_list);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         assert toolbar != null;
         toolbar.setOnMenuItemClickListener(this);
 
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        swipeRefreshLayout = findViewById(R.id.swiperefresh);
         assert swipeRefreshLayout != null;
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
@@ -264,10 +264,10 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 R.color.paulo
         );
 
-        CoordinatorLayout mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
+        CoordinatorLayout mCoordinatorLayout = findViewById(R.id.coordinator);
 
         singleton = SuperSingleton.getInstance(this);
-        mLoadingProgressbar = (ProgressBar) findViewById(R.id.emptyListSpinner);
+        mLoadingProgressbar = findViewById(R.id.emptyListSpinner);
 
         assert mLoadingProgressbar != null;
         assert  mCoordinatorLayout != null;
@@ -338,7 +338,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
      * Prepare the RecyclerView for showing chapters
      */
     private void SetupChapterListRecycler() {
-        mChapterRecycler = (RecyclerView) findViewById(R.id.chapterList);
+        mChapterRecycler = findViewById(R.id.chapterList);
 
         mChapterListLayoutManager = new LinearLayoutManager(this);
         mChapterRecycler.setLayoutManager(mChapterListLayoutManager);
@@ -354,11 +354,11 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
      * Prepare the RecyclerView for showing page thumbs (in tablet mode)
      */
     private void SetupPageThumbRecycler() {
-        mPageThumbRecycler = (RecyclerView) findViewById(R.id.page_thumb_recycler);
+        mPageThumbRecycler = findViewById(R.id.page_thumb_recycler);
         if (mPageThumbRecycler == null)
             return;
 
-        mBigChapterTitle = (TextView) findViewById(R.id.chapter_list_title);
+        mBigChapterTitle = findViewById(R.id.chapter_list_title);
 
         GridLayoutManager mPageThumbLayoutManager = new GridLayoutManager(this, getResources().getInteger(R.integer.page_thumb_column_count));
         mPageThumbRecycler.setLayoutManager(mPageThumbLayoutManager);
@@ -380,7 +380,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             menu.findItem(R.id.menu_debug).setVisible(adb != 0);
         }
 
-        if (DataPreferences.getLastReadChapterNumber(this) < 1){
+        if (DataPreferences.getLastReadChapterNumber(this) < 1) {
             menu.findItem(R.id.menu_continue_reading).setVisible(false);
         }
 
