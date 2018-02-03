@@ -379,6 +379,10 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             menu.findItem(R.id.menu_debug).setVisible(adb != 0);
         }
 
+        if (DataPreferences.getLastReadChapterNumber(this) < 1) {
+            menu.findItem(R.id.menu_continue_reading).setVisible(false);
+        }
+
         return true;
     }
 

@@ -21,13 +21,13 @@ def getBranchName = { ->
 }
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion "27.0.2"
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId "nl.jeroenhd.app.bcbreader"
         minSdkVersion 16
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 7
         versionName "Elementary " + getBranchName() + "@" + getVersionName() + ' (' + new Date().format("yyyyMMddHHmmss") + ')'
     }
@@ -55,10 +55,10 @@ dependencies {
     compile "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
 
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:26.1.0'
-    compile 'com.android.support:design:26.1.0'
-    compile 'com.android.support:palette-v7:26.1.0'
-    compile 'com.google.code.gson:gson:2.7'
+    compile 'com.android.support:appcompat-v7:27.0.2'
+    compile 'com.android.support:design:27.0.2'
+    compile 'com.android.support:palette-v7:27.0.2'
+    compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.android.volley:volley:1.0.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.evernote:android-job:1.2.0'
