@@ -56,6 +56,7 @@ import nl.jeroenhd.app.bcbreader.notifications.NotificationService;
 import nl.jeroenhd.app.bcbreader.tools.AppCrashStorage;
 
 public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener, Toolbar.OnMenuItemClickListener, SwipeRefreshLayout.OnRefreshListener, PopupMenu.OnMenuItemClickListener, PageThumbAdapter.OnThumbClickListener {
+    private static final int ACTIVITY_REQUEST_BCI_LOGIN = 0xbc1;
     private final Activity thisActivity = this;
 
     private RecyclerView mChapterRecycler;
@@ -441,6 +442,9 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 Intent settingsIntent = new Intent(thisActivity, SettingsActivity.class);
                 startActivity(settingsIntent);
                 break;
+            case R.id.menu_bci:
+                startActivityForResult(new Intent(thisActivity, BCILoginActivity.class), this.ACTIVITY_REQUEST_BCI_LOGIN);
+                break;
             case R.id.menu_debug:
                 SuperSingleton.getInstance(this)
                         .getImageLoader()
@@ -527,5 +531,17 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     @Override
     public void onThumbnailClick(Chapter chapter, int page, View clickedView) {
         onChapterSelect(clickedView, chapter, page);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case ACTIVITY_REQUEST_BCI_LOGIN:{
+                if (resultCode == Activity.RESULT_OK){
+                    // User logged in successfully
+                }
+            } break;
+        }
     }
 }

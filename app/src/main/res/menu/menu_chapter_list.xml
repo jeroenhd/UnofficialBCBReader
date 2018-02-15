@@ -26,6 +26,11 @@
         </menu>
     </item>
     <item
+        android:id="@+id/menu_bci"
+        android:icon="@drawable/ic_favorite_white_48dp"
+        android:title="@string/bci_comics"
+        app:showAsAction="ifRoom"/>
+    <item
         android:id="@+id/menu_settings"
         android:title="@string/action_settings"
         app:showAsAction="never" />

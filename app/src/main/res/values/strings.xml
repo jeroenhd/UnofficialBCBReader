@@ -105,6 +105,7 @@
     <string name="permission_rationale">Contact information is required to autofill these fields</string>
     <string name="error_invalid_password">That didn\'t work! Check your password and try again.</string>
     <string name="error_field_required">This is a required field.</string>
-    <string name="error_invalid_email">Invalid e-mail address!</string>
+    <string name="error_invalid_username">Invalid username address!</string>
     <string name="error_incorrect_password">That didn\'t work! Check your password and try again.</string>
+    <string name="bci_comics">BCI comics</string>
 </resources>

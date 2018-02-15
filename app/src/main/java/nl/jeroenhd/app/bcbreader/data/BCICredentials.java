@@ -101,6 +101,18 @@ public class BCICredentials {
         this.authCookie = null;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getAuthCookie() {
+        return authCookie;
+    }
+
     /**
      * Checks if the token or the username/password combination are correct
      * @param context The context to use for creating the network connections
@@ -118,7 +130,7 @@ public class BCICredentials {
                         .getVolleyNetwork()
                         .performRequest(new StringRequest(API.BCI_VALIDATION_URL, null, null));
 
-                if (ValidateHTML(response.toString()))
+                if (ValidateHTML(new String(response.data, "UTF-8")))
                     return true;
             } catch (VolleyError volleyError) {
                 volleyError.printStackTrace();
@@ -150,9 +162,9 @@ public class BCICredentials {
                         return params;
                     }
                 });
-        if (ValidateHTML(response.toString()))
+        if (ValidateHTML(new String(response.data, "UTF-8")))
         {
-            //TODO: chesck if this works with multiple cookies
+            //TODO: check if this works with multiple cookies
             //The BCB members page sets three cookies: BCBBCINo, BCBBCIAuth and BCBBCINo again
             this.authCookie = response.headers.get("Set-Cookie");
 
@@ -171,7 +183,7 @@ public class BCICredentials {
     private boolean ValidateHTML(String HTMLResponse)
     {
         // Right now: simple check
-        return HTMLResponse.contains("Member Services Centre");
+        return !HTMLResponse.contains("Sign In");
 
         //TODO: implement this?
         //return BCIChapter.getBCIChapters(HTMLResponse).size() > 0;
