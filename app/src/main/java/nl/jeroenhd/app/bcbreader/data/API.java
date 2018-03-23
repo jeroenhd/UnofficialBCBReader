@@ -54,7 +54,7 @@ public class API {
      */
     public static boolean isJpegChapter(double chapter, String quality) {
         // Exceptions to the rule below
-        if (chapter == 16.1 || chapter == 17.1 || chapter == 22.1 || chapter == 26.1 || chapter == 35.0 || chapter == 35.1 || chapter == 38.1)
+        if (chapter == 16.1 || chapter == 17.1 || chapter == 22.1 || chapter == 26.1 || chapter == 35.0 || chapter == 35.1 || chapter == 38.1 || chapter == 102)
             return true;
 
         // Well this is fun
