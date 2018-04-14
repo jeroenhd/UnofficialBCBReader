@@ -47,6 +47,7 @@ public class BCBReaderApplication extends Application {
         // Prepare notifications
         this.prepareNotifications();
         JobManager.create(this).addJobCreator(new NotificationJobCreator());
+        CheckForUpdateJob.schedule(this);
 
         Shortcuts.Update(this);
     }
@@ -94,17 +95,14 @@ public class BCBReaderApplication extends Application {
      */
     private void initCrashReporting() {
         systemHandler = Thread.getDefaultUncaughtExceptionHandler();
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread thread, Throwable throwable) {
-                Log.e(TAG, "Unhandled exception! The global crash handler has been invoked!");
+        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+            Log.e(TAG, "Unhandled exception! The global crash handler has been invoked!");
 
-                AppCrashStorage appCrashStorage = new AppCrashStorage(BCBReaderApplication.this);
-                appCrashStorage.StoreCrash(thread, throwable);
+            AppCrashStorage appCrashStorage = new AppCrashStorage(BCBReaderApplication.this);
+            appCrashStorage.StoreCrash(thread, throwable);
 
-                if (systemHandler != null) {
-                    systemHandler.uncaughtException(thread, throwable);
-                }
+            if (systemHandler != null) {
+                systemHandler.uncaughtException(thread, throwable);
             }
         });
     }

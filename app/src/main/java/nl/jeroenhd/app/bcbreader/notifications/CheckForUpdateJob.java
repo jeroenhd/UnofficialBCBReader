@@ -14,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.text.format.Time;
 import android.util.Log;
 import android.util.TypedValue;
 import android.widget.ImageView;
@@ -26,6 +27,7 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.RequestFuture;
+import com.evernote.android.job.DailyJob;
 import com.evernote.android.job.Job;
 import com.evernote.android.job.JobRequest;
 import com.google.gson.Gson;
@@ -33,8 +35,14 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
 import java.nio.charset.Charset;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.CountDownLatch;
@@ -58,7 +66,7 @@ import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
  * A job that is executed periodically to check if there are any updates
  */
 
-public class CheckForUpdateJob extends Job {
+public class CheckForUpdateJob extends DailyJob {
     public static final String TAG = "nl.jeroenhd.app.bcbreader.notifications.CheckForUpdateJob";
 
     /**
@@ -66,19 +74,30 @@ public class CheckForUpdateJob extends Job {
      */
     private static final int NewChapterNotificationId = 0xBCB;
 
-    public void scheduleJob() {
-        long intervalMs = TimeUnit.MINUTES.toMillis(30);
-        long flexMs = TimeUnit.MINUTES.toMillis(5);
-        new JobRequest.Builder(CheckForUpdateJob.TAG)
-                .setRequiredNetworkType(JobRequest.NetworkType.CONNECTED)
-                .setPeriodic(intervalMs, flexMs)
-                .build()
-                .schedule();
+    public static void schedule(Context context) {
+        int updateHourUTC = DataPreferences.getUpdateHour(context);
+
+        TimeZone homeZone = TimeZone.getDefault();
+        TimeZone utcZone = TimeZone.getTimeZone("UTC");
+
+        Calendar localCal = Calendar.getInstance();
+
+        Calendar cal = new GregorianCalendar(utcZone);
+        cal.setTimeInMillis(localCal.getTimeInMillis());
+        cal.set(Calendar.HOUR_OF_DAY, updateHourUTC);
+        cal.setTimeInMillis(cal.getTimeInMillis() - homeZone.getOffset(cal.getTimeInMillis()));
+        cal.setTimeZone(homeZone);
+
+        Time timeDate = new Time();
+        timeDate.set(cal.getTimeInMillis() + homeZone.getOffset(cal.getTimeInMillis()));
+        int updateHour = timeDate.hour;
+        // schedule between 1 and 6 AM
+        DailyJob.schedule(new JobRequest.Builder(TAG), TimeUnit.HOURS.toMillis(updateHour), TimeUnit.HOURS.toMillis(updateHour + 3));
     }
 
     @NonNull
     @Override
-    protected Result onRunJob(Params params) {
+    protected DailyJobResult onRunDailyJob(@NonNull Params params) {
         final CountDownLatch countDownLatch = new CountDownLatch(1);
 
         JobOnBackgroundRunnable r = new JobOnBackgroundRunnable(countDownLatch);
@@ -86,13 +105,13 @@ public class CheckForUpdateJob extends Job {
 
         try {
             countDownLatch.await();
-            return r.getResult() == null ? Result.FAILURE : r.getResult();
+            return r.getResult() == null ? DailyJobResult.CANCEL : r.getResult();
         } catch (InterruptedException e) {
-            return Result.FAILURE;
+            return DailyJobResult.CANCEL;
         }
     }
 
-    private Result downloadChapterList() {
+    private DailyJobResult downloadChapterList() {
         final Context context = this.getContext();
 
         RequestFuture<List<Chapter>> future = RequestFuture.newFuture();
@@ -158,13 +177,13 @@ public class CheckForUpdateJob extends Job {
             e.printStackTrace();
         }
 
-        return Result.RESCHEDULE;
+        return DailyJobResult.CANCEL;
     }
 
     /**
      * Prepare to show a notification to the user.
      */
-    private Result PrepareNotification() {
+    private DailyJobResult PrepareNotification() {
         int[] updateDays = DataPreferences.getUpdateDays(getContext());
         int updateHour = DataPreferences.getUpdateHour(getContext());
 
@@ -189,7 +208,7 @@ public class CheckForUpdateJob extends Job {
         if (!showNotification) {
             String updateDaysStr = stringBuilder.toString();
             Log.d(App.TAG, "Not showing the notification: today (" + today + ") is not in the update days (" + updateDaysStr + ") or the notification has already been shown!");
-            return Result.RESCHEDULE;
+            return DailyJobResult.CANCEL;
         }
 
 
@@ -200,24 +219,15 @@ public class CheckForUpdateJob extends Job {
         int maxWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 256, r.getDisplayMetrics());
         int maxHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 128, r.getDisplayMetrics());
 
-        ImageRequest ir = new ImageRequest(API.FormatPageUrl(getContext(), chapterNumber, page, "@m"), new Response.Listener<Bitmap>() {
-            @Override
-            public void onResponse(Bitmap response) {
-                DisplayNotification(response);
-                DataPreferences.setLastNotificationDate(getContext());
-            }
-        }, maxWidth, maxHeight, ImageView.ScaleType.FIT_START, Bitmap.Config.RGB_565, new Response.ErrorListener() {
-
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                DisplayNotification(null);
-            }
-        });
+        ImageRequest ir = new ImageRequest(API.FormatPageUrl(getContext(), chapterNumber, page, "@m"), response -> {
+            DisplayNotification(response);
+            DataPreferences.setLastNotificationDate(getContext());
+        }, maxWidth, maxHeight, ImageView.ScaleType.FIT_START, Bitmap.Config.RGB_565, error -> DisplayNotification(null));
         SuperSingleton.getInstance(getContext())
                 .getVolleyRequestQueue()
                 .add(ir);
 
-        return Result.SUCCESS;
+        return DailyJobResult.SUCCESS;
     }
 
     /**
@@ -282,7 +292,7 @@ public class CheckForUpdateJob extends Job {
     }
 
     private class JobOnBackgroundRunnable implements Runnable {
-        volatile Result result;
+        volatile DailyJobResult result;
         private CountDownLatch countDownLatch;
 
         JobOnBackgroundRunnable(CountDownLatch countDownLatch) {
@@ -328,10 +338,10 @@ public class CheckForUpdateJob extends Job {
                 e.printStackTrace();
             }
             // Reschedule after any failure
-            result = Result.RESCHEDULE;
+            result = DailyJobResult.CANCEL;
         }
 
-        Result getResult() {
+        DailyJobResult getResult() {
             return result;
         }
     }
