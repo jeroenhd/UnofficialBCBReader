@@ -47,7 +47,6 @@ public class BCBReaderApplication extends Application {
         // Prepare notifications
         this.prepareNotifications();
         JobManager.create(this).addJobCreator(new NotificationJobCreator());
-        CheckForUpdateJob.scheduleJob();
 
         Shortcuts.Update(this);
     }

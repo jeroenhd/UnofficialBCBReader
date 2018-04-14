@@ -64,10 +64,9 @@ public class CheckForUpdateJob extends Job {
     /**
      * The (very creative) ID for the notification
      */
-    private static final int NewChapterNotificationId = 0xB00B;
+    private static final int NewChapterNotificationId = 0xBCB;
 
-    public static void scheduleJob() {
-
+    public void scheduleJob() {
         long intervalMs = TimeUnit.MINUTES.toMillis(30);
         long flexMs = TimeUnit.MINUTES.toMillis(5);
         new JobRequest.Builder(CheckForUpdateJob.TAG)
