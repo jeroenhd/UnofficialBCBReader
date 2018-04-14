@@ -21,13 +21,13 @@ def getBranchName = { ->
 }
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId "nl.jeroenhd.app.bcbreader"
         minSdkVersion 16
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 7
         versionName "Elementary " + getBranchName() + "@" + getVersionName() + ' (' + new Date().format("yyyyMMddHHmmss") + ')'
     }
@@ -45,21 +45,21 @@ android {
 
 def dbflow_version = "3.1.1"
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // DBFlow
 
     annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
-    compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
-    compile "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
+    implementation "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
+    implementation "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
 
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:26.1.0'
-    compile 'com.android.support:design:26.1.0'
-    compile 'com.android.support:palette-v7:26.1.0'
-    compile 'com.google.code.gson:gson:2.7'
-    compile 'com.android.volley:volley:1.0.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    testCompile 'org.mockito:mockito-core:1.10.19'
-    androidTestCompile 'org.testng:testng:6.9.6'
+    testImplementation 'junit:junit:4.12'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.android.support:palette-v7:27.1.1'
+    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'com.android.volley:volley:1.0.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    testImplementation 'org.mockito:mockito-core:2.8.9'
+    androidTestImplementation 'org.testng:testng:6.9.6'
 }
