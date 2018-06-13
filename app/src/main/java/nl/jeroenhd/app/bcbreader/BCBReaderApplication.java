@@ -11,7 +11,7 @@ import com.evernote.android.job.JobManager;
 import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
-import nl.jeroenhd.app.bcbreader.notifications.CheckForUpdateJob;
+import nl.jeroenhd.app.bcbreader.notifications.CheckForUpdateJobCreator;
 import nl.jeroenhd.app.bcbreader.tools.AppCrashStorage;
 import nl.jeroenhd.app.bcbreader.tools.Shortcuts;
 
@@ -45,8 +45,8 @@ public class BCBReaderApplication extends Application {
 
         // Prepare notifications
         this.prepareNotifications();
-        JobManager.create(this);
-        CheckForUpdateJob.schedule(getApplicationContext());
+        JobManager.create(this).addJobCreator(new CheckForUpdateJobCreator());
+        CheckForUpdateJobCreator.scheduleJob();
 
         Shortcuts.Update(this);
     }
