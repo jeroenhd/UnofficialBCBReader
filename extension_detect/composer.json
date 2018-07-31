@@ -1,0 +1,8 @@
+{
+  "name": "jeroenhd/bcbhead",
+  "description": "Generate a table to see how extensions are set up per chapter by sending HEAD requests",
+  "type": "project",
+  "require": {
+    "zendframework/zend-text": "^2.7"
+  }
+}

@@ -22,7 +22,7 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7">
     <output url="file://$MODULE_DIR$/build/intermediates/classes/debug" />
     <output-test url="file://$MODULE_DIR$/build/intermediates/classes/test/debug" />
     <exclude-output />
@@ -162,6 +162,5 @@
     <orderEntry type="library" name="Gradle: com.github.Raizlabs.DBFlow:dbflow-3.1.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.google.guava:guava:16.0.1@jar" level="project" />
     <orderEntry type="library" name="Gradle: android.arch.lifecycle:runtime-1.1.0" level="project" />
-    <orderEntry type="library" name="Gradle: com.evernote:android-job-1.2.6" level="project" />
   </component>
 </module>
