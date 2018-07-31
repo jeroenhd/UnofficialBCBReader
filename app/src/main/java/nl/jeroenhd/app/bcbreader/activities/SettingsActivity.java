@@ -248,6 +248,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             Preference dbflowLicense = findPreference("pref_license_dbflow");
             Preference androidJobLicence = findPreference("pref_license_android-job");
             Preference versionName = findPreference("app_version");
+            Preference jobLicense = findPreference("pref_license_android-job");
 
             volleyLicense.setOnPreferenceClickListener(preference -> {
                 showLicense("volley_license.html");
