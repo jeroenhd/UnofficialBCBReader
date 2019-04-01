@@ -8,16 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.Snackbar;
-import android.support.v4.view.GestureDetectorCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.NestedScrollView;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -32,11 +22,21 @@ import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.snackbar.Snackbar;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
 import java.util.List;
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GestureDetectorCompat;
+import androidx.core.widget.NestedScrollView;
+import androidx.viewpager.widget.ViewPager;
 import nl.jeroenhd.app.bcbreader.BCBReaderApplication;
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.adapters.FullscreenPagePagerAdapter;
@@ -107,26 +107,18 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
     };
-    private final Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            hide();
-        }
-    };
+    private final Runnable mHideRunnable = this::hide;
     /**
      * Touch listener to use for in-layout UI controls to delay hiding the
      * system UI. This is to prevent the jarring bottomSheetBehavior of controls going away
      * while interacting with activity UI.
      */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            view.performClick();
-            return false;
+    private final View.OnTouchListener mDelayHideTouchListener = (view, motionEvent) -> {
+        if (AUTO_HIDE) {
+            delayedHide(AUTO_HIDE_DELAY_MILLIS);
         }
+        view.performClick();
+        return false;
     };
 
     @Override
@@ -139,26 +131,23 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         //mContentView = findViewById(R.id.fullscreen_content);
         mContentView = findViewById(R.id.pager);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         toolbar.setVisibility(View.VISIBLE);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //NavUtils.navigateUpFromSameTask(FullscreenReaderActivity.this);
-                thisActivity.onBackPressed();
-            }
+        toolbar.setNavigationOnClickListener(v -> {
+            //NavUtils.navigateUpFromSameTask(FullscreenReaderActivity.this);
+            thisActivity.onBackPressed();
         });
 
-        buttonNext = (Button) findViewById(R.id.button_right);
-        buttonPrev = (Button) findViewById(R.id.button_left);
-        seekBar = (SeekBar) findViewById(R.id.seekbar);
+        buttonNext = findViewById(R.id.button_right);
+        buttonPrev = findViewById(R.id.button_left);
+        seekBar = findViewById(R.id.seekbar);
         viewPager = (ViewPager) mContentView;
 
-        commentaryView = (TextView) findViewById(R.id.commentary);
+        commentaryView = findViewById(R.id.commentary);
         // Make links in commentary work
         commentaryView.setMovementMethod(LinkMovementMethod.getInstance());
 
-        commentaryScroller = (NestedScrollView) findViewById(R.id.bottom_sheet);
+        commentaryScroller = findViewById(R.id.bottom_sheet);
         bottomSheetBehavior = BottomSheetBehavior.from(commentaryScroller);
         bottomSheetBehavior.setHideable(true);
         bottomSheetBehavior.setSkipCollapsed(true);
@@ -284,31 +273,21 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         switch (item.getItemId()) {
             case R.id.action_share:
                 Double chapterNumber = currentChapter.getNumber();
-                Long page = (long) (viewPager.getCurrentItem() + 1);
+                long page = (long) (viewPager.getCurrentItem() + 1);
 
                 ShareManager.ShareImageWithText(thisActivity,
                         API.FormatPageUrl(thisActivity, chapterNumber, page, API.getQualitySuffix(thisActivity)),
                         ShareManager.getStupidPhrase(thisActivity) + " " + API.FormatPageLink(chapterNumber, page),
                         getString(R.string.share),
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(final VolleyError error) {
-                                thisActivity.runOnUiThread(
-                                        new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Snackbar.make(mContentView,
-                                                        String.format(
-                                                                thisActivity.getString(R.string.error_while_sharing),
-                                                                error.getLocalizedMessage()
-                                                        ),
-                                                        Snackbar.LENGTH_INDEFINITE)
-                                                        .show();
-                                            }
-                                        }
-                                );
-                            }
-                        });
+                        error -> thisActivity.runOnUiThread(
+                                () -> Snackbar.make(mContentView,
+                                        String.format(
+                                                thisActivity.getString(R.string.error_while_sharing),
+                                                error.getLocalizedMessage()
+                                        ),
+                                        Snackbar.LENGTH_INDEFINITE)
+                                        .show()
+                        ));
 
                 break;
             default:
@@ -390,12 +369,7 @@ public class FullscreenReaderActivity extends AppCompatActivity implements View.
         if (toolbar != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             toolbar.animate()
                     .translationY(-(toolbar.getHeight() + getStatusBarHeight()))
-                    .withEndAction(new Runnable() {
-                        @Override
-                        public void run() {
-                            actionBar.hide();
-                        }
-                    })
+                    .withEndAction(actionBar::hide)
                     .start();
         } else {
             actionBar.hide();

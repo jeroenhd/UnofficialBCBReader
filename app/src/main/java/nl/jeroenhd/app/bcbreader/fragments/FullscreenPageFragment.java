@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +12,9 @@ import android.view.ViewGroup;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.activities.FullscreenReaderActivity;
 import nl.jeroenhd.app.bcbreader.data.API;
@@ -70,21 +71,18 @@ public class FullscreenPageFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_page_fullscreen, container, false);
 
         assert v != null;
-        imageView = (PageImageView) v.findViewById(R.id.page);
+        imageView = v.findViewById(R.id.page);
         imageView.setBackgroundColorId(android.R.color.black);
         imageView.setPage(chapter.getNumber(), page);
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (callback != null) {
-                    callback.onTap(v);
-                } else {
-                    Log.e(App.TAG, "FullScreenPageFragment:onCreateView:imageView.OnClickListener: callback not set, not handling click!");
-                }
+        imageView.setOnClickListener(view -> {
+            if (callback != null) {
+                callback.onTap(view);
+            } else {
+                Log.e(App.TAG, "FullScreenPageFragment:onCreateView:imageView.OnClickListener: callback not set, not handling click!");
             }
         });
 
@@ -153,7 +151,7 @@ public class FullscreenPageFragment extends Fragment {
     /**
      * Update the preferences to show that this is the page the user read last
      */
-    protected void updateLastRead() {
+    private void updateLastRead() {
         DataPreferences.setLastReadPage(mContext, chapter.getNumber(), page);
         chapter.setLastPageRead(page);
         chapter.update();

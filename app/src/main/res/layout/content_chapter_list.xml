@@ -8,12 +8,12 @@
     tools:context="nl.jeroenhd.app.bcbreader.activities.ChapterListActivity"
     tools:showIn="@layout/activity_chapter_list">
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/chapterList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:listitem="@layout/list_item_chapter">
-    </android.support.v7.widget.RecyclerView>
+    </androidx.recyclerview.widget.RecyclerView>
 
 
     <ProgressBar

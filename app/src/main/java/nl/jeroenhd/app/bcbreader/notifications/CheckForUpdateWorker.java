@@ -10,10 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Process;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.text.format.Time;
 import android.util.Log;
 import android.util.TypedValue;
@@ -22,26 +18,17 @@ import android.widget.ImageView;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.RequestFuture;
-import com.evernote.android.job.DailyJob;
-import com.evernote.android.job.Job;
-import com.evernote.android.job.JobRequest;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
 import java.nio.charset.Charset;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -50,6 +37,17 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.activities.FullscreenReaderActivity;
 import nl.jeroenhd.app.bcbreader.data.API;
@@ -66,13 +64,17 @@ import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
  * A job that is executed periodically to check if there are any updates
  */
 
-public class CheckForUpdateJob extends DailyJob {
-    public static final String TAG = "nl.jeroenhd.app.bcbreader.notifications.CheckForUpdateJob";
+public class CheckForUpdateWorker extends Worker {
+    public static final String TAG = "nl.jeroenhd.app.bcbreader.notifications.CheckForUpdateWorker";
 
     /**
      * The (very creative) ID for the notification
      */
     private static final int NewChapterNotificationId = 0xBCB;
+
+    public CheckForUpdateWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+        super(context, workerParams);
+    }
 
     public static void schedule(Context context) {
         int updateHourUTC = DataPreferences.getUpdateHour(context);
@@ -90,29 +92,27 @@ public class CheckForUpdateJob extends DailyJob {
 
         Time timeDate = new Time();
         timeDate.set(cal.getTimeInMillis() + homeZone.getOffset(cal.getTimeInMillis()));
-        int updateHour = timeDate.hour;
-        // schedule between 1 and 6 AM
-        DailyJob.schedule(new JobRequest.Builder(TAG), TimeUnit.HOURS.toMillis(updateHour), TimeUnit.HOURS.toMillis(updateHour + 3));
-    }
 
-    @NonNull
-    @Override
-    protected DailyJobResult onRunDailyJob(@NonNull Params params) {
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
-
-        JobOnBackgroundRunnable r = new JobOnBackgroundRunnable(countDownLatch);
-        new Thread(r).start();
+        Constraints constraints = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
 
         try {
-            countDownLatch.await();
-            return r.getResult() == null ? DailyJobResult.CANCEL : r.getResult();
-        } catch (InterruptedException e) {
-            return DailyJobResult.CANCEL;
-        }
+            WorkInfo x = WorkManager.getInstance().getWorkInfosByTag(TAG).get().get(0);
+            if (x.getState() == WorkInfo.State.RUNNING){
+                return;
+            }
+        } catch (Exception ignored) {}
+
+        PeriodicWorkRequest downloadRequest = new PeriodicWorkRequest
+                .Builder(CheckForUpdateWorker.class, 30, TimeUnit.MINUTES)
+                .setConstraints(constraints)
+                .addTag(TAG)
+                .build();
+
+        WorkManager.getInstance().enqueue(downloadRequest);
     }
 
-    private DailyJobResult downloadChapterList() {
-        final Context context = this.getContext();
+    private Result downloadChapterList() {
+        final Context context = this.getApplicationContext();
 
         RequestFuture<List<Chapter>> future = RequestFuture.newFuture();
 
@@ -167,25 +167,25 @@ public class CheckForUpdateJob extends DailyJob {
 
             return PrepareNotification();
         } catch (InterruptedException e) {
-            Log.e(App.TAG, "CheckForUpdateJob failed to get chapter list from queue. Reason will be dumped below!");
+            Log.e(App.TAG, "CheckForUpdateWorker failed to get chapter list from queue. Reason will be dumped below!");
             e.printStackTrace();
         } catch (ExecutionException e) {
-            Log.e(App.TAG, "CheckForUpdateJob failed to get chapter list from queue. Reason will be dumped below!");
+            Log.e(App.TAG, "CheckForUpdateWorker failed to get chapter list from queue. Reason will be dumped below!");
             e.printStackTrace();
         } catch (TimeoutException e) {
-            Log.e(App.TAG, "CheckForUpdateJob failed to get chapter list from queue. Reason will be dumped below!");
+            Log.e(App.TAG, "CheckForUpdateWorker failed to get chapter list from queue. Reason will be dumped below!");
             e.printStackTrace();
         }
 
-        return DailyJobResult.CANCEL;
+        return Result.retry();
     }
 
     /**
      * Prepare to show a notification to the user.
      */
-    private DailyJobResult PrepareNotification() {
-        int[] updateDays = DataPreferences.getUpdateDays(getContext());
-        int updateHour = DataPreferences.getUpdateHour(getContext());
+    private Result PrepareNotification() {
+        int[] updateDays = DataPreferences.getUpdateDays(getApplicationContext());
+        int updateHour = DataPreferences.getUpdateHour(getApplicationContext());
 
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         int today = calendar.get(Calendar.DAY_OF_WEEK);
@@ -203,31 +203,31 @@ public class CheckForUpdateJob extends DailyJob {
 
         final long DAY = TimeUnit.DAYS.toMillis(1);
 
-        showNotification &= (System.currentTimeMillis() - DataPreferences.getLastNotificationTime(getContext()) >= DAY);
+        showNotification &= (System.currentTimeMillis() - DataPreferences.getLastNotificationTime(getApplicationContext()) >= DAY);
 
         if (!showNotification) {
             String updateDaysStr = stringBuilder.toString();
             Log.d(App.TAG, "Not showing the notification: today (" + today + ") is not in the update days (" + updateDaysStr + ") or the notification has already been shown!");
-            return DailyJobResult.CANCEL;
+            return Result.success();
         }
 
 
-        final double chapterNumber = DataPreferences.getLatestChapterNumber(getContext());
-        final int page = DataPreferences.getLatestPage(getContext());
+        final double chapterNumber = DataPreferences.getLatestChapterNumber(getApplicationContext());
+        final int page = DataPreferences.getLatestPage(getApplicationContext());
 
-        Resources r = getContext().getResources();
+        Resources r = getApplicationContext().getResources();
         int maxWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 256, r.getDisplayMetrics());
         int maxHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 128, r.getDisplayMetrics());
 
-        ImageRequest ir = new ImageRequest(API.FormatPageUrl(getContext(), chapterNumber, page, "@m"), response -> {
+        ImageRequest ir = new ImageRequest(API.FormatPageUrl(getApplicationContext(), chapterNumber, page, "@m"), response -> {
             DisplayNotification(response);
-            DataPreferences.setLastNotificationDate(getContext());
+            DataPreferences.setLastNotificationDate(getApplicationContext());
         }, maxWidth, maxHeight, ImageView.ScaleType.FIT_START, Bitmap.Config.RGB_565, error -> DisplayNotification(null));
-        SuperSingleton.getInstance(getContext())
+        SuperSingleton.getInstance(getApplicationContext())
                 .getVolleyRequestQueue()
                 .add(ir);
 
-        return DailyJobResult.SUCCESS;
+        return Result.success();
     }
 
     /**
@@ -237,7 +237,7 @@ public class CheckForUpdateJob extends DailyJob {
      * @param pageBitmap The bitmap for the latest page. Optional but recommended
      */
     private void DisplayNotification(@Nullable Bitmap pageBitmap) {
-        Intent intent = new Intent(getContext(), FullscreenReaderActivity.class);
+        Intent intent = new Intent(getApplicationContext(), FullscreenReaderActivity.class);
         Bundle extras = new Bundle();
 
         // These values are used by @Link{FullscreenReaderActivity} to determine what page is being opened
@@ -248,16 +248,16 @@ public class CheckForUpdateJob extends DailyJob {
         // PendingIntent instead of a regular Intent, because the Intent will happen in the future
         PendingIntent pendingIntent;
         intent.putExtras(extras);
-        pendingIntent = PendingIntent.getActivity(getContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // First element: time before starting
         // Then: on followed by off followed by on etc.
         long[] vibrationPattern = new long[]{0, 300};
 
         // Get the ringtone from the preferences
-        String ringtonePath = PreferenceManager.getDefaultSharedPreferences(getContext()).getString("notifications_ringtone", "DEFAULT_SOUND");
+        String ringtonePath = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("notifications_ringtone", "DEFAULT_SOUND");
         Uri ringtone;
-        if (ringtonePath.equals("")) {
+        if (ringtonePath == null || ringtonePath.equals("")) {
             //silence
             ringtone = null;
         } else {
@@ -265,9 +265,9 @@ public class CheckForUpdateJob extends DailyJob {
         }
 
         // Build a notification
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext(), "page_updates")
-                .setContentTitle(getContext().getString(R.string.notification_title))
-                .setContentText(getContext().getString(R.string.notification_description))
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "page_updates")
+                .setContentTitle(getApplicationContext().getString(R.string.notification_title))
+                .setContentText(getApplicationContext().getString(R.string.notification_description))
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.ic_custom_notification_black)
                 .setAutoCancel(true)
@@ -275,8 +275,8 @@ public class CheckForUpdateJob extends DailyJob {
 
         if (null != pageBitmap) {
             NotificationCompat.BigPictureStyle notificationStyle = new NotificationCompat.BigPictureStyle();
-            notificationStyle.setBigContentTitle(getContext().getString(R.string.notification_title));
-            notificationStyle.setSummaryText(getContext().getString(R.string.notification_description));
+            notificationStyle.setBigContentTitle(getApplicationContext().getString(R.string.notification_title));
+            notificationStyle.setSummaryText(getApplicationContext().getString(R.string.notification_description));
             notificationStyle.bigPicture(pageBitmap);
             builder = builder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(pageBitmap));
         }
@@ -287,12 +287,28 @@ public class CheckForUpdateJob extends DailyJob {
 
         // Finally, show the notification
         Notification notification = builder.build();
-        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(getContext());
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(getApplicationContext());
         notificationManagerCompat.notify(NewChapterNotificationId, notification);
     }
 
+    @androidx.annotation.NonNull
+    @Override
+    public Result doWork() {
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        JobOnBackgroundRunnable r = new JobOnBackgroundRunnable(countDownLatch);
+        new Thread(r).start();
+
+        try {
+            countDownLatch.await();
+            return r.getResult() == null ? Result.retry() : r.getResult();
+        } catch (InterruptedException e) {
+            return Result.failure();
+        }
+    }
+
     private class JobOnBackgroundRunnable implements Runnable {
-        volatile DailyJobResult result;
+        volatile Result result;
         private CountDownLatch countDownLatch;
 
         JobOnBackgroundRunnable(CountDownLatch countDownLatch) {
@@ -304,7 +320,7 @@ public class CheckForUpdateJob extends DailyJob {
             android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
             RequestFuture<Check> future = RequestFuture.newFuture();
 
-            final Context context = getContext();
+            final Context context = getApplicationContext();
 
             JsonRequest<Check> jsonRequest = new JsonRequest<Check>(JsonRequest.Method.GET, API.CheckURI, null, future, future) {
                 @Override
@@ -327,21 +343,23 @@ public class CheckForUpdateJob extends DailyJob {
 
                 result = downloadChapterList();
                 countDownLatch.countDown();
+
+                return;
             } catch (InterruptedException e) {
-                Log.e(App.TAG, "CheckForUpdateJob failed to get Check object from queue. Reason will be dumped below!");
+                Log.e(App.TAG, "CheckForUpdateWorker failed to get Check object from queue. Reason will be dumped below!");
                 e.printStackTrace();
             } catch (ExecutionException e) {
-                Log.e(App.TAG, "CheckForUpdateJob failed to get Check object from queue. Reason will be dumped below!");
+                Log.e(App.TAG, "CheckForUpdateWorker failed to get Check object from queue. Reason will be dumped below!");
                 e.printStackTrace();
             } catch (TimeoutException e) {
-                Log.e(App.TAG, "CheckForUpdateJob failed to get Check object from queue. Reason will be dumped below!");
+                Log.e(App.TAG, "CheckForUpdateWorker failed to get Check object from queue. Reason will be dumped below!");
                 e.printStackTrace();
             }
             // Reschedule after any failure
-            result = DailyJobResult.CANCEL;
+            result = Result.retry();
         }
 
-        DailyJobResult getResult() {
+        Result getResult() {
             return result;
         }
     }

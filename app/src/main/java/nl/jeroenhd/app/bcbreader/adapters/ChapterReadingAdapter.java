@@ -1,8 +1,6 @@
 package nl.jeroenhd.app.bcbreader.adapters;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -17,6 +15,9 @@ import com.android.volley.VolleyError;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.RecyclerView;
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Page;
@@ -36,8 +37,9 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
         mData = data;
     }
 
+    @NonNull
     @Override
-    public ChapterReadingAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ChapterReadingAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(mContext);
         View view = layoutInflater.inflate(R.layout.list_item_page, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
@@ -46,7 +48,7 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
     }
 
     @Override
-    public void onBindViewHolder(ChapterReadingAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ChapterReadingAdapter.ViewHolder holder, int position) {
         Page page = mData.get(position);
 
         final Double chapterNumber = page.getChapter();
@@ -56,31 +58,28 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
         holder.commentaryView.setText(CompatHelper.fromHtml(page.getDescription()));
         holder.commentaryView.setMovementMethod(LinkMovementMethod.getInstance());
 
-        holder.toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.action_share:
-                        // The full page URL is required for saving the bitmap and sharing it
-                        String pageUrl = API.FormatPageUrl(mContext, chapterNumber, pageNumber, API.getQualitySuffix(mContext));
-                        // The short one is to add to the share message
-                        String shortPageUrl = API.FormatPageLink(chapterNumber, pageNumber.longValue());
+        holder.toolbar.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.action_share:
+                    // The full page URL is required for saving the bitmap and sharing it
+                    String pageUrl = API.FormatPageUrl(mContext, chapterNumber, pageNumber, API.getQualitySuffix(mContext));
+                    // The short one is to add to the share message
+                    String shortPageUrl = API.FormatPageLink(chapterNumber, pageNumber.longValue());
 
-                        ShareManager.ShareImageWithText(mContext,
-                                pageUrl,
-                                ShareManager.getStupidPhrase(mContext) + " " + shortPageUrl,
-                                mContext.getString(R.string.share),
-                                new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(mContext, String.format(Locale.getDefault(), mContext.getString(R.string.error_while_sharing), error.getLocalizedMessage()), Toast.LENGTH_LONG).show();
-                            }
-                        });
-                        break;
-                }
-
-                return true;
+                    ShareManager.ShareImageWithText(mContext,
+                            pageUrl,
+                            ShareManager.getStupidPhrase(mContext) + " " + shortPageUrl,
+                            mContext.getString(R.string.share),
+                            error -> Toast.makeText(mContext,
+                                                    String.format(Locale.getDefault(),
+                                                    mContext.getString(R.string.error_while_sharing),
+                                                    error.getLocalizedMessage()),
+                                                    Toast.LENGTH_LONG)
+                                    .show());
+                    break;
             }
+
+            return true;
         });
     }
 
@@ -97,9 +96,9 @@ public class ChapterReadingAdapter extends RecyclerView.Adapter<ChapterReadingAd
         ViewHolder(View itemView) {
             super(itemView);
 
-            networkImageView = (PageImageView) itemView.findViewById(R.id.page);
-            commentaryView = (TextView) itemView.findViewById(R.id.commentary);
-            toolbar = (Toolbar) itemView.findViewById(R.id.cardToolbar);
+            networkImageView = itemView.findViewById(R.id.page);
+            commentaryView = itemView.findViewById(R.id.commentary);
+            toolbar = itemView.findViewById(R.id.cardToolbar);
         }
     }
 }

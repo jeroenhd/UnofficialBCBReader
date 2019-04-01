@@ -1,25 +1,11 @@
 package nl.jeroenhd.app.bcbreader.activities;
 
 import android.app.Activity;
-import android.app.job.JobScheduler;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.util.Pair;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.PopupMenu;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,11 +16,8 @@ import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.StringRequest;
-import com.evernote.android.job.Job;
-import com.evernote.android.job.JobManager;
-import com.evernote.android.job.JobRequest;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
@@ -42,7 +25,19 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.util.Pair;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.adapters.ChapterListAdapter;
 import nl.jeroenhd.app.bcbreader.adapters.PageThumbAdapter;
@@ -56,8 +51,7 @@ import nl.jeroenhd.app.bcbreader.data.check.Check;
 import nl.jeroenhd.app.bcbreader.data.check.DataPreferences;
 import nl.jeroenhd.app.bcbreader.data.check.UpdateTimes;
 import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
-import nl.jeroenhd.app.bcbreader.notifications.CheckForUpdateJob;
-import nl.jeroenhd.app.bcbreader.notifications.NotificationJobCreator;
+import nl.jeroenhd.app.bcbreader.notifications.CheckForUpdateWorker;
 import nl.jeroenhd.app.bcbreader.tools.AppCrashStorage;
 
 public class ChapterListActivity extends AppCompatActivity implements ChapterListAdapter.OnChapterClickListener, Toolbar.OnMenuItemClickListener, SwipeRefreshLayout.OnRefreshListener, PopupMenu.OnMenuItemClickListener, PageThumbAdapter.OnThumbClickListener {
@@ -139,17 +133,11 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 diff = -1;
             }
 
-            int hours = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(thisActivity).getString("recent_page_notifier_max_time", "1"));
+            int hours = Integer.valueOf(Objects.requireNonNull(PreferenceManager.getDefaultSharedPreferences(thisActivity).getString("recent_page_notifier_max_time", "1")));
             // If the last update was less than 3 hours ago...
             if ((diff > 0 && diff <= 1000 * 60 * 60 * hours)) {
                 Snackbar.make(swipeRefreshLayout, R.string.go_to_latest_update, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(R.string.go, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                openLatestPage();
-                            }
-
-                        })
+                        .setAction(R.string.go, view -> openLatestPage())
                         .show();
             }
         }
@@ -202,12 +190,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             }
 
             Snackbar.make(mChapterRecycler, errorStringId, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
+                    .setAction(R.string.retry, v -> startChapterListUpdateCheck())
                     .show();
 
             if (swipeRefreshLayout != null) {
@@ -223,12 +206,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         public void onErrorResponse(VolleyError error) {
             error.printStackTrace();
             Snackbar.make(mChapterRecycler, R.string.chapter_list_download_failed, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startChapterListUpdateCheck();
-                        }
-                    })
+                    .setAction(R.string.retry, v -> startChapterListUpdateCheck())
                     .show();
 
 
@@ -252,13 +230,13 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chapter_list);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         assert toolbar != null;
         toolbar.setOnMenuItemClickListener(this);
 
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        swipeRefreshLayout = findViewById(R.id.swiperefresh);
         assert swipeRefreshLayout != null;
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setColorSchemeResources(
@@ -269,10 +247,10 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 R.color.paulo
         );
 
-        CoordinatorLayout mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator);
+        CoordinatorLayout mCoordinatorLayout = findViewById(R.id.coordinator);
 
         singleton = SuperSingleton.getInstance(this);
-        mLoadingProgressbar = (ProgressBar) findViewById(R.id.emptyListSpinner);
+        mLoadingProgressbar = findViewById(R.id.emptyListSpinner);
 
         assert mLoadingProgressbar != null;
         assert  mCoordinatorLayout != null;
@@ -293,22 +271,12 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
         if (crashFiles.length == 0)
             return;
 
-        AlertDialog alertDialog = new AlertDialog
+        new AlertDialog
                 .Builder(this, R.style.Theme_AppCompat_Light_Dialog_Alert)
                 .setTitle(R.string.crash_dialog_title)
                 .setMessage(R.string.confirm_send_crash_report)
-                .setPositiveButton(R.string.send_crash_reports, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        appCrashStorage.send();
-                    }
-                })
-                .setNegativeButton(R.string.dont_send_crash_reports, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        appCrashStorage.deleteReports();
-                    }
-                })
+                .setPositiveButton(R.string.send_crash_reports, (dialog, which) -> appCrashStorage.send())
+                .setNegativeButton(R.string.dont_send_crash_reports, (dialog, which) -> appCrashStorage.deleteReports())
                 .show();
     }
 
@@ -343,7 +311,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
      * Prepare the RecyclerView for showing chapters
      */
     private void SetupChapterListRecycler() {
-        mChapterRecycler = (RecyclerView) findViewById(R.id.chapterList);
+        mChapterRecycler = findViewById(R.id.chapterList);
 
         mChapterListLayoutManager = new LinearLayoutManager(this);
         mChapterRecycler.setLayoutManager(mChapterListLayoutManager);
@@ -359,11 +327,11 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
      * Prepare the RecyclerView for showing page thumbs (in tablet mode)
      */
     private void SetupPageThumbRecycler() {
-        mPageThumbRecycler = (RecyclerView) findViewById(R.id.page_thumb_recycler);
+        mPageThumbRecycler = findViewById(R.id.page_thumb_recycler);
         if (mPageThumbRecycler == null)
             return;
 
-        mBigChapterTitle = (TextView) findViewById(R.id.chapter_list_title);
+        mBigChapterTitle = findViewById(R.id.chapter_list_title);
 
         GridLayoutManager mPageThumbLayoutManager = new GridLayoutManager(this, getResources().getInteger(R.integer.page_thumb_column_count));
         mPageThumbRecycler.setLayoutManager(mPageThumbLayoutManager);
@@ -409,35 +377,29 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
             adjustedPage = page;
 
         if (mPageThumbRecycler == null || page > 0) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Intent fullScreenIntent = new Intent(thisActivity, FullscreenReaderActivity.class);
-                    fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_CHAPTER, chapter);
-                    fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_PAGE, adjustedPage);
+            runOnUiThread(() -> {
+                Intent fullScreenIntent = new Intent(thisActivity, FullscreenReaderActivity.class);
+                fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_CHAPTER, chapter);
+                fullScreenIntent.putExtra(FullscreenReaderActivity.EXTRA_PAGE, adjustedPage);
 
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP && view != null) {
-                        //View titleView = view.findViewById(R.id.title);
-                        View titleView = thisActivity.findViewById(R.id.toolbar);
-                        Pair<View, String> titlePair = Pair.create(titleView, titleView.getTransitionName());
-                        Pair<View, String> entireViewPair = Pair.create(view, view.getTransitionName());
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP && view != null) {
+                    //View titleView = view.findViewById(R.id.title);
+                    View titleView = thisActivity.findViewById(R.id.toolbar);
+                    Pair<View, String> titlePair = Pair.create(titleView, titleView.getTransitionName());
+                    Pair<View, String> entireViewPair = Pair.create(view, view.getTransitionName());
 
-                        @SuppressWarnings("unchecked") Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(thisActivity, entireViewPair, titlePair).toBundle();
+                    @SuppressWarnings("unchecked") Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(thisActivity, entireViewPair, titlePair).toBundle();
 
-                        startActivity(fullScreenIntent, bundle);
-                    } else {
-                        //TODO: Make a nice transition here
-                        startActivity(fullScreenIntent);
-                    }
+                    startActivity(fullScreenIntent, bundle);
+                } else {
+                    //TODO: Make a nice transition here
+                    startActivity(fullScreenIntent);
                 }
             });
         } else {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mBigChapterTitle.setText(String.format(getString(R.string.chapter_title_big), API.FormatChapterNumber(chapter.getNumber()), chapter.getTitle()));
-                    mPageThumbAdapter.setChapter(chapter);
-                }
+            runOnUiThread(() -> {
+                mBigChapterTitle.setText(String.format(getString(R.string.chapter_title_big), API.FormatChapterNumber(chapter.getNumber()), chapter.getTitle()));
+                mPageThumbAdapter.setChapter(chapter);
             });
         }
     }
@@ -451,10 +413,7 @@ public class ChapterListActivity extends AppCompatActivity implements ChapterLis
                 startActivity(settingsIntent);
                 break;
             case R.id.menu_debug:
-                new JobRequest.Builder(CheckForUpdateJob.TAG)
-                        .startNow()
-                        .build()
-                        .schedule();
+                CheckForUpdateWorker.schedule(this);
                 break;
             case R.id.menu_continue_reading: {
                 double chapterNr = DataPreferences.getLastReadChapterNumber(this);

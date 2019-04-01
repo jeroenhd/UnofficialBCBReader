@@ -3,7 +3,6 @@ package nl.jeroenhd.app.bcbreader.adapters;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +15,8 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import nl.jeroenhd.app.bcbreader.R;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.App;
@@ -47,8 +48,9 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
         clonedFavDrawableBorder = cloneDrawable(R.drawable.ic_favorite_border_white);
     }
 
+    @NonNull
     @Override
-    public ChapterListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ChapterListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View inflatedView = inflater.inflate(R.layout.list_item_chapter, parent, false);
 
@@ -56,7 +58,7 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         Chapter chapter = mData.get(position);
 
         // Clear the old thumb
@@ -125,9 +127,9 @@ public class ChapterListAdapter extends RecyclerView.Adapter<ChapterListAdapter.
             itemView.setOnClickListener(this);
             this.ClickHandler = onClick;
 
-            this.ChapterThumbView = (FadingNetworkImageView) itemView.findViewById(R.id.thumb);
-            this.ChapterTitleView = (TextView) itemView.findViewById(R.id.title);
-            this.ChapterDescriptionView = (TextView) itemView.findViewById(R.id.description);
+            this.ChapterThumbView = itemView.findViewById(R.id.thumb);
+            this.ChapterTitleView = itemView.findViewById(R.id.title);
+            this.ChapterDescriptionView = itemView.findViewById(R.id.description);
         }
 
         @Override

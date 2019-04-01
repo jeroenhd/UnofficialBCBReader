@@ -3,8 +3,8 @@ package nl.jeroenhd.app.bcbreader.views;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import androidx.core.content.ContextCompat;
 
 import com.android.volley.toolbox.ImageLoader;
 

@@ -3,10 +3,10 @@ package nl.jeroenhd.app.bcbreader.data.check;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.language.Select;
 
+import androidx.annotation.Nullable;
 import nl.jeroenhd.app.bcbreader.data.API;
 import nl.jeroenhd.app.bcbreader.data.Chapter;
 import nl.jeroenhd.app.bcbreader.data.Chapter_Table;
@@ -78,7 +78,12 @@ public class DataPreferences {
      */
     public static int[] getUpdateDays(Context context) {
         String daysString = PreferenceManager.getDefaultSharedPreferences(context).getString(PREF_UPDATE_DAYS, API.DEFAULT_UPDATE_DAYS);
-        String[] dayStrings = daysString.split(",");
+        String[] dayStrings;
+        if (daysString != null){
+            dayStrings = daysString.split(",");
+        }  else {
+            dayStrings = new String[0];
+        }
         int dayInts[] = new int[dayStrings.length];
 
         for (int i = 0; i < dayStrings.length; i++) {

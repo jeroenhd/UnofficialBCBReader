@@ -6,17 +6,20 @@ import android.util.DisplayMetrics;
 
 import com.android.volley.toolbox.ImageLoader;
 
+import androidx.annotation.NonNull;
+import androidx.collection.LruCache;
+
 /**
  * copied from official documentation
  */
-class LruBitmapCache extends android.support.v4.util.LruCache<String, Bitmap>
+class LruBitmapCache extends LruCache<String, Bitmap>
         implements ImageLoader.ImageCache {
 
     private LruBitmapCache(int maxSize) {
         super(maxSize);
     }
 
-    public LruBitmapCache(Context ctx) {
+    LruBitmapCache(Context ctx) {
         this(getCacheSize(ctx));
     }
 
@@ -33,7 +36,7 @@ class LruBitmapCache extends android.support.v4.util.LruCache<String, Bitmap>
     }
 
     @Override
-    protected int sizeOf(String key, Bitmap value) {
+    protected int sizeOf(@NonNull String key, @NonNull Bitmap value) {
         return value.getRowBytes() * value.getHeight();
     }
 

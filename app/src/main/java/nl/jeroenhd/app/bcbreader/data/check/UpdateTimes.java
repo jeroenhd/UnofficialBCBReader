@@ -1,12 +1,12 @@
 package nl.jeroenhd.app.bcbreader.data.check;
 
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import androidx.annotation.Nullable;
 import nl.jeroenhd.app.bcbreader.data.App;
 
 /**
@@ -42,7 +42,7 @@ public class UpdateTimes {
         this.updateStringError = updateStringError;
     }
 
-    public String getUpdateDays() {
+    String getUpdateDays() {
         return updateDays;
     }
 
@@ -50,7 +50,7 @@ public class UpdateTimes {
         this.updateDays = updateDays;
     }
 
-    public String getUpdateHour() {
+    String getUpdateHour() {
         return updateHour;
     }
 
