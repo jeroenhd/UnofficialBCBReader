@@ -156,13 +156,16 @@ public class CheckForUpdateWorker extends Worker {
             }
         };
 
+        Log.v(App.TAG, "Queuing chapter list download...");
         SuperSingleton.getInstance(context)
                 .getVolleyRequestQueue()
                 .add(jsonRequest);
 
 
         try {
+            Log.v(App.TAG, "Waiting up to 30 seconds for the chapter list to download...");
             List<Chapter> chapters = future.get(30, TimeUnit.SECONDS);
+            Log.v(App.TAG, "Saving new chapter list...");
             ChapterDatabase.SaveUpdate(chapters);
 
             return PrepareNotification();
@@ -191,17 +194,20 @@ public class CheckForUpdateWorker extends Worker {
         int today = calendar.get(Calendar.DAY_OF_WEEK);
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
 
+        Log.v(App.TAG, "Checking if a new notification is needed...");
         boolean showNotification = false;
         StringBuilder stringBuilder = new StringBuilder();
         for (int day : updateDays) {
-            if (today == day && hour >= updateHour)
+            if (today == day && hour >= updateHour) {
                 showNotification = true;
+                Log.v(App.TAG, "Notification is required! today == day && hour >= updateHour");
+            }
 
             stringBuilder.append(day);
             stringBuilder.append(",");
         }
 
-        final long DAY = TimeUnit.DAYS.toMillis(1);
+        // This messes with the notification handling
 
         showNotification &= (System.currentTimeMillis() - DataPreferences.getLastNotificationTime(getApplicationContext()) >= DAY);
 
@@ -326,22 +332,29 @@ public class CheckForUpdateWorker extends Worker {
                 @Override
                 protected Response<Check> parseNetworkResponse(NetworkResponse response) {
                     String json = new String(response.data);
+                    Log.v(App.TAG, "Checked for updates in background! Response: " + json);
                     Check check = SuperSingleton.getInstance(context).getGsonBuilder().create().fromJson(json, Check.class);
                     DataPreferences.SaveCheck(context, check);
                     return Response.success(check, null);
                 }
             };
 
+            Log.v(App.TAG, "Queueing background check...");
             SuperSingleton.getInstance(context)
                     .getVolleyRequestQueue()
                     .add(jsonRequest);
 
             try {
+                Log.v(App.TAG, "Waiting up to 30 seconds for the check to be executed...");
                 Check check = future.get(30, TimeUnit.SECONDS);
+                Log.v(App.TAG, "Check executed!");
 
                 DataPreferences.SaveCheck(context, check);
 
+                Log.v(App.TAG, "Now downloading the new chapter list...");
                 result = downloadChapterList();
+
+                Log.v(App.TAG, "Counting down latch...");
                 countDownLatch.countDown();
 
                 return;

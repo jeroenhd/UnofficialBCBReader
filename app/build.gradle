@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-//apply plugin: 'com.neenbedankt.android-apt'
 
 // Totally not stolen from https://stackoverflow.com/questions/949314/how-to-retrieve-the-hash-for-the-current-commit-in-git
 def getVersionName = { ->
@@ -28,7 +27,7 @@ android {
         applicationId "nl.jeroenhd.app.bcbreader"
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 7
+        versionCode 8
         versionName "Elementary " + getBranchName() + "@" + getVersionName() + ' (' + new Date().format("yyyyMMddHHmmss") + ')'
     }
     buildTypes {
@@ -43,8 +42,8 @@ android {
         unitTests.returnDefaultValues = true
     }
     compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -54,7 +53,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // DBFlow
-
     annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
     implementation "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
     implementation "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"

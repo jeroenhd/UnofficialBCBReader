@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -50,19 +51,38 @@ public class API {
     /**
      * Determine whether the files for a chapter end in JPG or are not
      *
+     * See chapter_table.txt for details
+     *
      * @param chapter The chapter number to check
      * @return True if the chapter is a JPG chapter, false otherwise
      */
     public static boolean isJpegChapter(double chapter, String quality) {
         // Exceptions to the rule below
-        if (chapter == 16.1 || chapter == 17.1 || chapter == 22.1 || chapter == 26.1 || chapter == 35.0 || chapter == 35.1 || chapter == 38.1)
+        if (chapter == 16.1 ||
+                chapter == 17.1 ||
+                chapter == 22.1 ||
+                chapter == 26.1 ||
+                chapter == 35.0 ||
+                chapter == 35.1 ||
+                chapter == 38.1 ||
+                chapter == 102 ||
+                chapter == 103.1)
             return true;
 
         // Well this is fun
         if (quality.equals("@m")) {
             // Some of these chapters (like 94.1) are in PNG format even though they're mobile
             // Others can be categorized by range
-            return chapter != 94.1 && (chapter == 35 || chapter == 50 || (chapter > 60 && chapter < 89) || chapter > 90);
+
+            Double[] mobileJpegChapters = {
+                    50.0,
+                    54.1,
+                    54.2,
+                    59.0,
+            };
+
+            boolean chapterInMobileJpegChapters = Arrays.binarySearch(mobileJpegChapters, chapter) > 0;
+            return chapter != 94.1 && (chapterInMobileJpegChapters || (chapter > 60 && chapter < 89 && chapter != 63.1) || chapter > 90);
 
         }
 
