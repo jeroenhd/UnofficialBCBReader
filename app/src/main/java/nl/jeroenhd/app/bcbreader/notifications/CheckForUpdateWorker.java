@@ -60,6 +60,8 @@ import nl.jeroenhd.app.bcbreader.data.check.Check;
 import nl.jeroenhd.app.bcbreader.data.check.DataPreferences;
 import nl.jeroenhd.app.bcbreader.data.databases.ChapterDatabase;
 
+import static android.icu.text.DateTimePatternGenerator.DAY;
+
 /**
  * A job that is executed periodically to check if there are any updates
  */
@@ -209,7 +211,7 @@ public class CheckForUpdateWorker extends Worker {
 
         // This messes with the notification handling
 
-        showNotification &= (System.currentTimeMillis() - DataPreferences.getLastNotificationTime(getApplicationContext()) >= DAY);
+        showNotification &= (System.currentTimeMillis() - DataPreferences.getLastNotificationTime(getApplicationContext()) >= TimeUnit.DAYS.toSeconds(1));
 
         if (!showNotification) {
             String updateDaysStr = stringBuilder.toString();
